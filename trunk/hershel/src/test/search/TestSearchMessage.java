@@ -20,10 +20,10 @@ public class TestSearchMessage
     {
         SearchMessage message = new SearchMessage("greeting");
         message.arguments().put("text", "hello world");
-        message.arguments().put("name", "Maxim");
+        message.arguments().put("name", "Jason");
         SearchMessage decoded = SearchMessage.parse(message.toString());
         assertEquals(2, decoded.arguments().size());
         assertEquals("hello world", decoded.arguments().get("text"));
-        assertEquals("Maxim", decoded.arguments().get("name"));
+        assertEquals("Jason", decoded.arguments().get("name"));
     }
 }
