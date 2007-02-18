@@ -51,7 +51,7 @@ public class Message
         else
         {
             result.cmd = input.substring(0, indexOfFirstSpace);
-            String[] temp = input.substring(indexOfFirstSpace + 1).split("\\s");
+            String[] temp = input.substring(indexOfFirstSpace + 1).split("\\s|\\x00");
             result.data = new ArrayList<String>();
             for (int i = 0; i < temp.length; i++)
             {

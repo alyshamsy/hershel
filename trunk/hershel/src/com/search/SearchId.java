@@ -12,9 +12,16 @@ public class SearchId
         r.nextBytes(id);
     }
     
+    public SearchId(String id)
+    {
+        if(id.getBytes().length != 20) throw new IllegalArgumentException("Search id must be 20 bytes long");
+        
+        this.id = id.getBytes();
+    }
+
     public String toString()
     {
-        return SHA1Utils.digestToHexString(id);
+        return new String(id);
     }
     
     public static SearchId getRandomId()
