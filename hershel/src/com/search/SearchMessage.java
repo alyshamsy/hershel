@@ -51,4 +51,9 @@ public class SearchMessage
         return arguments;
     }
 
+    public byte[] getBytes()
+    {
+        return toString().getBytes();
+    }
+
 }
