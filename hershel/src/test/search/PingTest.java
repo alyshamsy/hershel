@@ -6,7 +6,11 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.search.MessageHandler;
@@ -16,6 +20,22 @@ import com.search.SearchMessage;
 
 public class PingTest
 {    
+    private SearchClient client;
+    private DatagramSocket socket;
+    
+    @Before public void setUp() throws SocketException
+    {
+        client = new SearchClient("09876543210987654321", 5678);
+        client.start();
+        socket = new DatagramSocket(4567);
+    }
+    
+    @After public void tearDown()
+    {
+        client.close();
+        socket.close();
+    }
+
     @Test public void pingResponse()
     {
         SearchMessage pingMessage = createPingMessage();
@@ -34,23 +54,37 @@ public class PingTest
     }
     
     @Test public void pingOverUdp() throws IOException
+    {        
+        send(createPingMessage());        
+        SearchMessage echo = receive();
+        
+        assertEquals("ping", echo.getCommand());
+        assertEquals("09876543210987654321", echo.arguments().get("id"));       
+    } 
+    
+    @Test public void pingUpdatesRoutingTable() throws IOException
+    {        
+        send(createPingMessage());        
+        receive();    
+        
+        assertEquals("12345678901234567890", client.routingTable().get(0).id.toString());
+        assertEquals("127.0.0.1", client.routingTable().get(0).address.getHostAddress());
+        assertEquals(4567, client.routingTable().get(0).port);       
+    }    
+
+    private SearchMessage receive() throws IOException
     {
-        SearchClient client = new SearchClient("09876543210987654321", 5678);
-        client.start();
-        
-        SearchMessage pingMessage = createPingMessage();
-        DatagramSocket socket = new DatagramSocket();
-        DatagramPacket pingPacket = new DatagramPacket(pingMessage.getBytes(), pingMessage.getBytes().length, InetAddress.getLocalHost(), 5678);
-        socket.send(pingPacket);
-        
         byte response[] = new byte[256];
         DatagramPacket responsePacket = new DatagramPacket(response, response.length);
         socket.receive(responsePacket);
         SearchMessage echo = SearchMessage.parse(new String(response));
-        
-        assertEquals("ping", echo.getCommand());
-        assertEquals("09876543210987654321", echo.arguments().get("id"));
-        client.close();
-        socket.close();
+        return echo;
     }
+
+    private void send(SearchMessage pingMessage) throws SocketException, UnknownHostException, IOException
+    {        
+        DatagramPacket pingPacket = new DatagramPacket(pingMessage.getBytes(), pingMessage.getBytes().length, 
+                InetAddress.getByName("localhost"), 5678);
+        socket.send(pingPacket);
+    }    
 }
