@@ -28,26 +28,12 @@ public class SearchClient extends Thread
         {
             try
             {
-                byte[] buffer = new byte[1024];
-                DatagramPacket incommingPacket = new DatagramPacket(buffer, buffer.length);
-                socket.receive(incommingPacket);
-                int length = 0;
-                for(; length< buffer.length; length++)
-                {
-                    if(buffer[length] == 0)
-                        break;
-                }
-                String message = new String(incommingPacket.getData(), 0, length);               
+                DatagramPacket incommingPacket = receiveMessage();                
+                int length = findMessageLength(incommingPacket.getData()); 
                 
-                MessageHandler handler = new MessageHandler(myId);
-                SearchMessage request = SearchMessage.parse(message);
-                SearchMessage response = handler.respondTo(request);
+                SearchMessage response = respond(incommingPacket, length);               
                 
-                table.add(new NodeState(request.arguments().get("id"), incommingPacket.getAddress(), incommingPacket.getPort()));
-                
-                DatagramPacket outgoingPacket = new DatagramPacket(response.getBytes(), response.getBytes().length, 
-                        incommingPacket.getAddress(), incommingPacket.getPort());
-                socket.send(outgoingPacket);
+                sendResponse(incommingPacket, response);
             } 
             catch (SocketException e)
             {
@@ -59,6 +45,44 @@ public class SearchClient extends Thread
                 e.printStackTrace();
             }            
         }
+    }    
+    
+    private DatagramPacket receiveMessage() throws IOException
+    {
+        byte[] buffer = new byte[1024];
+        DatagramPacket incommingPacket = new DatagramPacket(buffer, buffer.length);
+        socket.receive(incommingPacket);
+        return incommingPacket;
+    }
+
+    private int findMessageLength(byte[] buffer)
+    {
+        int length = 0;
+        for(; length< buffer.length; length++)
+        {
+            if(buffer[length] == 0)
+                break;
+        }
+        return length;
+    }
+    
+    private SearchMessage respond(DatagramPacket incommingPacket, int messageLength)
+    {
+        String message = new String(incommingPacket.getData(), 0, messageLength);                
+        SearchMessage request = SearchMessage.parse(message);
+        
+        MessageHandler handler = new MessageHandler(myId);       
+        table.add(new NodeState(request.arguments().get("id"), incommingPacket.getAddress(), incommingPacket.getPort()));
+        
+        return handler.respondTo(request);
+    }
+    
+    private DatagramPacket sendResponse(DatagramPacket incommingPacket, SearchMessage response) throws IOException
+    {
+        DatagramPacket outgoingPacket = new DatagramPacket(response.getBytes(), response.getBytes().length, 
+                incommingPacket.getAddress(), incommingPacket.getPort());                
+        socket.send(outgoingPacket);
+        return outgoingPacket;
     }
     
     public void close()
