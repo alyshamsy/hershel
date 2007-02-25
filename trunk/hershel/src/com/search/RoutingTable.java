@@ -62,7 +62,7 @@ public class RoutingTable {
 	}
 
 	/* A node belongs to a k-bucket if its distance falls
-	 * between 2^1 and 2^(i+1), where i is the index of
+	 * between 2^i and 2^(i+1), where i is the index of
 	 * the k-bucket.
 	 */
 	private int findIndex(SearchId newNode) {

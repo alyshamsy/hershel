@@ -93,9 +93,9 @@ public class SearchClient extends Thread
     }
 
 
-    public List routingTable()
+    public RoutingTable routingTable()
     {        
-        return table.getRoutingTable();
+        return table;
     }
 
 }
