@@ -1,16 +1,22 @@
 package com.search;
 
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.util.Random;
 
 //Test again
 public class SearchId
 {
-    private byte[] id = new byte[20];
+    public byte[] id = new byte[20];
     private SearchId()
     {
         Random r = new Random();
         r.nextBytes(id);
+    }
+    
+    private SearchId(byte[] id)
+    {
+        this.id = id;
     }
     
     public SearchId(String id)
@@ -19,6 +25,16 @@ public class SearchId
         	throw new IllegalArgumentException("Search id must be 20 bytes long");
         
         this.id = id.getBytes();
+    }
+    
+    public static SearchId fromString(String id)
+    {
+        if(id.getBytes().length != 20)
+            throw new IllegalArgumentException("Search id must be 20 bytes long");
+        byte[] buffer = new byte[20];
+        Charset utf = Charset.forName("UTF-8");
+        System.arraycopy(utf.encode(id).array(), 0, buffer, 0, 20) ;
+        return new SearchId(buffer);
     }
 
     public String toString()
@@ -37,6 +53,16 @@ public class SearchId
     	BigInteger b = new BigInteger(n2.id);
 
     	return (a.xor(b)).toByteArray();
+    }
+
+    public static SearchId fromHex(String hexString)
+    {       
+        byte[] bts = new byte[20];
+        for (int i = 0; i < bts.length; i++) {
+            bts[i] = (byte) Integer.parseInt(hexString.substring(2*i, 2*i+2), 16);
+        }
+        
+        return new SearchId(bts);
     }
 
 }

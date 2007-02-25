@@ -1,10 +1,11 @@
 package test.search;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
+import com.search.SearchId;
 import com.search.SearchMessage;
-
-import static org.junit.Assert.*;
 
 
 public class TestSearchMessage
@@ -25,5 +26,6 @@ public class TestSearchMessage
         assertEquals(2, decoded.arguments().size());
         assertEquals("hello world", decoded.arguments().get("text"));
         assertEquals("Jason", decoded.arguments().get("name"));
-    }
+    }   
+    
 }
