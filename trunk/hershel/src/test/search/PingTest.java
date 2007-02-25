@@ -9,14 +9,13 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import java.util.ArrayList;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.search.MessageHandler;
-import com.search.SearchClient;
-import com.search.SearchId;
-import com.search.SearchMessage;
+import com.search.*;
 
 public class PingTest
 {    
@@ -66,10 +65,12 @@ public class PingTest
     {        
         send(createPingMessage());        
         receive();    
-        
-        assertEquals("12345678901234567890", client.routingTable().get(0).id.toString());
-        assertEquals("127.0.0.1", client.routingTable().get(0).address.getHostAddress());
-        assertEquals(4567, client.routingTable().get(0).port);       
+
+        NodeState node = ((ArrayList<NodeState>)(client.routingTable().get(0))).get(0);
+
+        assertEquals("12345678901234567890", node.id.toString());
+        assertEquals("127.0.0.1", node.address.getHostAddress());
+        assertEquals(4567, node.port);       
     }    
 
     private SearchMessage receive() throws IOException
