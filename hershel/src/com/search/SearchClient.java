@@ -4,21 +4,20 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
+import java.util.List;
 
 public class SearchClient extends Thread
 {
     private boolean running = true;
     private DatagramSocket socket;
     private SearchId myId;
-    private ArrayList<NodeState> table;
+    private RoutingTable table;
     
     public SearchClient(String idToUse, int port) throws SocketException
     {
         socket = new DatagramSocket(port);
         myId = new SearchId(idToUse);
-        table = new ArrayList<NodeState>();
+        table = new RoutingTable(myId);
     }
     
     
@@ -66,13 +65,16 @@ public class SearchClient extends Thread
         return length;
     }
     
-    private SearchMessage respond(DatagramPacket incommingPacket, int messageLength)
+    private SearchMessage respond(DatagramPacket incomingPacket, int messageLength)
     {
-        String message = new String(incommingPacket.getData(), 0, messageLength);                
+        String message = new String(incomingPacket.getData(), 0, messageLength);                
         SearchMessage request = SearchMessage.parse(message);
         
         MessageHandler handler = new MessageHandler(myId);       
-        table.add(new NodeState(request.arguments().get("id"), incommingPacket.getAddress(), incommingPacket.getPort()));
+        table.addNode(
+        		new NodeState(request.arguments().get("id"),
+        				incomingPacket.getAddress(),
+        				incomingPacket.getPort()));
         
         return handler.respondTo(request);
     }
@@ -91,9 +93,9 @@ public class SearchClient extends Thread
     }
 
 
-    public ArrayList<NodeState> routingTable() throws UnknownHostException
+    public List routingTable()
     {        
-        return table;
+        return table.getRoutingTable();
     }
 
 }
