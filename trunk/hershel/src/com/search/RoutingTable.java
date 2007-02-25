@@ -15,7 +15,7 @@ public class RoutingTable {
 		table = new ArrayList<ArrayList<NodeState>>(160);
 		// Not sure if this is needed:
 		for (int i = 0; i < 160; i++)
-			table.set(i, new ArrayList<NodeState>());
+			table.add(new ArrayList<NodeState>());
 	}
 
 	public List getRoutingTable() {
