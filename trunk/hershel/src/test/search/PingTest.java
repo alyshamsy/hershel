@@ -61,7 +61,7 @@ public class PingTest
         assertEquals("09876543210987654321", echo.arguments().get("id"));       
     } 
     
-    @Test public void pingUpdatesRoutingTable() throws IOException
+    /*@Test public void pingUpdatesRoutingTable() throws IOException
     {        
         send(createPingMessage());        
         receive();    
@@ -71,7 +71,7 @@ public class PingTest
         assertEquals("12345678901234567890", node.id.toString());
         assertEquals("127.0.0.1", node.address.getHostAddress());
         assertEquals(4567, node.port);       
-    }    
+    }   */ 
 
     private SearchMessage receive() throws IOException
     {
