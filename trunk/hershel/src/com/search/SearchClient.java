@@ -4,9 +4,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.util.List;
 
-public class SearchClient extends Thread
+public class SearchClient extends Thread implements PingCommunicator
 {
     private boolean running = true;
     private DatagramSocket socket;
@@ -17,7 +16,7 @@ public class SearchClient extends Thread
     {
         socket = new DatagramSocket(port);
         myId = new SearchId(idToUse);
-        table = new RoutingTable(myId);
+        table = new RoutingTable(myId, 20, new DefaultPinger(this));
     }
     
     
@@ -96,6 +95,13 @@ public class SearchClient extends Thread
     public RoutingTable routingTable()
     {        
         return table;
+    }
+
+
+    public void ping(NodeState targetNode)
+    {
+        // TODO Auto-generated method stub
+        
     }
 
 }
