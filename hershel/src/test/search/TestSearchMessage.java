@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.search.SearchId;
 import com.search.SearchMessage;
 
 
