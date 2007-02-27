@@ -21,12 +21,7 @@ public class RoutingTable
         table = new ArrayList<ArrayList<NodeState>>(160);        
         for (int i = 0; i < 160; i++)
             table.add(new ArrayList<NodeState>());
-    }
-
-    public RoutingTable(SearchId myId)
-    {
-        this(myId, 20, new DefaultPinger());
-    }
+    }    
 
     public ArrayList<ArrayList<NodeState>> getRoutingTable()
     {
@@ -106,7 +101,7 @@ public class RoutingTable
         table.get(kbucket).add(nodePinged);        
     }
 
-    public void pingTimedOut(NodeState nodePinged, NodeState replacement)
+    public synchronized void pingTimedOut(NodeState nodePinged, NodeState replacement)
     {
         int kbucket = findIndex(nodePinged.id);
         table.get(kbucket).remove(nodePinged);

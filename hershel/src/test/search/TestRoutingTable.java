@@ -132,5 +132,19 @@ public class TestRoutingTable
         {
                 
         }
+
+
+        public void pingReceived(SearchId id)
+        {
+            // TODO Auto-generated method stub
+            
+        }
+
+
+        public void setTimeout(int millis)
+        {
+            // TODO Auto-generated method stub
+            
+        }
     }
 }

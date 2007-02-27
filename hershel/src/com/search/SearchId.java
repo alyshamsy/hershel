@@ -2,6 +2,7 @@ package com.search;
 
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Random;
 
 //Test again
@@ -40,6 +41,16 @@ public class SearchId
     public String toString()
     {
         return new String(id);
+    }
+    
+    public boolean equals(Object o)
+    {
+        if(o instanceof SearchId)
+        {
+            SearchId other = (SearchId)o;
+            return Arrays.equals(this.id, other.id);
+        }
+        return false;
     }
     
     public static SearchId getRandomId()
