@@ -3,6 +3,8 @@ package test.search;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import org.junit.After;
@@ -26,14 +28,14 @@ public class TestPinger
     private NodeState target;
     private NodeState replacement;
 
-    @Before public void setUp()
+    @Before public void setUp() throws UnknownHostException
     {
         mock = new MockPingCommunicator();
         pinger = new DefaultPinger(mock);
         pinger.start();        
         table = new FakeRoutingTable(pinger);
-        target = new NodeState(SearchId.fromString("12345678901234567890"), null, 6789);
-        replacement = new NodeState(SearchId.fromString("09876543210987654321"), null, 6789);
+        target = new NodeState(SearchId.fromString("12345678901234567890"), InetAddress.getByName("localhost"), 6789);
+        replacement = new NodeState(SearchId.fromString("09876543210987654321"), InetAddress.getByName("localhost"), 6789);
     }
 
     @After public void tearDown()

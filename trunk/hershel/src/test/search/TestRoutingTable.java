@@ -3,6 +3,8 @@ package test.search;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import org.junit.Before;
@@ -44,11 +46,11 @@ public class TestRoutingTable
                 SearchId.fromHex(otherIds[1]),
                 SearchId.fromHex(otherIds[2]), };
         
-        node1 = new NodeState(ids[0], null, 5670);
+        node1 = new NodeState(ids[0], InetAddress.getByName("localhost"), 5670);
         t.addNode(node1);
-        node2 = new NodeState(ids[1], null, 5670);
+        node2 = new NodeState(ids[1], InetAddress.getByName("localhost"), 5670);
         t.addNode(node2);
-        node3 = new NodeState(ids[2], null, 5670);
+        node3 = new NodeState(ids[2], InetAddress.getByName("localhost"), 5670);
         t.addNode(node3);
         
         
@@ -72,37 +74,27 @@ public class TestRoutingTable
         assertEquals(node3, al.get(0));
     }
     
-    @Test public void routingTablePingsIfKBucketIsFull()
+    @Test public void routingTablePingsIfKBucketIsFull() throws UnknownHostException
     {
-        t.addNode(new NodeState(SearchId.fromHex("1234567890123456789012345678901234567811"), null, 5678));
+        t.addNode(new NodeState(SearchId.fromHex("1234567890123456789012345678901234567811"), InetAddress.getByName("localhost"), 5678));
         assertEquals(node1, mockPinger.lastNodePinged);
     }
     
-    @Test public void ifPingReturnsDontAddNewNode()
+    @Test public void ifPingReturnsDontAddNewNode() throws UnknownHostException
     {
-        t.addNode(new NodeState(SearchId.fromHex("1234567890123456789012345678901234567811"), null, 5678));
+        t.addNode(new NodeState(SearchId.fromHex("1234567890123456789012345678901234567811"), InetAddress.getByName("localhost"), 5678));
         mockPinger.makeSuccessFullPing();
         assertEquals(node1, t.getRoutingTable().get(7).get(1));
     }
     
-    @Test public void ifPingFailsAddNewNode()
+    @Test public void ifPingFailsAddNewNode() throws UnknownHostException
     {
-        NodeState newNode = new NodeState(SearchId.fromHex("1234567890123456789012345678901234567811"), null, 5678);
+        NodeState newNode = new NodeState(SearchId.fromHex("1234567890123456789012345678901234567811"), InetAddress.getByName("localhost"), 5678);
         t.addNode(newNode);
         assertEquals(node1, t.getRoutingTable().get(7).get(0));
         mockPinger.failPing();
         assertEquals(newNode, t.getRoutingTable().get(7).get(1));
-    }
-    
-    public void whatIfTwoNodesAreAddedToTheSameKBucket()
-    {
-        NodeState newNode1 = new NodeState(SearchId.fromHex("1234567890123456789012345678901234567811"), null, 5678);
-        NodeState newNode2 = new NodeState(SearchId.fromHex("1234567890123456789012345678901234567812"), null, 5678);
-        t.addNode(newNode1);
-        t.addNode(newNode2);
-        
-        // TODO : how to handle this case?
-    }
+    }   
     
     public class MockPinger implements Pinger
     {
@@ -136,15 +128,14 @@ public class TestRoutingTable
 
         public void pingReceived(SearchId id)
         {
-            // TODO Auto-generated method stub
+            
             
         }
 
 
         public void setTimeout(int millis)
         {
-            // TODO Auto-generated method stub
-            
+                        
         }
     }
 }

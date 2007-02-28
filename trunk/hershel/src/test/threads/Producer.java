@@ -130,8 +130,7 @@ public class Producer extends Thread
                 Thread.sleep((int) (Math.random() * 5 + 1) * 1000);
                 consumer.consume(count++, (int) (Math.random() * 10 + 1));
             } catch (InterruptedException e)
-            {
-                // TODO Auto-generated catch block
+            {               
                 e.printStackTrace();
             }
         }
