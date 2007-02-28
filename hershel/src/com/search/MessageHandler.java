@@ -34,4 +34,9 @@ public class MessageHandler implements PingCommunicator
         client.sendMessage(response, node);       
     }
 
+    public RoutingTable routingTable()
+    {
+        return table;
+    }
+
 }

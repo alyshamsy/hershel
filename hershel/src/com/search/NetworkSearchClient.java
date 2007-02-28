@@ -18,6 +18,13 @@ public class NetworkSearchClient extends Thread implements SearchClient
     }
     
     
+    public NetworkSearchClient(MessageHandler handler, int port) throws SocketException
+    {
+        socket = new DatagramSocket(port);
+        this.handler = handler;
+    }
+
+
     public void run()
     {
         while(running)
