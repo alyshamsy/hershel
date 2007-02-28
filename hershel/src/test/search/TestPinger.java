@@ -59,7 +59,7 @@ public class TestPinger
     {
         pinger.setTimeout(100);
         pinger.putPingRequest(target, replacement);
-        Thread.sleep(200);
+        Thread.sleep(400);
         
         assertEquals(replacement, table.nodeToKeep);
         assertEquals(target, table.nodeToReplace);
