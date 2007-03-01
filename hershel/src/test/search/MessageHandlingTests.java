@@ -5,7 +5,9 @@ import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +19,7 @@ import com.search.RoutingTable;
 import com.search.SearchClient;
 import com.search.SearchId;
 import com.search.SearchMessage;
+import com.search.SearchResult;
 
 
 public class MessageHandlingTests
@@ -113,6 +116,30 @@ public class MessageHandlingTests
         assertNull(mock.lastDestination);
         assertNull(mock.lastMessage);
     }
+    
+    /*@Test public void storeCommandAddsItemToTheDatabase()
+    {        
+        SearchId fileNameHash = SearchId.getRandomId();
+        SearchId fileHash = SearchId.getRandomId();
+        ArrayList<SearchId> chunkHashes = new ArrayList<SearchId>();
+        for(int i = 0; i<4; i++)
+        {
+            chunkHashes.add(SearchId.getRandomId());
+        }
+        
+        ArrayList<InetSocketAddress> peers = new ArrayList<InetSocketAddress>();
+        for(int i = 0; i<4; i++)
+        {
+            peers.add(new InetSocketAddress("localhost", i+10));           
+        }
+        
+        SearchResult r = new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, peers);
+        SearchMessage storeMessage = r.storeMessage();
+        
+        handler.respondTo(storeMessage, targetNode.address, targetNode.port);
+        
+        assertEquals(r, handler.database().get(fileNameHash));
+    }*/
     
     private SearchMessage pingMessage()
     {

@@ -2,6 +2,8 @@ package com.search;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Map;
+
 
 public class MessageHandler implements PingCommunicator
 {
@@ -48,7 +50,7 @@ public class MessageHandler implements PingCommunicator
             }
             catch (IOException e)
             {
-                // TODO This exception should be handled some how
+                // TODO This exception should be handled somehow
                 e.printStackTrace();
             }  
             
@@ -66,6 +68,12 @@ public class MessageHandler implements PingCommunicator
        this.pinger.close();
        this.pinger = pinger;
        table.setPinger(pinger);        
+    }
+
+    public Map<SearchId, SearchResult> database()
+    {
+        // TODO Auto-generated method stub
+        return null;
     }  
 
 }
