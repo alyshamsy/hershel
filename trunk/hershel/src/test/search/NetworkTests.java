@@ -34,7 +34,7 @@ public class NetworkTests
         }
 
         @Override
-        public void respondTo(SearchMessage request, InetAddress address, int port) throws IOException
+        public void respondTo(SearchMessage request, InetAddress address, int port)
         {
             lastRequest = request;
         }

@@ -1,6 +1,7 @@
 package test.search;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -11,6 +12,8 @@ import org.junit.Test;
 
 import com.search.MessageHandler;
 import com.search.NodeState;
+import com.search.Pinger;
+import com.search.RoutingTable;
 import com.search.SearchClient;
 import com.search.SearchId;
 import com.search.SearchMessage;
@@ -70,6 +73,46 @@ public class MessageHandlingTests
         assertEquals("127.0.0.1", node.address.getHostAddress());
         assertEquals(5678, node.port);       
     }  
+    
+    @Test public void canPingNodesOnRequest() throws IOException
+    {
+        handler.ping(targetNode);
+        
+        assertEquals("ping", mock.lastMessage.getCommand());
+        assertEquals("09876543210987654321", mock.lastMessage.arguments().get("id"));
+        assertEquals(targetNode, mock.lastDestination);
+    }
+    
+    @Test public void dontReplyToExpectedPings() throws IOException
+    {
+        handler.setPinger(new Pinger()
+        {
+            public void pingReceived(SearchId id)
+            {}
+
+            public void putPingRequest(NodeState targetNode, NodeState replacementNode) throws IOException
+            {}
+
+            public void setRoutingTable(RoutingTable table)
+            {}
+
+            public void setTimeout(int millis)
+            {}
+
+            public void close()
+            {}
+
+            public boolean expected(SearchId id)
+            {
+                return true;
+            }
+            
+        });
+        handler.respondTo(pingMessage(), targetNode.address, targetNode.port);
+        
+        assertNull(mock.lastDestination);
+        assertNull(mock.lastMessage);
+    }
     
     private SearchMessage pingMessage()
     {

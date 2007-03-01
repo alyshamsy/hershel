@@ -1,5 +1,6 @@
 package com.search;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -32,7 +33,7 @@ public class DefaultPinger extends Thread implements Pinger
         pendingPings = new ArrayList<PendingPing>();
     }
 
-    public synchronized void putPingRequest(NodeState targetNode, NodeState replacementNode)
+    public synchronized void putPingRequest(NodeState targetNode, NodeState replacementNode) throws IOException
     {
         for(PendingPing p : pendingPings)
         {
@@ -96,6 +97,16 @@ public class DefaultPinger extends Thread implements Pinger
     public void close()
     {
         running = false;        
+    }
+
+    public synchronized boolean expected(SearchId id)
+    {
+        for(PendingPing p : pendingPings)
+        {
+            if(p.target.id.equals(id))
+                return true;
+        }
+        return false;
     }   
 
 }

@@ -2,9 +2,9 @@ package test.search;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import org.junit.Before;
@@ -74,20 +74,20 @@ public class TestRoutingTable
         assertEquals(node3, al.get(0));
     }
     
-    @Test public void routingTablePingsIfKBucketIsFull() throws UnknownHostException
+    @Test public void routingTablePingsIfKBucketIsFull() throws IOException
     {
         t.addNode(new NodeState(SearchId.fromHex("1234567890123456789012345678901234567811"), InetAddress.getByName("localhost"), 5678));
         assertEquals(node1, mockPinger.lastNodePinged);
     }
     
-    @Test public void ifPingReturnsDontAddNewNode() throws UnknownHostException
+    @Test public void ifPingReturnsDontAddNewNode() throws IOException
     {
         t.addNode(new NodeState(SearchId.fromHex("1234567890123456789012345678901234567811"), InetAddress.getByName("localhost"), 5678));
         mockPinger.makeSuccessFullPing();
         assertEquals(node1, t.getRoutingTable().get(7).get(1));
     }
     
-    @Test public void ifPingFailsAddNewNode() throws UnknownHostException
+    @Test public void ifPingFailsAddNewNode() throws IOException
     {
         NodeState newNode = new NodeState(SearchId.fromHex("1234567890123456789012345678901234567811"), InetAddress.getByName("localhost"), 5678);
         t.addNode(newNode);
@@ -136,6 +136,18 @@ public class TestRoutingTable
         public void setTimeout(int millis)
         {
                         
+        }
+
+
+        public void close()
+        {          
+            
+        }
+
+
+        public boolean expected(SearchId id)
+        {           
+            return false;
         }
     }
 }

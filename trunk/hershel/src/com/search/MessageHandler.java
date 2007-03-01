@@ -8,35 +8,64 @@ public class MessageHandler implements PingCommunicator
     private SearchId myId;
     private RoutingTable table;
     private SearchClient client;
+    private Pinger pinger;
     
     public MessageHandler(SearchId myId, SearchClient client)
     {
         this.myId = myId;
-        table = new RoutingTable(myId, 20, new DefaultPinger(this));  
+        pinger = new DefaultPinger(this);
+        table = new RoutingTable(myId, 20, pinger);  
         this.client = client;
     }    
     
-    public void ping(NodeState targetNode)
+    public void ping(NodeState targetNode) throws IOException
     {
-        // TODO Auto-generated method stub
-        
+        client.sendMessage(pingMessage(), targetNode);
+    }
+
+    private SearchMessage pingMessage()
+    {
+        SearchMessage ping = new SearchMessage("ping");
+        ping.arguments().put("id", myId.toString());
+        return ping;
     }
     
-    public void respondTo(SearchMessage request, InetAddress address, int port) throws IOException
+    public void respondTo(SearchMessage request, InetAddress address, int port)
     {
-        SearchMessage response = new SearchMessage("ping");
-        response.arguments().put("id", myId.toString());
-       
         NodeState node = new NodeState(request.arguments().get("id"),
                 				address,
                 				port);
-        table.addNode(node);
-        client.sendMessage(response, node);       
+        if(pinger.expected(node.id))
+        {
+            pinger.pingReceived(node.id);
+        }
+        else
+        {
+            try
+            {
+                table.addNode(node);
+                client.sendMessage(pingMessage(), node); 
+            }
+            catch (IOException e)
+            {
+                // TODO This exception should be handled some how
+                e.printStackTrace();
+            }  
+            
+        }
+        
     }
 
     public RoutingTable routingTable()
     {
         return table;
     }
+
+    public void setPinger(Pinger pinger)
+    {
+       this.pinger.close();
+       this.pinger = pinger;
+       table.setPinger(pinger);        
+    }  
 
 }
