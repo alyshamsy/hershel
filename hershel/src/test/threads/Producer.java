@@ -54,8 +54,7 @@ public class Producer extends Thread
                     consumer.workComplete(this);
                 }
                 catch (InterruptedException e)
-                {
-                    // TODO Auto-generated catch block
+                {                   
                     e.printStackTrace();
                 }
             }

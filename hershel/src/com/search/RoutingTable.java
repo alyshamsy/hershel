@@ -1,5 +1,6 @@
 package com.search;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class RoutingTable
         return table;
     }
 
-    public synchronized void addNode(NodeState node)
+    public synchronized void addNode(NodeState node) throws IOException
     {
         int index = findIndex(node.id);
         if (index < 0)
@@ -107,6 +108,12 @@ public class RoutingTable
         table.get(kbucket).remove(nodePinged);
         table.get(kbucket).add(replacement);      
         
+    }
+
+    public void setPinger(Pinger newPinger)
+    {
+         pinger.close();
+         this.pinger = newPinger;        
     }
 
 }

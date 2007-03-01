@@ -3,6 +3,7 @@ package test.search;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -43,13 +44,13 @@ public class TestPinger
         pinger.close();
     }
     
-    @Test public void pingerRequestsPings()
+    @Test public void pingerRequestsPings() throws IOException
     {        
         pinger.putPingRequest(target, replacement);        
         assertEquals(target, mock.pingedNodes.get(0));
     }
     
-    @Test public void informRoutingTableOfSuccessfulPing()
+    @Test public void informRoutingTableOfSuccessfulPing() throws IOException
     { 
         pinger.putPingRequest(target, replacement);
         pinger.pingReceived(SearchId.fromString("12345678901234567890"));
@@ -57,7 +58,7 @@ public class TestPinger
         assertEquals(target, table.nodeToKeep);
     }
     
-    @Test public void informRoutingTableAboutTimeOut() throws InterruptedException
+    @Test public void informRoutingTableAboutTimeOut() throws InterruptedException, IOException
     {
         pinger.setTimeout(100);
         pinger.putPingRequest(target, replacement);
@@ -67,7 +68,7 @@ public class TestPinger
         assertEquals(target, table.nodeToReplace);
     }
     
-    @Test public void doNotingIfPingIsNotPending()
+    @Test public void doNotingIfPingIsNotPending() throws IOException
     {
         pinger.putPingRequest(target, replacement);
         pinger.pingReceived(SearchId.getRandomId());
@@ -76,7 +77,7 @@ public class TestPinger
         assertNull(table.nodeToReplace);
     }
     
-    @Test public void onlyOnePendingPingForTheSameNode() throws InterruptedException
+    @Test public void onlyOnePendingPingForTheSameNode() throws InterruptedException, IOException
     {
         pinger.setTimeout(100);
         pinger.putPingRequest(target, replacement);
