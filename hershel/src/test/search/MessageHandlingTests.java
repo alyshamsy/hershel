@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -140,7 +141,18 @@ public class MessageHandlingTests
         
         assertEquals(r, handler.database().get(fileNameHash));
     }*/
-    
+
+    @Test
+    public void respondToFindNode() throws IOException
+    {
+    	handler.findNode(targetNode, new SearchId("87654321098765432109"));
+
+    	assertEquals("find_node", mock.lastMessage.getCommand());
+        assertEquals("09876543210987654321", mock.lastMessage.arguments().get("id"));
+        assertEquals("87654321098765432109", mock.lastMessage.arguments().get("target"));
+        assertEquals(targetNode, mock.lastDestination);
+    }
+
     private SearchMessage pingMessage()
     {
         SearchMessage pingMessage = new SearchMessage("ping");
