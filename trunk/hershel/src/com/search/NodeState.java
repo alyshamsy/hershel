@@ -28,6 +28,11 @@ public class NodeState
         return false;
     }
 
+    public String toString()
+    {
+    	return id.toString() + ";" + address.toString() + ";" + port;
+    }
+
     public SearchId id;
     public InetAddress address;
     public int port;
