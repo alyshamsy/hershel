@@ -54,6 +54,18 @@ public class NetworkSearchClient extends Thread implements SearchClient
         byte[] buffer = new byte[1024];
         DatagramPacket incommingPacket = new DatagramPacket(buffer, buffer.length);
         socket.receive(incommingPacket);
+        /*//Shad's Addition.
+        socket.setSoTimeout(1000);
+        try
+        {
+            socket.receive(incommingPacket);
+        }
+        catch (SocketTimeoutException e)
+        {
+        	return null;
+        }
+        return incommingPacket;
+        */
         return incommingPacket;
     }
 
