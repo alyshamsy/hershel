@@ -4,17 +4,21 @@ import java.io.*;
 
 public class OverlayConfTest {
 	
+	public static final int MAX 5;
+	
 	public static void main (String args[]){
-		FileInputStream fin;
+		
+		String var[MAX];
+		int value[MAX];
 		
 		try{
 			// Open an input stream
-		    fin = new FileInputStream ("config.txt");
+			FileInputStream fstream = new FileInputStream ("config.txt");
 
-		    ReadAndParse(fin);
+		    ReadAndParse( fstream, var, value, MAX );
 		    
 		    // Close our input stream
-		    fin.close();		
+		    fstream.close();		
 		    
 		}catch (IOException e)
 		{
