@@ -44,12 +44,12 @@ public class Log extends FileHandler {
 		String initialize;
 		
 		try{
-			newFile = new File("config.txt");
+			newFile = new File(pattern);
 			fout = new FileWriter(newFile,true);
 			initialize = "FileName        NodeID        IP        Port        Chunk#" +
 			      "       ChunkSize       FileSize\n";
 			fout.write(initialize, 0, initialize.length());
-			initialize = "";
+			initialize = "\n";
 			fout.write(initialize, 0, initialize.length());
 			fout.close();
 		}catch (IOException e){
