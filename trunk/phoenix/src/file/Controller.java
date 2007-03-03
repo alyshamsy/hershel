@@ -8,13 +8,13 @@ public class Controller extends Thread {
 	public static final char FAILED = 2;
 	public static final char SUCCESS = 3;
 	
-	public static final int MAX_TASKS_ALIVE = 5;
+	public static final int MAX_CHUNKS_ALIVE = 5;
 	
 	private boolean running;
 	private volatile char[] pieceStates;
 	private RandomAccessFile file;
 	
-	private ArrayList<Task> tasks;
+	private ArrayList<Chunk> chunks;
 	
 	public static void main(String args[]) throws IOException {
 		Controller controller = new Controller();
@@ -40,7 +40,7 @@ public class Controller extends Thread {
 	
 	public Controller() {
 		running = true;
-		tasks = new ArrayList<Task>();
+		chunks = new ArrayList<Chunk>();
 		pieceStates = new char[20];
 		for (int i = 0; i < pieceStates.length; i++) {
 			pieceStates[i] = NOT_STARTED;
@@ -71,7 +71,7 @@ public class Controller extends Thread {
 				wait(100);
 			} catch (InterruptedException e) {}
 			
-			if (tasks.size() < MAX_TASKS_ALIVE) {
+			if (chunks.size() < MAX_CHUNKS_ALIVE) {
 				if (isComplete()) {
 					running = false;
 					continue;
@@ -79,10 +79,10 @@ public class Controller extends Thread {
 				
 				int randomPieceIndex = getRandomPiece();
 				if (randomPieceIndex == -1) continue;
-				Task task = new Task(randomPieceIndex);
-				tasks.add(task);
-				task.start();
-				System.out.println("Piece " + task.id + " started: " + getStateName(pieceStates[task.id]));
+				Chunk chunk = new Chunk(randomPieceIndex);
+				chunks.add(chunk);
+				chunk.start();
+				System.out.println("Piece " + chunk.id + " started: " + getStateName(pieceStates[chunk.id]));
 				continue;
 			}
 		}
@@ -105,9 +105,9 @@ public class Controller extends Thread {
 		return "Unknown";
 	}
 	
-	public synchronized void notifyTaskComplete(Task task) {
-		tasks.remove(task);
-		System.out.println("Piece " + task.id + " finished: " + getStateName(pieceStates[task.id]));
+	public synchronized void notifyChunkComplete(Chunk chunk) {
+		chunks.remove(chunk);
+		System.out.println("Piece " + chunk.id + " finished: " + getStateName(pieceStates[chunk.id]));
 		print();
 		notifyAll();
 	}
@@ -131,11 +131,11 @@ public class Controller extends Thread {
 		return result;
 	}
 	
-	private class Task extends Thread {
+	private class Chunk extends Thread {
 		private int id;
 		private int sleepTime;
 		
-		public Task(int piece) {
+		public Chunk(int piece) {
 			this.id = piece;
 			pieceStates[piece] = NOT_STARTED;
 			sleepTime = (int)(Math.random()*10+2);
@@ -151,7 +151,7 @@ public class Controller extends Thread {
 			}
 			if (Math.random() < 0.2) pieceStates[id] = FAILED;
 			else pieceStates[id] = SUCCESS;
-			notifyTaskComplete(this);
+			notifyChunkComplete(this);
 		}
 	}
 }
