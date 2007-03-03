@@ -1,6 +1,8 @@
-package file;
+package testcode;
 
 import java.io.*;
+
+import file.Log;
 
 public class LogTest {
 
@@ -13,7 +15,7 @@ public class LogTest {
 		int chunkSize = 1500;
 		int totalFileSize = 14440;
 		
-		String logName = "config.txt";
+		String logName = "log.txt";
 		
 		try{
 			
