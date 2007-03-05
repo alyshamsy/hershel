@@ -41,7 +41,7 @@ public class NetworkTests
 
         public MockHandler()
         {
-            super(SearchId.fromString("09876543210987654321"), null);            
+            super(SearchId.fromHex("0987654321098765432109876543210987654321"), null);            
         }
 
     }
@@ -69,7 +69,7 @@ public class NetworkTests
         send(createPingMessage());
         Thread.sleep(100);
         assertEquals("ping", handler.lastRequest.getCommand());
-        assertEquals("12345678901234567890", handler.lastRequest.arguments().get("id"));    
+        assertEquals("1234567890123456789012345678901234567890", handler.lastRequest.arguments().get("id"));    
     }
     
     private void send(SearchMessage pingMessage) throws SocketException, UnknownHostException, IOException
@@ -82,18 +82,18 @@ public class NetworkTests
     private SearchMessage createPingMessage()
     {
         SearchMessage pingMessage = new SearchMessage("ping");
-        pingMessage.arguments().put("id", "12345678901234567890");
+        pingMessage.arguments().put("id", "1234567890123456789012345678901234567890");
         return pingMessage;
     }   
     
     @Test public void sendMessageOverUdp() throws UnknownHostException, IOException
     {
-        client.sendMessage(createPingMessage(), new NodeState(SearchId.fromString("12345678901234567890"), 
+        client.sendMessage(createPingMessage(), new NodeState(SearchId.fromHex("1234567890123456789012345678901234567890"), 
                 InetAddress.getByName("localhost"), 4567));
         SearchMessage received = receive();
         
         assertEquals("ping", received.getCommand());
-        assertEquals("12345678901234567890", received.arguments().get("id"));
+        assertEquals("1234567890123456789012345678901234567890", received.arguments().get("id"));
     }
     
     private SearchMessage receive() throws IOException

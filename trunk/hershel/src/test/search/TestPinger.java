@@ -35,8 +35,8 @@ public class TestPinger
         pinger = new DefaultPinger(mock);
         pinger.start();        
         table = new FakeRoutingTable(pinger);
-        target = new NodeState(SearchId.fromString("12345678901234567890"), InetAddress.getByName("localhost"), 6789);
-        replacement = new NodeState(SearchId.fromString("09876543210987654321"), InetAddress.getByName("localhost"), 6789);
+        target = new NodeState(SearchId.fromHex("1234567890123456789012345678901234567890"), InetAddress.getByName("localhost"), 6789);
+        replacement = new NodeState(SearchId.fromHex("0987654321098765432109876543210987654321"), InetAddress.getByName("localhost"), 6789);
     }
 
     @After public void tearDown()
@@ -53,7 +53,7 @@ public class TestPinger
     @Test public void informRoutingTableOfSuccessfulPing() throws IOException
     { 
         pinger.putPingRequest(target, replacement);
-        pinger.pingReceived(SearchId.fromString("12345678901234567890"));
+        pinger.pingReceived(SearchId.fromHex("1234567890123456789012345678901234567890"));
         
         assertEquals(target, table.nodeToKeep);
     }
@@ -82,7 +82,7 @@ public class TestPinger
         pinger.setTimeout(100);
         pinger.putPingRequest(target, replacement);
         pinger.putPingRequest(target, new NodeState(SearchId.getRandomId(), null, 1234));
-        pinger.pingReceived(SearchId.fromString("12345678901234567890"));
+        pinger.pingReceived(SearchId.fromHex("1234567890123456789012345678901234567890"));
         
         assertEquals(target, table.nodeToKeep);
         table.nodeToKeep = null;

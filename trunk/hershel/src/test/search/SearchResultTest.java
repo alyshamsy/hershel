@@ -39,12 +39,7 @@ public class SearchResultTest
     }
 
     @Test public void generateMessageWithStoreCommand()
-    {    
-        /*     
-        
-        
-             
-       */
+    {            
         assertEquals("store", r.storeMessage().getCommand());
     }
     
@@ -77,5 +72,11 @@ public class SearchResultTest
     @Test public void messageHasPeers()
     {
         assertEquals("127.0.0.1:10;127.0.0.1:11;127.0.0.1:12;127.0.0.1:13", r.storeMessage().arguments().get("peers"));        
+    }
+    
+    @Test public void resultCreatedFromMessage()
+    {
+        SearchResult copy = SearchResult.fromMessage(r.storeMessage());
+        assertEquals(r, copy);
     }
 }

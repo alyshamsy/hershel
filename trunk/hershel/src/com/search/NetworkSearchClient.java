@@ -14,7 +14,7 @@ public class NetworkSearchClient extends Thread implements SearchClient
     public NetworkSearchClient(String idToUse, int port) throws SocketException
     {
         socket = new DatagramSocket(port);
-        handler = new MessageHandler(new SearchId(idToUse), this);        
+        handler = new MessageHandler(SearchId.fromHex(idToUse), this);        
     }
     
     

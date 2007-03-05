@@ -1,7 +1,6 @@
 package com.search;
 
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -11,36 +10,23 @@ public class SearchId
     public byte[] id = new byte[20];
     private SearchId()
     {
-        Random r = new Random();
+        Random r = new Random(2);       
         r.nextBytes(id);
     }
     
     private SearchId(byte[] id)
     {
         this.id = id;
-    }
+    }    
     
-    public SearchId(String id)
-    {
-        if(id.getBytes().length != 20)
-        	throw new IllegalArgumentException("Search id must be 20 bytes long");
-        
-        this.id = id.getBytes();
-    }
-    
-    public static SearchId fromString(String id)
-    {
-        if(id.getBytes().length != 20)
-            throw new IllegalArgumentException("Search id must be 20 bytes long");
-        byte[] buffer = new byte[20];
-        Charset utf = Charset.forName("UTF-8");
-        System.arraycopy(utf.encode(id).array(), 0, buffer, 0, 20) ;
-        return new SearchId(buffer);
-    }
-
     public String toString()
-    {
-        return new String(id);
+    {  
+        String result = "";
+        for(byte b : id)
+        {
+            result += String.format("%02x", b);
+        }
+        return result;
     }
     
     public boolean equals(Object o)
@@ -68,6 +54,7 @@ public class SearchId
 
     public static SearchId fromHex(String hexString)
     {       
+        if(hexString.length() != 40) throw new IllegalArgumentException("Hex string must be 40 characters long");
         byte[] bts = new byte[20];
         for (int i = 0; i < bts.length; i++) {
             bts[i] = (byte) Integer.parseInt(hexString.substring(2*i, 2*i+2), 16);
