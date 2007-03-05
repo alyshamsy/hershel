@@ -116,6 +116,7 @@ public class MessageHandler implements PingCommunicator
             BigInteger myDistance = new BigInteger(SearchId.getDistance(myId, e.getKey()));
             BigInteger guysDistance = new BigInteger(SearchId.getDistance(node.id, e.getKey()));
             
+            // TODO Are negative distance being handled?
             assert myDistance.signum() == 1;
             assert guysDistance.signum() == 1;
             
