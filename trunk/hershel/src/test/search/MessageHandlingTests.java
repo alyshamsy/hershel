@@ -119,21 +119,9 @@ public class MessageHandlingTests
     
     @Test public void storeCommandAddsItemToTheDatabase()
     {        
-        SearchId fileNameHash = SearchId.getRandomId();
-        SearchId fileHash = SearchId.getRandomId();
-        ArrayList<SearchId> chunkHashes = new ArrayList<SearchId>();
-        for(int i = 0; i<4; i++)
-        {
-            chunkHashes.add(SearchId.getRandomId());
-        }
+        SearchResult r = createSearchResult();
+        SearchId fileNameHash = r.fileNameHash;
         
-        ArrayList<InetSocketAddress> peers = new ArrayList<InetSocketAddress>();
-        for(int i = 0; i<4; i++)
-        {
-            peers.add(new InetSocketAddress("localhost", i+10));           
-        }
-        
-        SearchResult r = new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, peers);
         SearchMessage storeMessage = r.storeMessage();
         storeMessage.arguments().put("id", targetNode.id.toString());
         
@@ -143,6 +131,24 @@ public class MessageHandlingTests
     }
     
     @Test public void encounterWithANodeReplicatesDatabase() throws UnknownHostException
+    {
+        SearchResult r = createSearchResult();
+        SearchId fileNameHash = r.fileNameHash;
+        SearchMessage storeMessage = r.storeMessage();
+        storeMessage.arguments().put("id", targetNode.id.toString());
+        
+        handler.respondTo(storeMessage, targetNode.address, targetNode.port); 
+        NodeState unknownNode = new NodeState(fileNameHash, InetAddress.getByName("localhost"), 45);
+        SearchMessage unknownPing = new SearchMessage("ping");
+        unknownPing.arguments().put("id", fileNameHash.toString());
+        handler.respondTo(unknownPing, unknownNode.address, unknownNode.port);
+        
+        assertEquals(unknownNode, mock.lastDestination);
+        assertEquals("store", mock.lastMessage.getCommand());
+        assertEquals(fileNameHash.toString(), mock.lastMessage.arguments().get("file_name"));
+    }
+    
+    public SearchResult createSearchResult()
     {
         SearchId fileNameHash = SearchId.getRandomId();
         SearchId fileHash = SearchId.getRandomId();
@@ -158,19 +164,7 @@ public class MessageHandlingTests
             peers.add(new InetSocketAddress("localhost", i+10));           
         }
         
-        SearchResult r = new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, peers);
-        SearchMessage storeMessage = r.storeMessage();
-        storeMessage.arguments().put("id", targetNode.id.toString());
-        
-        handler.respondTo(storeMessage, targetNode.address, targetNode.port); 
-        NodeState unknownNode = new NodeState(fileNameHash, InetAddress.getByName("localhost"), 45);
-        SearchMessage unknownPing = new SearchMessage("ping");
-        unknownPing.arguments().put("id", fileNameHash.toString());
-        handler.respondTo(unknownPing, unknownNode.address, unknownNode.port);
-        
-        assertEquals(unknownNode, mock.lastDestination);
-        assertEquals("store", mock.lastMessage.getCommand());
-        assertEquals(fileNameHash.toString(), mock.lastMessage.arguments().get("file_name"));
+        return new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, peers);
     }
 
     @Test
