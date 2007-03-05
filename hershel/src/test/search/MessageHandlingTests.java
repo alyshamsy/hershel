@@ -5,10 +5,7 @@ import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +17,6 @@ import com.search.RoutingTable;
 import com.search.SearchClient;
 import com.search.SearchId;
 import com.search.SearchMessage;
-import com.search.SearchResult;
 
 
 public class MessageHandlingTests
@@ -50,8 +46,8 @@ public class MessageHandlingTests
     @Before public void setUp() throws UnknownHostException
     {
         mock = new MockSearchClient();
-        handler = new MessageHandler(new SearchId("09876543210987654321"), mock);
-        targetNode = new NodeState(SearchId.fromString("12345678901234567890"), 
+        handler = new MessageHandler(SearchId.fromHex("0987654321098765432109876543210987654321"), mock);
+        targetNode = new NodeState(SearchId.fromHex("1234567890123456789012345678901234567890"), 
                         InetAddress.getByName("localhost"), 5678);
         
     }
@@ -61,7 +57,7 @@ public class MessageHandlingTests
         handler.respondTo(pingMessage(), targetNode.address, targetNode.port); 
         
         assertEquals("ping", mock.lastMessage.getCommand());
-        assertEquals("09876543210987654321", mock.lastMessage.arguments().get("id"));
+        assertEquals("0987654321098765432109876543210987654321", mock.lastMessage.arguments().get("id"));
         assertEquals(targetNode, mock.lastDestination);
     }
     
@@ -70,10 +66,10 @@ public class MessageHandlingTests
         
         handler.respondTo(pingMessage(), targetNode.address, targetNode.port);        
 
-        // TODO Make sure that 152 is the right kbucket
-        NodeState node = handler.routingTable().getRoutingTable().get(152).get(0);
+        // TODO Make sure that 156 is the right kbucket
+        NodeState node = handler.routingTable().getRoutingTable().get(156).get(0);
 
-        assertEquals("12345678901234567890", node.id.toString());
+        assertEquals("1234567890123456789012345678901234567890", node.id.toString());
         assertEquals("127.0.0.1", node.address.getHostAddress());
         assertEquals(5678, node.port);       
     }  
@@ -83,7 +79,7 @@ public class MessageHandlingTests
         handler.ping(targetNode);
         
         assertEquals("ping", mock.lastMessage.getCommand());
-        assertEquals("09876543210987654321", mock.lastMessage.arguments().get("id"));
+        assertEquals("0987654321098765432109876543210987654321", mock.lastMessage.arguments().get("id"));
         assertEquals(targetNode, mock.lastDestination);
     }
     
@@ -145,18 +141,18 @@ public class MessageHandlingTests
     @Test
     public void respondToFindNode() throws IOException
     {
-    	handler.findNode(targetNode, new SearchId("87654321098765432109"));
+    	handler.findNode(targetNode, SearchId.fromHex("8765432109876543210987654321098765432109"));
 
     	assertEquals("find_node", mock.lastMessage.getCommand());
-        assertEquals("09876543210987654321", mock.lastMessage.arguments().get("id"));
-        assertEquals("87654321098765432109", mock.lastMessage.arguments().get("target"));
+        assertEquals("0987654321098765432109876543210987654321", mock.lastMessage.arguments().get("id"));
+        assertEquals("8765432109876543210987654321098765432109", mock.lastMessage.arguments().get("target"));
         assertEquals(targetNode, mock.lastDestination);
     }
 
     private SearchMessage pingMessage()
     {
         SearchMessage pingMessage = new SearchMessage("ping");
-        pingMessage.arguments().put("id", "12345678901234567890");
+        pingMessage.arguments().put("id", "1234567890123456789012345678901234567890");
         return pingMessage;
     }   
 }

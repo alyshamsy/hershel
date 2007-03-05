@@ -71,7 +71,7 @@ public class MessageHandler implements PingCommunicator
                 {
                 	Map<String, String> args = request.arguments();
                 	String target = args.get("target");
-                	List nodes = table.findNode(new SearchId(target));
+                	List nodes = table.findNode(SearchId.fromHex(target));
                 	client.sendMessage(packageNodeList(nodes), node);
                 }
                 else if (command.equals("node_list"))

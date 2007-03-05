@@ -6,7 +6,7 @@ public class NodeState
 {
     public NodeState(String id, InetAddress address, int port)
     {
-       this.id = new SearchId(id);
+       this.id = SearchId.fromHex(id);
        this.address = address;
        this.port = port;
     }
