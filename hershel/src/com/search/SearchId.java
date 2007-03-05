@@ -39,6 +39,12 @@ public class SearchId
         return false;
     }
     
+    public int hashCode()
+    {
+        // TODO add a better hash code to SearchId
+        return 1;
+    }
+    
     public static SearchId getRandomId()
     {
         return new SearchId();

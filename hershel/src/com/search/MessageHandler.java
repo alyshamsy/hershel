@@ -1,9 +1,12 @@
 package com.search;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.InetAddress;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 
 public class MessageHandler implements PingCommunicator
@@ -13,12 +16,15 @@ public class MessageHandler implements PingCommunicator
     private SearchClient client;
     private Pinger pinger;
     
+    private Hashtable<SearchId, SearchResult> storedValues;
+    
     public MessageHandler(SearchId myId, SearchClient client)
     {
         this.myId = myId;
         pinger = new DefaultPinger(this);
         table = new RoutingTable(myId, 20, pinger);  
         this.client = client;
+        storedValues = new Hashtable<SearchId, SearchResult>();
     }    
     
     public void ping(NodeState targetNode) throws IOException
@@ -53,50 +59,73 @@ public class MessageHandler implements PingCommunicator
         NodeState node = new NodeState(request.arguments().get("id"),
                 				address,
                 				port);
-        if(pinger.expected(node.id))
+        try
         {
-            pinger.pingReceived(node.id);
-        }
-        else
-        {
-            try
+            table.addNode(node);
+            if (request.getCommand().equals("ping"))
             {
-                table.addNode(node);
-                String command = request.getCommand();
-                if (command.equals("ping"))
+                if(pinger.expected(node.id))
                 {
-                	client.sendMessage(pingMessage(), node);
+                    pinger.pingReceived(node.id);
                 }
-                else if (command.equals("find_node"))
+                else
                 {
-                	Map<String, String> args = request.arguments();
-                	String target = args.get("target");
-                	List nodes = table.findNode(SearchId.fromHex(target));
-                	client.sendMessage(packageNodeList(nodes), node);
-                }
-                else if (command.equals("node_list"))
-                {
-                	String nodeList = request.arguments().get("nodes");
-                	nodeList = nodeList.replaceAll("[\\[|,\\]]", "");
-                	String[] nodes = nodeList.split(", ");
-                	for (String s : nodes)
-                	{
-                		String[] args = s.split(";");
-                		NodeState n = new NodeState(args[0],
-                				InetAddress.getByName(args[1]),
-                				Integer.parseInt(args[2]));
-                		table.addNode(n);
-                	}
+                    client.sendMessage(pingMessage(), node);
                 }
             }
-            catch (IOException e)
+            else if (request.getCommand().equals("find_node"))
             {
-                // TODO This exception should be handled somehow
-                e.printStackTrace();
-            }  
+            	Map<String, String> args = request.arguments();
+            	String target = args.get("target");
+            	List nodes = table.findNode(SearchId.fromHex(target));
+            	client.sendMessage(packageNodeList(nodes), node);
+            }
+            else if (request.getCommand().equals("node_list"))
+            {
+            	String nodeList = request.arguments().get("nodes");
+            	nodeList = nodeList.replaceAll("[\\[|,\\]]", "");
+            	String[] nodes = nodeList.split(", ");
+            	for (String s : nodes)
+            	{
+            		String[] args = s.split(";");
+            		NodeState n = new NodeState(args[0],
+            				InetAddress.getByName(args[1]),
+            				Integer.parseInt(args[2]));
+            		table.addNode(n);
+            	}
+            }
+            else if(request.getCommand().equals("store"))
+            {
+                SearchResult r = SearchResult.fromMessage(request);
+                storedValues.put(r.fileNameHash, r);
+            }
             
+            replicateDatabaseTo(node);
         }
-        
+        catch (IOException e)
+        {
+            // TODO This exception should be handled somehow
+            e.printStackTrace();
+        }   
+    }
+
+    private void replicateDatabaseTo(NodeState node) throws IOException
+    {
+        for(Entry<SearchId, SearchResult> e : storedValues.entrySet())
+        {        
+            BigInteger myDistance = new BigInteger(SearchId.getDistance(myId, e.getKey()));
+            BigInteger guysDistance = new BigInteger(SearchId.getDistance(node.id, e.getKey()));
+            
+            assert myDistance.signum() == 1;
+            assert guysDistance.signum() == 1;
+            
+            if(myDistance.compareTo(guysDistance) > 0)
+            {
+                SearchMessage replicateMessage = e.getValue().storeMessage();
+                replicateMessage.arguments().put("id", myId.toString());
+                client.sendMessage(replicateMessage, node);
+            }            
+        }
     }
 
     public RoutingTable routingTable()
@@ -112,9 +141,8 @@ public class MessageHandler implements PingCommunicator
     }
 
     public Map<SearchId, SearchResult> database()
-    {
-        // TODO Auto-generated method stub
-        return null;
+    {       
+        return storedValues;
     }  
 
 }
