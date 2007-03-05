@@ -24,8 +24,7 @@ public class SearchResultTest
         fileNameHash = SearchId.getRandomId();
         fileHash = SearchId.getRandomId();
         chunkHashes = new ArrayList<SearchId>();
-        peers = new ArrayList<InetSocketAddress>();
-        r = new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, peers);
+        peers = new ArrayList<InetSocketAddress>();        
         
         for(int i = 0; i<4; i++)
         {
@@ -35,7 +34,9 @@ public class SearchResultTest
         for(int i = 0; i<4; i++)
         {
             peers.add(new InetSocketAddress("localhost", i+10));           
-        }   
+        }
+        
+        r = new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, peers);
     }
 
     @Test public void generateMessageWithStoreCommand()

@@ -5,7 +5,9 @@ import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +19,7 @@ import com.search.RoutingTable;
 import com.search.SearchClient;
 import com.search.SearchId;
 import com.search.SearchMessage;
+import com.search.SearchResult;
 
 
 public class MessageHandlingTests
@@ -114,7 +117,7 @@ public class MessageHandlingTests
         assertNull(mock.lastMessage);
     }
     
-    /*@Test public void storeCommandAddsItemToTheDatabase()
+    @Test public void storeCommandAddsItemToTheDatabase()
     {        
         SearchId fileNameHash = SearchId.getRandomId();
         SearchId fileHash = SearchId.getRandomId();
@@ -132,11 +135,43 @@ public class MessageHandlingTests
         
         SearchResult r = new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, peers);
         SearchMessage storeMessage = r.storeMessage();
+        storeMessage.arguments().put("id", targetNode.id.toString());
         
         handler.respondTo(storeMessage, targetNode.address, targetNode.port);
         
         assertEquals(r, handler.database().get(fileNameHash));
-    }*/
+    }
+    
+    @Test public void encounterWithANodeReplicatesDatabase() throws UnknownHostException
+    {
+        SearchId fileNameHash = SearchId.getRandomId();
+        SearchId fileHash = SearchId.getRandomId();
+        ArrayList<SearchId> chunkHashes = new ArrayList<SearchId>();
+        for(int i = 0; i<4; i++)
+        {
+            chunkHashes.add(SearchId.getRandomId());
+        }
+        
+        ArrayList<InetSocketAddress> peers = new ArrayList<InetSocketAddress>();
+        for(int i = 0; i<4; i++)
+        {
+            peers.add(new InetSocketAddress("localhost", i+10));           
+        }
+        
+        SearchResult r = new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, peers);
+        SearchMessage storeMessage = r.storeMessage();
+        storeMessage.arguments().put("id", targetNode.id.toString());
+        
+        handler.respondTo(storeMessage, targetNode.address, targetNode.port); 
+        NodeState unknownNode = new NodeState(fileNameHash, InetAddress.getByName("localhost"), 45);
+        SearchMessage unknownPing = new SearchMessage("ping");
+        unknownPing.arguments().put("id", fileNameHash.toString());
+        handler.respondTo(unknownPing, unknownNode.address, unknownNode.port);
+        
+        assertEquals(unknownNode, mock.lastDestination);
+        assertEquals("store", mock.lastMessage.getCommand());
+        assertEquals(fileNameHash.toString(), mock.lastMessage.arguments().get("file_name"));
+    }
 
     @Test
     public void respondToFindNode() throws IOException
