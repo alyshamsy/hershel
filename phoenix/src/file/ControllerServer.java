@@ -6,13 +6,9 @@ import java.util.ArrayList;
 
 public class ControllerServer extends Thread {
 	//sockets for recieving files and sending files
-	private ServerSocket ss;
-	private Socket cs;  
-	
+	private ServerSocket ss; 
 	public static final int MAX_TASKS_ALIVE = 5;
-	
 	private boolean running;
-	private RandomAccessFile file;
 	
 	public static void main(String args[]) throws IOException {
 		Controller controller = new Controller();
@@ -40,7 +36,6 @@ public class ControllerServer extends Thread {
 		running = true;
 		try {
 			ss = new ServerSocket(10000);
-			cs = new Socket();
 		} catch (IOException e) {
 			return;
 		}
@@ -63,24 +58,6 @@ public class ControllerServer extends Thread {
 			
 	}
 	
-	public void allocateFile(String file, long size) throws IOException {
-		this.file = new RandomAccessFile(file, "rw");
-		this.file.seek(size-1);
-		this.file.write(0);
-	}
-	
-	public void writeToFile(byte[] data, long pos) throws IOException {
-		file.seek(pos);
-		file.write(data);
-	}
-	
-	public byte[] readFromFile(long pos, int size) throws IOException {
-		byte[] result = new byte[size];
-		file.seek(pos);
-		file.read(result);
-		//Remember to check size read and handle accordingly.
-		return result;
-	}
 
 	//Server class which will parse incoming request and dispatch
 	//available chunks
@@ -88,12 +65,16 @@ public class ControllerServer extends Thread {
 		private Socket s;
 		private BufferedReader in;
 		private PrintWriter out;
+		private OutputStream outData;
 		private boolean running;
-		private File file;
+		private boolean more;
+		private File tempfile;
+		private RandomAccessFile file;
 		
 		public Server(Socket s) {
 			this.s = s;
 			running = false;
+			more = true;
 		}
 		
 		public void close() {
@@ -107,6 +88,25 @@ public class ControllerServer extends Thread {
 			} catch (Exception e) {}
 		}
 		
+		public void allocateFile(String file, long size) throws IOException {
+			this.file = new RandomAccessFile(file, "rw");
+			this.file.seek(size-1);
+			this.file.write(0);
+		}
+		
+		public void writeToFile(byte[] data, long pos) throws IOException {
+			file.seek(pos);
+			file.write(data);
+		}
+		
+		public byte[] readFromFile(long pos, int size) throws IOException {
+			byte[] result = new byte[size];
+			file.seek(pos);
+			file.read(result);
+			//Remember to check size read and handle accordingly.
+			return result;
+		}
+		
 		public void run(){
 			try {
 				in = new BufferedReader(new InputStreamReader(s.getInputStream()));
@@ -117,12 +117,14 @@ public class ControllerServer extends Thread {
 			}
 			
 			while (running) {
+				int chunkNum;
 				String filename = null;
 				byte [] fileHash = null;
 				try {
+					//the first part of the request is the file name
 					filename = in.readLine();
 				} catch (IOException e) {
-					close();
+					running = false;
 					continue;
 				}
 				
@@ -130,14 +132,60 @@ public class ControllerServer extends Thread {
 					running = false;
 					continue;
 				}
-
-				file = new File(filename);
-				if(!file.exists()){
+				
+				//check if the file exists and if not dispatch error code
+				tempfile = new File(filename);
+				if(!tempfile.exists()){
 					out.println("Error: 404");
 					running = false;
 					continue;
 				}
-					fileHash = SHA1Utils.getSHA1Digest(file);
+				out.println("OK: 200");
+				
+				//send out chunks that were requested
+				while(more){
+				//the next part of the request is the chunk numbers
+					try {
+						//the first part of the request is the file name
+						chunkNum = Integer.parseInt(in.readLine());
+					} catch (IOException e) {
+						more = false;
+						continue;
+					}
+					//assign data to the chunk(ALY CODING)
+					byte [] data = null;
+					try {
+						outData = s.getOutputStream();
+					} catch (IOException e1) {
+						
+					}
+					//send the data
+					if (running) {
+						try {
+							outData.write(data);
+						} catch (IOException e) {
+						//should we retry?
+						}	
+					}
+				}
+				
+				/*
+				fileHash = SHA1Utils.getSHA1Digest(tempfile);
+				
+				 // Open the file 
+                FileInputStream fstream = new FileInputStream(tempfile.toString());
+
+                // Convert our input stream to a
+                // DataInputStream
+                DataInputStream in = new DataInputStream(fstream);
+
+                // Continue to read lines while 
+                // there are still some left to read
+                while (in.available() !=0)
+                {
+                    in.r
+                }
+                */
 							
 		}
 		close();
