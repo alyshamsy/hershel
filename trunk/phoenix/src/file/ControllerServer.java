@@ -152,7 +152,7 @@ public class ControllerServer extends Thread {
 						more = false;
 						continue;
 					}
-					//assign data to the chunk(ALY CODING)
+					//assign data to the chunk(ALY CODING)   
 					byte [] data = null;
 					try {
 						outData = s.getOutputStream();
