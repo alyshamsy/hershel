@@ -1,14 +1,17 @@
 package file;
 import java.io.*;
+import java.net.*;
 import java.util.ArrayList;
 
 public class Controller extends Thread {
+	private ServerSocket ss;
+	private Socket cs;  
 	public static final char NOT_STARTED = 0;
 	public static final char IN_PROGRESS = 1;
 	public static final char FAILED = 2;
 	public static final char SUCCESS = 3;
 	
-	public static final int MAX_CHUNKS_ALIVE = 5;
+	public static final int MAX_TASKS_ALIVE = 5;
 	
 	private boolean running;
 	private volatile char[] pieceStates;
@@ -40,6 +43,12 @@ public class Controller extends Thread {
 	
 	public Controller() {
 		running = true;
+		try {
+			ss = new ServerSocket(10000);
+			cs = new Socket();
+		} catch (IOException e) {
+			return;
+		}
 		chunks = new ArrayList<Chunk>();
 		pieceStates = new char[20];
 		for (int i = 0; i < pieceStates.length; i++) {
@@ -66,12 +75,20 @@ public class Controller extends Thread {
 	}
 	
 	public synchronized void run() {
+		
 		while (running) {
+			try {
+			Socket s = ss.accept();
+			Server server = new Server(s);
+	    	server.start();
+	    	
 			try {
 				wait(100);
 			} catch (InterruptedException e) {}
+			} catch (IOException e) {}
 			
-			if (chunks.size() < MAX_CHUNKS_ALIVE) {
+			
+			if (chunks.size() < MAX_TASKS_ALIVE) {
 				if (isComplete()) {
 					running = false;
 					continue;
@@ -154,4 +171,61 @@ public class Controller extends Thread {
 			notifyChunkComplete(this);
 		}
 	}
+	
+	private class Server extends Thread{
+		private Socket s;
+		private BufferedReader in;
+		private PrintWriter out;
+		private boolean running;
+		
+		public Server(Socket s) {
+			this.s = s;
+			running = false;
+		}
+		
+		public void close() {
+			running = false;
+			if (out != null) out.close();
+			try {
+				if (in != null) in.close();
+			} catch (Exception e) {}
+			try {
+				if (s != null) s.close();
+			} catch (Exception e) {}
+		}
+		
+		public void run(){
+			try {
+				in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+				out = new PrintWriter(s.getOutputStream(), true);
+				running = true;
+			} catch (IOException e) {
+				close();
+			}
+			
+			while (running) {
+				String input = null;
+				try {
+					input = in.readLine();
+				} catch (IOException e) {
+					close();
+					continue;
+				}
+				
+				if (input == null) {
+					running = false;
+					continue;
+				}
+
+				if (input.equalsIgnoreCase("quit")) {
+					out.println("Goodbye!");
+					out.close();
+					continue;
+				}
+				
+					
+		}
+		close();
+	}
+}
 }
