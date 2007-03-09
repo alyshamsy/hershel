@@ -9,22 +9,37 @@ public class FileSystem
 	 /* An array structure to hold file info.*/
      public static fileHolder[] fileTable;
      private static int size;
-     private double chunkSize = 524288.0;
+     private int chunkSize = 524288;
      public static String dirName = "local directory";
-     public byte[] data;
+     public static byte[] data;
+	 public static chunks[] chunks;
     
      public class fileHolder
      {
+    	 public int tag;
          public String fileName;
          public int fileSize;
          public String hashValue;
          
          public fileHolder()
          {
+        	 tag = 0;
              fileName = null;
              fileSize = 0;
              hashValue = "";
          }       
+     }
+     
+     public class chunks
+     {
+    	 public int chunk_tag;
+    	 public byte[] chunks_array;
+    	 
+    	 public chunks()
+    	 {
+    		 chunk_tag = 0;
+    		 chunks_array[0] = 0;
+    	 }
      }
      
      public static int getFileSize(String fileName)
@@ -38,10 +53,11 @@ public class FileSystem
      
      public int numberOfChunks(int file_size)
      {
-    	double number_of_chunks = file_size/chunkSize;
-    	int chunks = (int)Math.ceil(number_of_chunks);
+    	double fileSize = (double)file_size;
+    	double number_of_chunks = fileSize/chunkSize;
+    	int numchunks = (int)Math.ceil(number_of_chunks);
     	
-    	return chunks;
+    	return numchunks;
      }
      
      public void fileInfo()
@@ -67,9 +83,11 @@ public class FileSystem
              fileTable[i].fileName = contents[i];
                  
              File file = new File(dirName + "/" + fileTable[i].fileName);                    
-             fileTable[i].fileSize = (int)file.length();
+             fileTable[i].fileSize = getFileSize(fileTable[i].fileName);
+             
+             fileTable[i].tag = i+1;
 
-             /*
+             
              String test = "";
              try 
              {
@@ -83,19 +101,23 @@ public class FileSystem
             	 //System.out.println("TRY failed for reading the file");
              }
                   
-             byte[] data = test.getBytes();
+             data = test.getBytes();
              byte[] result = SHA1Utils.getSHA1Digest(data);
-             fileTable[i].hashValue = SHA1Utils.digestToHexString(result);
-             */   
+             fileTable[i].hashValue = SHA1Utils.digestToHexString(result);   
          }
      }
      
-     public void Store(RandomAccessFile file, int filesize)
+     public void chunkSegment(RandomAccessFile file, int filesize) throws IOException
      {
-    	 int chunks = numberOfChunks(filesize);
+    	 int numOfChunks = numberOfChunks(filesize);
     	 
-    	 //break the file into chunks each of size 512KB and store in the array
-    	 //use either the seek function or the write function 
-    	 //declare the array globally so easy to access throughout the file
+    	 for(int i = 0; i < numOfChunks; i++)
+    	 {
+    		 chunks[i].chunk_tag = i;
+    		 file.readFully(chunks[i].chunks_array, i*chunkSize, chunkSize);
+    	 }
      }
+     
+        
+     
 }
