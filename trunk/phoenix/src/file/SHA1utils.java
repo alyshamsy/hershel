@@ -1,3 +1,5 @@
+package file;
+
 import java.security.*;
 import java.io.*;
 
@@ -8,7 +10,7 @@ import java.io.*;
  * Web Site: http://www.convergence2000.com
  */
 
-public class SHA1Utils {
+public class SHA1utils {
 	/**
 	 * Returns the SHA1 hash of a file.
 	 * @param file - The file to calculate the SHA1 hash of.
