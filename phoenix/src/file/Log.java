@@ -1,6 +1,7 @@
 package file;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.util.logging.FileHandler;
 
 public class Log extends FileHandler {
@@ -46,7 +47,7 @@ public class Log extends FileHandler {
 		try{
 			newFile = new File(pattern);
 			fout = new FileWriter(newFile,true);
-			initialize = "FileName        NodeID        IP        Port        Chunk#" +
+			initialize = "FileName        NodeID          IP        Port        Chunk#" +
 			      "       ChunkSize       FileSize\n";
 			fout.write(initialize, 0, initialize.length());
 			initialize = "\n";
@@ -68,12 +69,20 @@ public class Log extends FileHandler {
 	 *  File:<FileName> NodeID: <NodeID> IP:<IP Address> Port: <Port #>  Chunk#: <Chunk #> Chunk Size: <Chunk Size> File Size: <File Size>
 	 */
 	public void writeTransferLog( String downloadFileName, int recvNodeID, 
-			String IP, int recvPort, int chunkNum, int chunkSize, int fileSize ) 
+			InetAddress IPaddr, int recvPort, int chunkNum, int chunkSize, int fileSize ) 
 	{
 		String output;
-		
-		//Open the file
+		String IP;
 		try{
+			int b,e;
+			IP = IPaddr.toString();
+			
+			b = IP.indexOf('/');
+			e = IP.length();
+			
+			IP = IP.substring(b+1,e);
+				
+			//Open the file
 			FileWriter fileOut = new FileWriter(pattern, true);
 			
 			//Write the  data to the file
@@ -85,7 +94,11 @@ public class Log extends FileHandler {
 			
 			fileOut.close();
 			
-		}catch (IOException fileopen){
+		}catch (NullPointerException e ){
+			System.err.println("NULL ADDRESS PASSED");
+			System.exit(-1);
+		}
+		catch (IOException fileopen){
 			System.err.println("error: " + pattern +" cannot open");
 			System.exit(-1);
 		}
