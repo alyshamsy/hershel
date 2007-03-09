@@ -11,9 +11,13 @@ public class ControllerServer extends Thread {
 	private boolean running;
 	
 	public static void main(String args[]) throws IOException {
+		String temp = null;
+		int num = Integer.parseInt(temp);
+		System.out.println("the number is: "+ num);
+		
+		/*
 		Controller controller = new Controller();
 		controller.allocateFile("testfile1024.dat", 1024);
-		/*
 		String input;
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		Controller c = new Controller();
@@ -39,6 +43,12 @@ public class ControllerServer extends Thread {
 		} catch (IOException e) {
 			return;
 		}
+	}
+	
+	public void close() throws IOException{
+		running = false;
+		ss.close();
+		
 	}
 	
 	public synchronized void run() {
@@ -73,12 +83,12 @@ public class ControllerServer extends Thread {
 		
 		public Server(Socket s) {
 			this.s = s;
-			running = false;
+			this.running = false;
 			more = true;
 		}
 		
 		public void close() {
-			running = false;
+			this.running = false;
 			if (out != null) out.close();
 			try {
 				if (in != null) in.close();
@@ -86,6 +96,12 @@ public class ControllerServer extends Thread {
 			try {
 				if (s != null) s.close();
 			} catch (Exception e) {}
+			try{
+				if(outData != null) outData.close();
+				file.close();
+			}catch (IOException e) {}
+			
+			
 		}
 		
 		public void allocateFile(String file, long size) throws IOException {
@@ -118,56 +134,55 @@ public class ControllerServer extends Thread {
 			
 			while (running) {
 				int chunkNum;
-				String filename = null;
+				String input = null;
 				byte [] fileHash = null;
 				try {
-					//the first part of the request is the file name
-					filename = in.readLine();
+					//receive the command
+					input = in.readLine();
 				} catch (IOException e) {
 					running = false;
 					continue;
 				}
 				
-				if (filename == null) {
+				if (input == null) {
 					running = false;
 					continue;
 				}
 				
-				//check if the file exists and if not dispatch error code
-				tempfile = new File(filename);
-				if(!tempfile.exists()){
-					out.println("Error: 404");
-					running = false;
-					continue;
-				}
-				out.println("OK: 200");
-				
-				//send out chunks that were requested
-				while(more){
-				//the next part of the request is the chunk numbers
-					try {
-						//the first part of the request is the file name
-						chunkNum = Integer.parseInt(in.readLine());
-					} catch (IOException e) {
-						more = false;
+				Message myMessage = Message.parse(input);
+				if(myMessage.getCmd().equalsIgnoreCase("get")){
+					//check if the file exists and if not dispatch error code
+					tempfile = new File(myMessage.getData(1));
+					if(!tempfile.exists()){
+						out.println("Error: 404");
+						running = false;
 						continue;
 					}
-					//assign data to the chunk(ALY CODING)   
-					byte [] data = null;
-					try {
-						outData = s.getOutputStream();
-					} catch (IOException e1) {
-						
-					}
-					//send the data
-					if (running) {
+					//file exists, respond 
+					out.println("OK: 200");
+					chunkNum = myMessage.countDataTokens()-1;
+					//send out chunks that were requested
+					for(int i = 0; i<chunkNum; i++){
+						//assign data to the chunk(ALY CODING)   
+						byte [] data = null;
 						try {
-							outData.write(data);
-						} catch (IOException e) {
-						//should we retry?
-						}	
+							outData = s.getOutputStream();
+						} catch (IOException e1) {
+							
+						}
+						//send the data
+						if (running) {
+							try {
+								outData.write(data);
+							} catch (IOException e) {
+							//should we retry?
+							}	
+						}
 					}
+						
 				}
+			}
+			
 				
 				/*
 				fileHash = SHA1Utils.getSHA1Digest(tempfile);
@@ -186,9 +201,7 @@ public class ControllerServer extends Thread {
                     in.r
                 }
                 */
-							
-		}
-		close();
+		this.close();
 	}
 }
 }
