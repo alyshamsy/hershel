@@ -1,7 +1,6 @@
 package com.search;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,19 +83,22 @@ public class RoutingTable
      */
     private int findIndex(SearchId newNode)
     {
-        final BigInteger TWO = new BigInteger("2");
-        BigInteger distance = new BigInteger(SearchId.getDistance(self, newNode));
+        int mask = 0x80;
+        int index = 0;
+        byte[] distance = SearchId.getDistance(self, newNode);
 
-        for (int i = 0; i < 160; i++)
+        for (int i = 159; i >= 0; i--)
         {
-            if ((distance.compareTo(TWO.pow(i)) >= 0) && (distance.compareTo(TWO.pow(i + 1)) < 0))
+        	if ((mask & distance[index]) == mask) return i;
+
+        	mask >>>= 1;
+            if (mask == 0)
             {
-                //Because of comments like this I don't like comments, Maxim
-                // 
-                // Is this guaranteed to happen?  
-                return i;
+            	mask = 0x80;
+            	index++;
             }
         }
+
         return -1;
     }
 

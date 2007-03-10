@@ -113,19 +113,18 @@ public class MessageHandler implements PingCommunicator
     {
         for(Entry<SearchId, SearchResult> e : storedValues.entrySet())
         {        
-            BigInteger myDistance = new BigInteger(SearchId.getDistance(myId, e.getKey()));
-            BigInteger guysDistance = new BigInteger(SearchId.getDistance(node.id, e.getKey()));
-            
-            // TODO Are negative distance being handled?
-            assert myDistance.signum() == 1;
-            assert guysDistance.signum() == 1;
-            
-            if(myDistance.compareTo(guysDistance) > 0)
+            byte[] myDistance = SearchId.getDistance(myId, e.getKey());
+            byte[] guysDistance = SearchId.getDistance(node.id, e.getKey());
+
+            for (int i = 0; i < 20; i++)
             {
-                SearchMessage replicateMessage = e.getValue().storeMessage();
-                replicateMessage.arguments().put("id", myId.toString());
-                client.sendMessage(replicateMessage, node);
-            }            
+            	if (guysDistance[i] >= myDistance[i])
+            		continue;
+            }
+
+            SearchMessage replicateMessage = e.getValue().storeMessage();
+            replicateMessage.arguments().put("id", myId.toString());
+            client.sendMessage(replicateMessage, node);
         }
     }
 

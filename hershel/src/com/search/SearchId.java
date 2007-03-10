@@ -1,6 +1,5 @@
 package com.search;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -52,10 +51,16 @@ public class SearchId
 
     public static byte[] getDistance(SearchId n1, SearchId n2)
     {
-    	BigInteger a = new BigInteger(n1.id);
-    	BigInteger b = new BigInteger(n2.id);
+    	byte[] a = n1.id;
+    	byte[] b = n2.id;
+    	byte[] result = new byte[20];
 
-    	return (a.xor(b)).toByteArray();
+    	for (int i = 0; i < 20; i++)
+    	{
+    		result[i] = (byte)(a[i] ^ b[i]);
+    	}
+
+    	return result;
     }
 
     public static SearchId fromHex(String hexString)
