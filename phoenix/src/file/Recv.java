@@ -1,3 +1,5 @@
+package file;
+
 import java.io.*;
 import java.net.*;
 
@@ -59,6 +61,9 @@ public class Recv extends Thread {
 		} catch (IOException e) {}
 	}
 	
+	/* Might want to modify run() such that you pass it the serversocket and port
+	 * so that we don't open multiple sockets each time.  
+	 */
 	public void run() {
 		state = RECEIVING;
 		try {
