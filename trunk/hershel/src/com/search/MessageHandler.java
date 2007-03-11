@@ -23,7 +23,8 @@ public class MessageHandler implements PingCommunicator
         this.myId = myId;
         pinger = new DefaultPinger(this);
         table = new RoutingTable(myId, 20, pinger);
-        searcher = new DefaultSearcher(table, client);
+        searcher = new DefaultSearcher(table, client, myId);
+        searcher.start();
         this.client = client;
         storedValues = new Hashtable<SearchId, SearchResult>();
     }    
@@ -48,12 +49,9 @@ public class MessageHandler implements PingCommunicator
     	client.sendMessage(find, targetNode);
     }
 
-    public void findValue(NodeState targetNode, SearchId fileName) throws IOException
+    public void findValue(SearchId fileName) throws IOException
     {
-    	SearchMessage search = new SearchMessage("find_value");
-    	search.arguments().put("id", myId.toString());
-    	search.arguments().put("file_name", fileName.toString());
-    	client.sendMessage(search, targetNode);
+    	searcher.putSearchRequest(fileName);
     }
 
     private SearchMessage packageNodeList(List nodes, String message)
