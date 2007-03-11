@@ -14,8 +14,6 @@ public class FileSystem
      public static String dirName = "Shared";
      boolean made = (new File(dirName)).mkdir();
      public int count = 0;
-     public byte[] ipAddr;
-     public String hostname;
 	 public byte[] indiv_chunks;
     
      public class fileHolder
@@ -142,14 +140,15 @@ public class FileSystem
     	 {
     		 for(int i = 0; i < numOfChunks; i++)
     		 {
-    			 fileTable[j].chunkarray[i].chunk_tag = i;
+    			 fileTable[j].chunkarray[i].chunk_tag = i+1;
     			 file.readFully(fileTable[j].chunkarray[i].chunks_array, i*chunkSize, chunkSize);
     		 }
     	 }
     	 
     	 return true;
      }
-          
+     
+     //chunkNumber starts at 1
      public boolean chunkStorage(String fileName, int chunkNumber, byte[] chunk)
      {
     	 for(int i = 0; i < size; i++)
@@ -163,7 +162,7 @@ public class FileSystem
     			 }
     			 else
     			 {
-    				 System.arraycopy(chunk, 0, fileTable[i].chunkarray[i].chunks_array[chunkNumber], 0, chunk.length);
+    				 System.arraycopy(chunk, 0, fileTable[i].chunkarray[chunkNumber-1].chunks_array, 0, chunk.length);
     				 fileTable[i].fileSize += chunk.length;
     				 return true;
     			 }
@@ -171,8 +170,6 @@ public class FileSystem
     		 
     		 else
     		 {
-    			 //int filesize = getFileSize(fileName);
-    			 //int number_of_chunks = numberOfChunks(filesize);
     			 createFile(fileName, chunk, chunkNumber);
     			 return true;
     		 }
@@ -191,9 +188,9 @@ public class FileSystem
          fileTable[i].contains = false;
          fileTable[i].tag = i+1;
          
-         fileTable[i].chunkarray[chunkNumber].chunk_tag = chunkNumber;
-         System.arraycopy(chunk, 0, fileTable[i].chunkarray[chunkNumber].chunks_array, 0, chunk.length);
-         fileTable[i].chunkarray[chunkNumber].chunk_exists = true;
+         fileTable[i].chunkarray[chunkNumber-1].chunk_tag = chunkNumber;
+         System.arraycopy(chunk, 0, fileTable[i].chunkarray[chunkNumber-1].chunks_array, 0, chunk.length);
+         fileTable[i].chunkarray[chunkNumber-1].chunk_exists = true;
          count++;
      }
      
@@ -207,7 +204,7 @@ public class FileSystem
     		 else
     		 {
     			 createFile(fileName, chunk, chunkNumber);
-    			 return false;
+    			 return true;
     		 }
     	 }
     	 
@@ -219,7 +216,7 @@ public class FileSystem
     	 
     	 else
     	 {
-    		if(fileTable[curr_file_pos].chunkarray[chunkNumber].chunk_exists == true)
+    		if(fileTable[curr_file_pos].chunkarray[chunkNumber-1].chunk_exists == true)
     		{
     			System.out.println("The Chunk already exists");
     			return false;
@@ -227,9 +224,9 @@ public class FileSystem
 
     		else
     		{
-    			fileTable[curr_file_pos].chunkarray[chunkNumber].chunk_tag = chunkNumber;
-    	        System.arraycopy(chunk, 0, fileTable[curr_file_pos].chunkarray[chunkNumber].chunks_array, 0, chunk.length);
-    	        fileTable[curr_file_pos].chunkarray[chunkNumber].chunk_exists = true;
+    			fileTable[curr_file_pos].chunkarray[chunkNumber-1].chunk_tag = chunkNumber;
+    	        System.arraycopy(chunk, 0, fileTable[curr_file_pos].chunkarray[chunkNumber-1].chunks_array, 0, chunk.length);
+    	        fileTable[curr_file_pos].chunkarray[chunkNumber-1].chunk_exists = true;
     	        count++;
     	        if(count == num_of_chunks)
     	        	fileTable[curr_file_pos].contains = true;
@@ -250,7 +247,7 @@ public class FileSystem
     		 
     		 else
     		 {
-    			 System.arraycopy(fileTable[i].chunkarray[chunkNumber].chunks_array, 0, indiv_chunks, 0, fileTable[i].chunkarray[chunkNumber].chunks_array.length);
+    			 System.arraycopy(fileTable[i].chunkarray[chunkNumber-1].chunks_array, 0, indiv_chunks, 0, fileTable[i].chunkarray[chunkNumber-1].chunks_array.length);
     			 return true;
     		 }
     	 }
@@ -264,14 +261,17 @@ public class FileSystem
     	 return absolutePath;
      }
      
-     public void getIPaddr() throws IOException 
+     public static String getIPaddr() throws IOException 
      {
     	 InetAddress addr = InetAddress.getLocalHost();
     	    
     	 // Get IP Address
-    	 ipAddr = addr.getAddress();
+    	 byte[] ipAddr = addr.getAddress();
     	    
     	 // Get hostname
-    	 hostname = addr.getHostName();
+    	 //String hostname = addr.getHostName();
+    	 
+    	 String ipaddress = ipAddr.toString();
+    	 return ipaddress;
      }
 }
