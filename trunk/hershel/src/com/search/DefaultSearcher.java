@@ -98,6 +98,7 @@ public class DefaultSearcher extends Thread implements Searcher
 
 		for (int i = 0; i < CONCURRENT_SEARCHES; i++)
 		{
+			if (i >= nodes.size()) break;
 			client.sendMessage(request, (NodeState)(nodes.get(i)));
 		}
 
