@@ -2,8 +2,6 @@ package test.search;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Random;
-
 import org.junit.Test;
 
 import com.search.SearchId;

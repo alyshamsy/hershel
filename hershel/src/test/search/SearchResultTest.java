@@ -41,22 +41,22 @@ public class SearchResultTest
 
     @Test public void generateMessageWithStoreCommand()
     {            
-        assertEquals("store", r.storeMessage().getCommand());
+        assertEquals("store", r.createMessage("store").getCommand());
     }
     
     @Test public void messageHasFileName()
     {
-        assertEquals(fileNameHash.toString(), r.storeMessage().arguments().get("file_name"));
+        assertEquals(fileNameHash.toString(), r.createMessage("store").arguments().get("file_name"));
     }
     
     @Test public void messageHasHashOfTheFile()
     {
-        assertEquals(fileHash.toString(), r.storeMessage().arguments().get("file"));
+        assertEquals(fileHash.toString(), r.createMessage("store").arguments().get("file"));
     }
     
     @Test public void messageHasFileSize()
     {
-        assertEquals(4l*512l*1024l-100l, Long.parseLong(r.storeMessage().arguments().get("file_size")));
+        assertEquals(4l*512l*1024l-100l, Long.parseLong(r.createMessage("store").arguments().get("file_size")));
     }
     
     @Test public void messageHasHashOfEachChunk()
@@ -67,17 +67,17 @@ public class SearchResultTest
             expected += id.toString();
         }
         
-        assertEquals(expected, r.storeMessage().arguments().get("chunks"));
+        assertEquals(expected, r.createMessage("store").arguments().get("chunks"));
     }
     
     @Test public void messageHasPeers()
     {
-        assertEquals("127.0.0.1:10;127.0.0.1:11;127.0.0.1:12;127.0.0.1:13", r.storeMessage().arguments().get("peers"));        
+        assertEquals("127.0.0.1:10;127.0.0.1:11;127.0.0.1:12;127.0.0.1:13", r.createMessage("store").arguments().get("peers"));        
     }
     
     @Test public void resultCreatedFromMessage()
     {
-        SearchResult copy = SearchResult.fromMessage(r.storeMessage());
+        SearchResult copy = SearchResult.fromMessage(r.createMessage("store"));
         assertEquals(r, copy);
     }
 }

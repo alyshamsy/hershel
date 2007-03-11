@@ -122,7 +122,7 @@ public class MessageHandlingTests
         SearchResult r = createSearchResult();
         SearchId fileNameHash = r.fileNameHash;
         
-        SearchMessage storeMessage = r.storeMessage();
+        SearchMessage storeMessage = r.createMessage("store");
         storeMessage.arguments().put("id", targetNode.id.toString());
         
         handler.respondTo(storeMessage, targetNode.address, targetNode.port);
@@ -134,7 +134,7 @@ public class MessageHandlingTests
     {
         SearchResult r = createSearchResult();
         SearchId fileNameHash = r.fileNameHash;
-        SearchMessage storeMessage = r.storeMessage();
+        SearchMessage storeMessage = r.createMessage("store");
         storeMessage.arguments().put("id", targetNode.id.toString());
         
         handler.respondTo(storeMessage, targetNode.address, targetNode.port); 
