@@ -1,8 +1,8 @@
 package file;
 
 import java.io.*;
-import java.lang.*;
-import java.security.*;
+//import java.lang.*;
+//import java.security.*;
 
 public class FileSystem 
 {
@@ -12,6 +12,7 @@ public class FileSystem
      private int chunkSize = 524288;
      public static String dirName = "Shared";
      boolean made = (new File(dirName)).mkdir();
+     public int count = 0;
 	 //public static chunks[] chunks;
     
      public class fileHolder
@@ -36,11 +37,13 @@ public class FileSystem
          {
         	 public int chunk_tag;
         	 public byte[] chunks_array;
+        	 public boolean chunk_exists;
         	 
         	 public chunks()
         	 {
         		 chunk_tag = 0;
         		 chunks_array[0] = 0;
+        		 chunk_exists = false;
         	 }
          }
      }
@@ -133,8 +136,8 @@ public class FileSystem
     	 {
     		 for(int i = 0; i < numOfChunks; i++)
     		 {
-    			 fileTable[j].chunkarray[j].chunk_tag = i;
-    			 file.readFully(fileTable[j].chunkarray[j].chunks_array, i*chunkSize, chunkSize);
+    			 fileTable[j].chunkarray[i].chunk_tag = i;
+    			 file.readFully(fileTable[j].chunkarray[i].chunks_array, i*chunkSize, chunkSize);
     		 }
     	 }
     	 
@@ -162,44 +165,76 @@ public class FileSystem
     		 
     		 else
     		 {
-    			 int filesize = getFileSize(fileName);
-    			 int number_of_chunks = numberOfChunks(filesize);
-    			 createFile(fileName, number_of_chunks, chunk, chunkNumber);
+    			 //int filesize = getFileSize(fileName);
+    			 //int number_of_chunks = numberOfChunks(filesize);
+    			 createFile(fileName, chunk, chunkNumber);
     			 return true;
     		 }
     	 }
     	 return false;
      }
      
-     public void createFile(String fileName, int num_of_chunks, byte[] chunk, int chunkNumber)
+     public void createFile(String fileName, byte[] chunk, int chunkNumber)
      {
     	 size = size+1;
     	 int i = size - 1;
     	 
     	 fileTable[i] = new fileHolder();
          fileTable[i].fileName = fileName;
-         
-         int fileSize = getFileSize(fileName);
-         fileTable[i].fileSize = fileSize;
-         
+         fileTable[i].fileSize = chunk.length;
          fileTable[i].contains = false;
          fileTable[i].tag = i+1;
          
          fileTable[i].chunkarray[chunkNumber].chunk_tag = chunkNumber;
          System.arraycopy(chunk, 0, fileTable[i].chunkarray[chunkNumber].chunks_array, 0, chunk.length);
-         
-         //gotta figure out a way of checking if all chunks have been stored of the file
+         fileTable[i].chunkarray[chunkNumber].chunk_exists = true;
+         count++;
+     }
+     
+     public boolean updateFile(String fileName, int num_of_chunks, byte[] chunk, int chunkNumber)
+     {
+    	 int curr_file_pos = 0;
+    	 for(int i = 0; i < size; i++)
+    	 {
+    		 if(fileName == fileTable[i].fileName)
+    			 curr_file_pos = i;
+    		 else
+    		 {
+    			 createFile(fileName, chunk, chunkNumber);
+    			 return false;
+    		 }
+    	 }
+    	 
+    	 if(count == num_of_chunks)
+    	 {
+    		 System.out.println("The entire file exists");
+    		 return false;
+    	 }
+    	 
+    	 else
+    	 {
+    		if(fileTable[curr_file_pos].chunkarray[chunkNumber].chunk_exists == true)
+    		{
+    			System.out.println("The Chunk already exists");
+    			return false;
+    		}
+
+    		else
+    		{
+    			fileTable[curr_file_pos].chunkarray[chunkNumber].chunk_tag = chunkNumber;
+    	        System.arraycopy(chunk, 0, fileTable[curr_file_pos].chunkarray[chunkNumber].chunks_array, 0, chunk.length);
+    	        fileTable[curr_file_pos].chunkarray[chunkNumber].chunk_exists = true;
+    	        count++;
+    	        if(count == num_of_chunks)
+    	        	fileTable[curr_file_pos].contains = true;
+    	        return true;
+    		}
+    	 }
+     }
+     
+     public String absPath(File dirName)
+     {
+    	 String absolutePath = dirName.getAbsolutePath();
+    	 return absolutePath;
      }
 }
-
-/*
-int numOfChunks = numberOfChunks(filesize);
-
-for(int j = 0; j < numOfChunks; j++)
-{
-	 fileTable[i].chunkarray[j].chunk_tag = j+1;
-	 System.arraycopy(chunk, 0, fileTable[i].chunkarray[i].chunks_array[j], 0, chunk.length);
-}
-
-fileTable[i].contains = true;
-*/
