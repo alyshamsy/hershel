@@ -1,7 +1,7 @@
 package file;
 
 import java.io.*;
-import java.lang.*;
+//import java.lang.*;
 import java.net.*;
 //import java.security.*;
 
@@ -16,7 +16,7 @@ public class FileSystem
      public int count = 0;
      public byte[] ipAddr;
      public String hostname;
-	 //public static chunks[] chunks;
+	 public byte[] indiv_chunks;
     
      public class fileHolder
      {
@@ -79,6 +79,9 @@ public class FileSystem
     	double fileSize = (double)file_size;
     	double number_of_chunks = fileSize/chunkSize;
     	int numchunks = (int)Math.ceil(number_of_chunks);
+    	
+    	if(numchunks == 0)
+    		numchunks = 1;
     	
     	return numchunks;
      }
@@ -233,6 +236,26 @@ public class FileSystem
     	        return true;
     		}
     	 }
+     }
+     
+     public boolean download_chunk(String fileName, int chunkNumber)
+     {
+    	 for(int i = 0; i < size; i++)
+    	 {
+    		 if(fileName != fileTable[i].fileName)
+    		 {
+    			 System.out.println("File Does not exist");
+    			 return false;
+    		 }
+    		 
+    		 else
+    		 {
+    			 System.arraycopy(fileTable[i].chunkarray[chunkNumber].chunks_array, 0, indiv_chunks, 0, fileTable[i].chunkarray[chunkNumber].chunks_array.length);
+    			 return true;
+    		 }
+    	 }
+    	 
+    	 return false;
      }
      
      public String absPath(File dirName)
