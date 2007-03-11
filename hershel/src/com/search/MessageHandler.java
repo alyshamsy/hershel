@@ -48,6 +48,14 @@ public class MessageHandler implements PingCommunicator
     	client.sendMessage(find, targetNode);
     }
 
+    public void findValue(NodeState targetNode, SearchId fileName) throws IOException
+    {
+    	SearchMessage search = new SearchMessage("find_value");
+    	search.arguments().put("id", myId.toString());
+    	search.arguments().put("file_name", fileName.toString());
+    	client.sendMessage(search, targetNode);
+    }
+
     private SearchMessage packageNodeList(List nodes, String message)
     {
     	SearchMessage nodeList = new SearchMessage(message);
