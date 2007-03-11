@@ -3,18 +3,30 @@ package com.search;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 
 public class NetworkSearchClient extends Thread implements SearchClient
 {
-    private boolean running = true;
+    private static NodeState firstNode;
+	private boolean running = true;
     private DatagramSocket socket;    
     private MessageHandler handler;
-    
+
+    static {
+    	try {
+    		firstNode = new NodeState(SearchId.getRandomId(),
+    				InetAddress.getByName("localhost"), 10000);
+    	} catch (UnknownHostException e) {
+    		throw new Error("Can't connect to first node.");
+    	}
+    }
+
     public NetworkSearchClient(String idToUse, int port) throws SocketException
     {
         socket = new DatagramSocket(port);
-        handler = new MessageHandler(SearchId.fromHex(idToUse), this);        
+        handler = new MessageHandler(SearchId.fromHex(idToUse), this);
     }
     
     
@@ -27,6 +39,14 @@ public class NetworkSearchClient extends Thread implements SearchClient
 
     public void run()
     {
+    	// Connect to "first node".
+    	try {
+    		handler.findNode(firstNode, handler.getId());
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    		return;
+    	}
+
         while(running)
         {
             try

@@ -188,4 +188,9 @@ public class MessageHandler implements PingCommunicator
         return storedValues;
     }  
 
+    public SearchId getId()
+    {
+    	return myId;
+    }
+
 }
