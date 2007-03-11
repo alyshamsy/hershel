@@ -53,12 +53,13 @@ public class TestSearcher {
 	@Before
 	public void setUp() throws Exception {
 		client = new MessageHandlingTests().new MockSearchClient();
-		table = new RoutingTable(SearchId.getRandomId(), 10, new MockPinger());
-		searcher = new DefaultSearcher(table, client);
+		SearchId id = SearchId.getRandomId();
+		table = new RoutingTable(id, 10, new MockPinger());
+		searcher = new DefaultSearcher(table, client, id);
 
 		String nodeId =
             "1234567890123456789012345678901234567800";
-		SearchId id =  SearchId.fromHex(nodeId);
+		id =  SearchId.fromHex(nodeId);
         
         NodeState node = new NodeState(id,
         		InetAddress.getByName("localhost"), 5670);
