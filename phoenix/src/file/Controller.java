@@ -1,231 +1,150 @@
 package file;
+import java.lang.Byte;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
-public class Controller extends Thread {
-	private ServerSocket ss;
-	private Socket cs;  
-	public static final char NOT_STARTED = 0;
-	public static final char IN_PROGRESS = 1;
-	public static final char FAILED = 2;
-	public static final char SUCCESS = 3;
+
+public class Controller{
+	public PartialView view;
+	public Nodeid node;
+	public Socket s;
+	public ServerSocket ss;
+	private InetAddress ip;
+	private int port;
+	private double filesize;
+	private String filename;
 	
-	public static final int MAX_TASKS_ALIVE = 5;
 	
-	private boolean running;
-	private volatile char[] pieceStates;
-	private RandomAccessFile file;
-	
-	private ArrayList<Chunk> chunks;
-	
-	public static void main(String args[]) throws IOException {
-		Controller controller = new Controller();
-		controller.allocateFile("testfile1024.dat", 1024);
-		/*
-		String input;
-		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		Controller c = new Controller();
-		c.start();
-		
-		while ((input = in.readLine()) != null) {
-			if (c.running == false) break;
-			
-			if (input.equals("quit")) {
-				c.running = false;
-				break;
-			}
-			
-			c.print();
-		}
-		*/
-	}
-	
-	public Controller() {
-		running = true;
+
+	public Controller(){
+		String tempip = "128.100.8.221 ";
 		try {
-			ss = new ServerSocket(10000);
-			cs = new Socket();
-		} catch (IOException e) {
-			return;
-		}
-		chunks = new ArrayList<Chunk>();
-		pieceStates = new char[20];
-		for (int i = 0; i < pieceStates.length; i++) {
-			pieceStates[i] = NOT_STARTED;
-		}
+			ip = InetAddress.getByName(tempip);
+		} catch (UnknownHostException e) {}
+		port = 650;
+		filesize = 1024*1000;
+		filename = "blah.txt";
 	}
 	
-	public synchronized int getRandomPiece() {
-		//Get available pieces. 
-		ArrayList<Integer> availablePieces = new ArrayList<Integer>();
-		for (int i = 0; i < pieceStates.length; i++) {
-			if (pieceStates[i] == NOT_STARTED || pieceStates[i] == FAILED) availablePieces.add(new Integer(i));
-		}
-		if (availablePieces.size() == 0) return -1;
-		int index = (int)Math.floor(Math.random()*availablePieces.size());
-		return availablePieces.get(index).intValue();
-	}
-	
-	public synchronized boolean isComplete() {
-		for (int i = 0; i < pieceStates.length; i++) {
-			if (pieceStates[i] != SUCCESS) return false;
-		}
-		return true;
-	}
-	
-	public synchronized void run() {
+	public void main(){
+		//start Newscast threads
+		Nodeid node = new Nodeid("128.100.8.221", 0);
+		view = new PartialView(node);
+		ss = new ServerSocket(10000);
+		Newscast active = new Newscast(s, null);
+		Newscast passive = new Newscast(null, ss);
+		active.start();
+		passive.start();
 		
-		while (running) {
-			try {
-			Socket s = ss.accept();
-			Server server = new Server(s);
-	    	server.start();
-	    	
-			try {
-				wait(100);
-			} catch (InterruptedException e) {}
-			} catch (IOException e) {}
-			
-			
-			if (chunks.size() < MAX_TASKS_ALIVE) {
-				if (isComplete()) {
-					running = false;
-					continue;
-				}
-				
-				int randomPieceIndex = getRandomPiece();
-				if (randomPieceIndex == -1) continue;
-				Chunk chunk = new Chunk(randomPieceIndex);
-				chunks.add(chunk);
-				chunk.start();
-				System.out.println("Piece " + chunk.id + " started: " + getStateName(pieceStates[chunk.id]));
-				continue;
-			}
-		}
-		System.out.println("Complete.");
-	}
-	
-	public synchronized void print() {
-		System.out.println("Total Pieces: " + pieceStates.length);
-		for (int i = 0; i < pieceStates.length; i++) {
-			System.out.println(" Piece " + i + " State: " + getStateName(pieceStates[i]));
-		}
-		System.out.println();
-	}
-	
-	public String getStateName(char state) {
-		if (state == NOT_STARTED) return "Not Started";
-		if (state == IN_PROGRESS) return "In Progress";
-		if (state == FAILED) return "Failed";
-		if (state == SUCCESS) return "Complete";
-		return "Unknown";
-	}
-	
-	public synchronized void notifyChunkComplete(Chunk chunk) {
-		chunks.remove(chunk);
-		System.out.println("Piece " + chunk.id + " finished: " + getStateName(pieceStates[chunk.id]));
-		print();
-		notifyAll();
-	}
-	
-	public void allocateFile(String file, long size) throws IOException {
-		this.file = new RandomAccessFile(file, "rw");
-		this.file.seek(size-1);
-		this.file.write(0);
-	}
-	
-	public void writeToFile(byte[] data, long pos) throws IOException {
-		file.seek(pos);
-		file.write(data);
-	}
-	
-	public byte[] readFromFile(long pos, int size) throws IOException {
-		byte[] result = new byte[size];
-		file.seek(pos);
-		file.read(result);
-		//Remember to check size read and handle accordingly.
-		return result;
-	}
-	
-	private class Chunk extends Thread {
-		private int id;
-		private int sleepTime;
+		//start server 
+		ControllerServer server = new ControllerServer();
+		server.start();
+		//start a client to download
+		ControllerClient client = new ControllerClient(ip, port, filesize, filename);
+		client.start();
 		
-		public Chunk(int piece) {
-			this.id = piece;
-			pieceStates[piece] = NOT_STARTED;
-			sleepTime = (int)(Math.random()*10+2);
-		}
 		
-		public void run() {
-			pieceStates[id] = IN_PROGRESS;
-			while (running && sleepTime > 0) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {}
-				sleepTime--;
-			}
-			if (Math.random() < 0.2) pieceStates[id] = FAILED;
-			else pieceStates[id] = SUCCESS;
-			notifyChunkComplete(this);
-		}
+		
 	}
-	
-	private class Server extends Thread{
+	//classes for Newscast
+	public class Newscast extends Thread{
 		private Socket s;
+		private ServerSocket ss;
 		private BufferedReader in;
 		private PrintWriter out;
-		private boolean running;
+		private OutputStream outData;
 		
-		public Server(Socket s) {
+		public Newscast(Socket s , ServerSocket ss){
 			this.s = s;
-			running = false;
+			this.ss = ss;
 		}
 		
-		public void close() {
-			running = false;
-			if (out != null) out.close();
-			try {
-				if (in != null) in.close();
-			} catch (Exception e) {}
-			try {
-				if (s != null) s.close();
-			} catch (Exception e) {}
-		}
-		
+		//handles the passive and active threads
 		public void run(){
-			try {
-				in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-				out = new PrintWriter(s.getOutputStream(), true);
-				running = true;
-			} catch (IOException e) {
-				close();
+			//active thread
+			if(ss==null){
+				
 			}
-			
-			while (running) {
-				String input = null;
-				try {
-					input = in.readLine();
-				} catch (IOException e) {
-					close();
-					continue;
-				}
-				
-				if (input == null) {
-					running = false;
-					continue;
-				}
-
-				if (input.equalsIgnoreCase("quit")) {
-					out.println("Goodbye!");
-					out.close();
-					continue;
-				}
-				
+			//passive thread
+			if(s==null){
+				while(true){
+					try {
+						s = ss.accept();
+					} catch (IOException e){}
+					try {
+						in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+					} catch (IOException e){}
 					
+				}
+				
+				
+			}
 		}
-		close();
+		
+	}
+//	partial view holds and array of 10 Nodeid objects
+	public class PartialView{
+		private ArrayList<Nodeid> nodes;
+		
+		public PartialView(Nodeid id){
+			nodes.add(id);
+		}
+		
+		//Merge takes two partial views and adds all objects in the parameters
+		//Node list to the objects node list.
+		//Then, the 10 freshest Nodeid's are saved and the rest discarded
+		public void merge(PartialView view){
+			boolean add = false;
+			for(int j = 0;j<view.nodes.size();j++){
+				for(int i = 0;i<this.nodes.size();i++){
+					if(!view.nodes.get(j).equals(this.nodes.get(i))){
+						add = true;
+					}
+				}
+				if(add) this.nodes.add(view.nodes.get(j));
+			}
+			int tempage = 0;
+			Nodeid tempnode =  null;
+			
+			while(this.nodes.size()>10){
+				for(int i=0; i< this.nodes.size(); i++){
+					if(this.nodes.get(i).age> tempage ){
+						tempage = this.nodes.get(i).age;
+						tempnode = this.nodes.get(i);
+					}
+				}
+				if(tempnode!=null) this.nodes.remove(tempnode);
+			}
+		}
+		
+		public Nodeid getRandomNode(){
+			int index = (int)Math.floor(Math.random()*this.nodes.size());
+			return this.nodes.get(index);
+		}
+		
+		public String[] getNodes(String filename){
+			String[] Ips = null; 
+			return Ips;
+		}
+		
+	}
+//	Nodeid holds the age and id of a Node, as well as the files it has 
+	public class Nodeid{
+		private String id;
+		private int age;
+		private ArrayList<FileSystem> files;
+		
+		public Nodeid(String id, int age){
+			this.id = id;
+			this.age = age;
+			files = new ArrayList<File>();
+		}
+		
+		public boolean equals(Nodeid node){
+			if(this.id.equalsIgnoreCase(node.id))return true;
+			return false;
+		}
 	}
 }
-}
+
