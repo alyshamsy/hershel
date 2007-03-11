@@ -27,7 +27,7 @@ public class Controller{
 		filename = "blah.txt";
 	}
 	
-	public void main(){
+	public void main()throws IOException{
 		//start Newscast threads
 		Nodeid node = new Nodeid("128.100.8.221", 0);
 		view = new PartialView(node);
@@ -41,8 +41,8 @@ public class Controller{
 		ControllerServer server = new ControllerServer();
 		server.start();
 		//start a client to download
-		ControllerClient client = new ControllerClient(ip, port, filesize, filename);
-		client.start();
+		//ControllerClient client = new ControllerClient(ip, port, filesize, filename);
+		//client.start();
 		
 		
 		
@@ -138,7 +138,7 @@ public class Controller{
 		public Nodeid(String id, int age){
 			this.id = id;
 			this.age = age;
-			files = new ArrayList<File>();
+			files = new ArrayList<FileSystem>();
 		}
 		
 		public boolean equals(Nodeid node){
