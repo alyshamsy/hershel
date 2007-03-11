@@ -7,14 +7,13 @@ import java.util.ArrayList;
 public class ControllerServer extends Thread {
 	//sockets for recieving files and sending files
 	private ServerSocket ss; 
+	public Socket s;
 	public static final int MAX_TASKS_ALIVE = 5;
 	private boolean running;
 	
-	public static void main(String args[]) throws IOException {
-		String temp = null;
-		int num = Integer.parseInt(temp);
-		System.out.println("the number is: "+ num);
-		
+	public static void main(String args[]) throws IOException {		
+		ControllerServer server = new ControllerServer();
+		server.start();
 		/*
 		Controller controller = new Controller();
 		controller.allocateFile("testfile1024.dat", 1024);
@@ -39,15 +38,16 @@ public class ControllerServer extends Thread {
 	public ControllerServer() {
 		running = true;
 		try {
-			ss = new ServerSocket(10000);
+			ss = new ServerSocket(10011);
 		} catch (IOException e) {
-			return;
+			System.out.println("Error: Can't bind socket to port");
 		}
 	}
 	
 	public void close() throws IOException{
 		running = false;
 		ss.close();
+		s.close();
 		
 	}
 	
@@ -56,13 +56,14 @@ public class ControllerServer extends Thread {
 		while (running) {
 			try {
 			//start the server class to handle incoming connection
-			Socket s = ss.accept();
+			System.out.println("Waiting for connections");
+			s = ss.accept();
 			Server server = new Server(s);
 	    	server.start();
 			
 			try {
 				wait(100);
-			} catch (InterruptedException e) {}
+			} catch (Exception e) {}
 			} catch (IOException e) {}
 		}
 			
@@ -72,6 +73,7 @@ public class ControllerServer extends Thread {
 	//Server class which will parse incoming request and dispatch
 	//available chunks
 	private class Server extends Thread{
+		private String path = "/u/0T8/brownjo/ece361/fileoverlay/Phoenix/src/file/";
 		private Socket s;
 		private BufferedReader in;
 		private PrintWriter out;
@@ -124,11 +126,13 @@ public class ControllerServer extends Thread {
 		}
 		
 		public void run(){
+			System.out.println("Connection Established");
 			try {
 				in = new BufferedReader(new InputStreamReader(s.getInputStream()));
 				out = new PrintWriter(s.getOutputStream(), true);
 				running = true;
 			} catch (IOException e) {
+				System.out.println("IOException: allocating Buffers");
 				close();
 			}
 			
@@ -152,33 +156,47 @@ public class ControllerServer extends Thread {
 				Message myMessage = Message.parse(input);
 				if(myMessage.getCmd().equalsIgnoreCase("get")){
 					//check if the file exists and if not dispatch error code
-					tempfile = new File(myMessage.getData(1));
+					System.out.println("File requested "+ myMessage.getData(0));
+					tempfile = new File(path + myMessage.getData(0));
 					if(!tempfile.exists()){
 						out.println("Error: 404");
+						System.out.println("Error: 404");
 						running = false;
 						continue;
 					}
 					//file exists, respond 
 					out.println("OK: 200");
+					System.out.println("OK: 200");
 					chunkNum = myMessage.countDataTokens()-1;
 					//send out chunks that were requested
-					for(int i = 0; i<chunkNum; i++){
-						//assign data to the chunk(ALY CODING)   
-						byte [] data = null;
-						try {
-							outData = s.getOutputStream();
-						} catch (IOException e1) {
+					System.out.println("Number of Chunks: " + chunkNum);
+					//for(int i = 0; i<chunkNum; i++){
+						//assign data to the chunk(ALY CODING) 
+						FileInputStream fstream;
+						byte [] data = new byte[15];
+						
+							try {
+								outData = s.getOutputStream();
+								fstream = new FileInputStream(tempfile.toString());
+								DataInputStream inData = new DataInputStream(fstream);
+								System.out.println("Read in " + inData.read(data, Integer.getInteger(myMessage.getData(1))*12, 12) + " bytes");
+							} catch (IOException e1) {
+								System.out.println("IOException: getting Socket output stream");
+							}
+						 
+						
 							
-						}
 						//send the data
 						if (running) {
 							try {
+								System.out.println("Sending data");
 								outData.write(data);
 							} catch (IOException e) {
 							//should we retry?
+								System.out.println("Error: could not send data");
 							}	
 						}
-					}
+					//}
 						
 				}
 			}
@@ -201,7 +219,7 @@ public class ControllerServer extends Thread {
                     in.r
                 }
                 */
-		this.close();
+		//this.close();
 	}
 }
 }
