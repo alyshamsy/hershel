@@ -24,21 +24,24 @@ public class DefaultSearcher extends Thread implements Searcher
 	private boolean running;
 	private RoutingTable table;
 	private SearchClient client;
+	private SearchId id;
 	private int nodesToSearch;
 	private HashMap<SearchId, SearchStatus> searchesInProgress;
 
-	public DefaultSearcher(RoutingTable table, SearchClient client)
+	public DefaultSearcher(RoutingTable table, SearchClient client, SearchId id)
 	{
 		this.table = table;
 		this.client = client;
+		this.id = id;
 		searchesInProgress = new HashMap<SearchId, SearchStatus>();
 		nodesToSearch = 10;
 	}
 
-	public DefaultSearcher(RoutingTable table, SearchClient client, int nodesToSearch)
+	public DefaultSearcher(RoutingTable table, SearchClient client, SearchId id, int nodesToSearch)
 	{
 		this.table = table;
 		this.client = client;
+		this.id = id;
 		searchesInProgress = new HashMap<SearchId, SearchStatus>();
 		this.nodesToSearch = nodesToSearch;
 	}
@@ -94,6 +97,7 @@ public class DefaultSearcher extends Thread implements Searcher
 	{
 		List nodes = table.findNode(fileName);
 		SearchMessage request = new SearchMessage("find_value");
+		request.arguments().put("id", id.toString());
 		request.arguments().put("file_name", fileName.toString());
 
 		for (int i = 0; i < CONCURRENT_SEARCHES; i++)

@@ -16,7 +16,8 @@ public class NetworkSearchClient extends Thread implements SearchClient
 
     static {
     	try {
-    		firstNode = new NodeState(SearchId.getRandomId(),
+    		firstNode = new NodeState(
+    				SearchId.fromHex("1234567890123456789012345678901234567890"),
     				InetAddress.getByName("localhost"), 10000);
     	} catch (UnknownHostException e) {
     		throw new Error("Can't connect to first node.");
@@ -117,5 +118,10 @@ public class NetworkSearchClient extends Thread implements SearchClient
     public void close()
     {
         socket.close();
+    }
+
+    public MessageHandler getHandler()
+    {
+    	return handler;
     }
 }
