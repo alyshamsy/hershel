@@ -1,7 +1,8 @@
 package file;
 
 import java.io.*;
-//import java.lang.*;
+import java.lang.*;
+import java.net.*;
 //import java.security.*;
 
 public class FileSystem 
@@ -13,6 +14,8 @@ public class FileSystem
      public static String dirName = "Shared";
      boolean made = (new File(dirName)).mkdir();
      public int count = 0;
+     public byte[] ipAddr;
+     public String hostname;
 	 //public static chunks[] chunks;
     
      public class fileHolder
@@ -122,8 +125,8 @@ public class FileSystem
              }
                   
              byte[] data = test.getBytes();
-             byte[] result = SHA1Utils.getSHA1Digest(data);
-             fileTable[i].hashValue = SHA1Utils.digestToHexString(result);   
+             byte[] result = SHA1utils.getSHA1Digest(data);
+             fileTable[i].hashValue = SHA1utils.digestToHexString(result);   
          }
      }
      
@@ -236,5 +239,16 @@ public class FileSystem
      {
     	 String absolutePath = dirName.getAbsolutePath();
     	 return absolutePath;
+     }
+     
+     public void getIPaddr() throws IOException 
+     {
+    	 InetAddress addr = InetAddress.getLocalHost();
+    	    
+    	 // Get IP Address
+    	 ipAddr = addr.getAddress();
+    	    
+    	 // Get hostname
+    	 hostname = addr.getHostName();
      }
 }
