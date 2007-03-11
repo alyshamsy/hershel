@@ -1,7 +1,6 @@
 package com.search;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.Hashtable;
 import java.util.List;
@@ -15,6 +14,7 @@ public class MessageHandler implements PingCommunicator
     private RoutingTable table;
     private SearchClient client;
     private Pinger pinger;
+    private Searcher searcher;
     
     private Hashtable<SearchId, SearchResult> storedValues;
     
@@ -22,7 +22,8 @@ public class MessageHandler implements PingCommunicator
     {
         this.myId = myId;
         pinger = new DefaultPinger(this);
-        table = new RoutingTable(myId, 20, pinger);  
+        table = new RoutingTable(myId, 20, pinger);
+        searcher = new DefaultSearcher(table, client);
         this.client = client;
         storedValues = new Hashtable<SearchId, SearchResult>();
     }    
@@ -47,11 +48,26 @@ public class MessageHandler implements PingCommunicator
     	client.sendMessage(find, targetNode);
     }
 
-    private SearchMessage packageNodeList(List nodes)
+    private SearchMessage packageNodeList(List nodes, String message)
     {
-    	SearchMessage nodeList = new SearchMessage("node_list");
+    	SearchMessage nodeList = new SearchMessage(message);
     	nodeList.arguments().put("nodes", nodes.toString());
     	return nodeList;
+    }
+
+    private void addNodesToTable(SearchMessage request) throws IOException
+    {
+    	String nodeList = request.arguments().get("nodes");
+    	nodeList = nodeList.replaceAll("[\\[\\]]", "");
+    	String[] nodes = nodeList.split(", ");
+    	for (String s : nodes)
+    	{
+    		String[] args = s.split(";");
+    		NodeState n = new NodeState(args[0],
+    				InetAddress.getByName(args[1]),
+    				Integer.parseInt(args[2]));
+    		table.addNode(n);
+    	}
     }
 
     public void respondTo(SearchMessage request, InetAddress address, int port)
@@ -78,28 +94,47 @@ public class MessageHandler implements PingCommunicator
             	Map<String, String> args = request.arguments();
             	String target = args.get("target");
             	List nodes = table.findNode(SearchId.fromHex(target));
-            	client.sendMessage(packageNodeList(nodes), node);
+            	client.sendMessage(packageNodeList(nodes, "node_list"), node);
             }
             else if (request.getCommand().equals("node_list"))
             {
-            	String nodeList = request.arguments().get("nodes");
-            	nodeList = nodeList.replaceAll("[\\[|,\\]]", "");
-            	String[] nodes = nodeList.split(", ");
-            	for (String s : nodes)
-            	{
-            		String[] args = s.split(";");
-            		NodeState n = new NodeState(args[0],
-            				InetAddress.getByName(args[1]),
-            				Integer.parseInt(args[2]));
-            		table.addNode(n);
-            	}
+            	addNodesToTable(request);
             }
             else if(request.getCommand().equals("store"))
             {
                 SearchResult r = SearchResult.fromMessage(request);
                 storedValues.put(r.fileNameHash, r);
             }
-            
+            else if(request.getCommand().equals("find_value"))
+            {
+            	SearchId fileName = SearchId.fromHex(request.arguments().get("file_name"));
+            	SearchResult result = storedValues.get(fileName);
+            	if (result != null)
+            	{
+            		client.sendMessage(result.createMessage("search_result"), node);
+            	}
+            	else
+            	{
+                	List nodes = table.findNode(fileName);
+                	SearchMessage searchFailed = packageNodeList(nodes, "search_failed");
+                	searchFailed.arguments().put("file_name", fileName.toString());
+                	client.sendMessage(searchFailed, node);
+            	}
+            }
+            else if(request.getCommand().equals("search_result"))
+            {
+            	SearchResult r = SearchResult.fromMessage(request);
+            	searcher.searchSuccessful(r.fileNameHash);
+                storedValues.put(r.fileNameHash, r);
+                // startDownload(r);
+            }
+            else if(request.getCommand().equals("search_failed"))
+            {
+            	addNodesToTable(request);
+            	String fileName = request.arguments().get("file_name");
+            	searcher.searchFailed(SearchId.fromHex(fileName));
+            }
+
             replicateDatabaseTo(node);
         }
         catch (IOException e)
@@ -122,7 +157,7 @@ public class MessageHandler implements PingCommunicator
             		continue;
             }
 
-            SearchMessage replicateMessage = e.getValue().storeMessage();
+            SearchMessage replicateMessage = e.getValue().createMessage("store");
             replicateMessage.arguments().put("id", myId.toString());
             client.sendMessage(replicateMessage, node);
         }
