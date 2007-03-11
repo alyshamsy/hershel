@@ -21,9 +21,9 @@ public class SearchResult
         this.peers = peers;
     }
 
-    public SearchMessage storeMessage()
+    public SearchMessage createMessage(String message)
     {
-        SearchMessage storeMessage = new SearchMessage("store");
+        SearchMessage storeMessage = new SearchMessage(message);
         storeMessage.arguments().put("file_name", fileNameHash.toString());
         storeMessage.arguments().put("file", fileHash.toString());
         storeMessage.arguments().put("file_size", String.valueOf(fileSize));
