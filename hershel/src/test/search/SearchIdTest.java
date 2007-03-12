@@ -18,7 +18,7 @@ public class SearchIdTest
     @Test public void fromHexString()
     {
         SearchId id = SearchId.fromHex("1234567890123456789012345678901234567890");
-        assertEquals((byte)0x34, id.id[1]);
+        assertEquals((byte)0x34, id.id[18]);
     }
     
     @Test public void strangeString()

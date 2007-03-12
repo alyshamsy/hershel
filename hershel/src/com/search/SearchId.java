@@ -23,7 +23,7 @@ public class SearchId
         String result = "";
         for(byte b : id)
         {
-            result += String.format("%02x", b);
+            result = String.format("%02x", b)+ result;
         }
         return result;
     }
@@ -68,7 +68,7 @@ public class SearchId
         if(hexString.length() != 40) throw new IllegalArgumentException("Hex string must be 40 characters long");
         byte[] bts = new byte[20];
         for (int i = 0; i < bts.length; i++) {
-            bts[i] = (byte) Integer.parseInt(hexString.substring(2*i, 2*i+2), 16);
+            bts[19-i] = (byte) Integer.parseInt(hexString.substring(2*i, 2*i+2), 16);
         }
         
         return new SearchId(bts);

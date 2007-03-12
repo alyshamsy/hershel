@@ -19,32 +19,32 @@ public class TestSearcher {
 	private class MockPinger implements Pinger {
 
 		public void close() {
-			// TODO Auto-generated method stub
+		
 			
 		}
 
 		public boolean expected(SearchId id) {
-			// TODO Auto-generated method stub
+			
 			return false;
 		}
 
 		public void pingReceived(SearchId id) {
-			// TODO Auto-generated method stub
+			
 			
 		}
 
 		public void putPingRequest(NodeState targetNode, NodeState replacementNode) throws IOException {
-			// TODO Auto-generated method stub
+			
 			
 		}
 
 		public void setRoutingTable(RoutingTable table) {
-			// TODO Auto-generated method stub
+			
 			
 		}
 
 		public void setTimeout(int millis) {
-			// TODO Auto-generated method stub
+			
 			
 		}
 		

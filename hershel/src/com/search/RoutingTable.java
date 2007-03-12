@@ -81,7 +81,7 @@ public class RoutingTable
     private int findIndex(SearchId newNode)
     {
         int mask = 0x80;
-        int index = 0;
+        int index = 19;
         byte[] distance = SearchId.getDistance(self, newNode);
 
         for (int i = 159; i >= 0; i--)
@@ -92,7 +92,7 @@ public class RoutingTable
             if (mask == 0)
             {
             	mask = 0x80;
-            	index++;
+            	index--;
             }
         }
 
