@@ -25,7 +25,7 @@ public class SearchGUI {
 				//h.findNode(targetNode, targetId);
 			} else if (command[0].equals("find_value")) {
 				try {
-					h.findValue(SearchId.fromHex(command[1]));
+					h.findValue(new SearchId(SHA1Utils.getSHA1Digest(command[1].getBytes())));
 				} catch (IOException ex) {
 					output.append("! Searching error.\n");
 				}
@@ -44,15 +44,18 @@ public class SearchGUI {
 		client = new NetworkSearchClient(id, 10000);
 		handler = new InputHandler();
 		setUpWindow();
-		client.run();
+		client.registerUI(this);
+		client.start();
 	}
 
 	public SearchGUI(int port) throws SocketException {
-		client = new NetworkSearchClient(
-				SearchId.getRandomId().toString(), port);
+		String randomId = SearchId.getRandomId().toString();
+		System.out.println(randomId);
+		client = new NetworkSearchClient(randomId, port);
 		handler = new InputHandler();
 		setUpWindow();
-		client.run();
+		client.registerUI(this);
+		client.start();
 	}
 
 	private void setUpWindow() {
@@ -79,18 +82,21 @@ public class SearchGUI {
 	}
 
 	public void getMessage(String s) {
-		output.append("> " + s + "\n");
+		output.append("< " + s + "\n");
 	}
 
 	public static void main(String[] args) throws SocketException {
-		if (args.length == 2) {
+		/*if (args.length == 2) {
 			if (args[0].equals("-id"))
 				new SearchGUI(args[1]);
 			else if (args[0].equals("-port"))
 				new SearchGUI(Integer.parseInt(args[1]));
 		} else {
 			System.out.println("Usage: java SearchGUI <-port OR -id> <value>");
-		}
+		}*/
+		new SearchGUI("1234567890123456789012345678901234567890");
+		new SearchGUI(10050);
+		new SearchGUI(10051);
 	}
 
 }

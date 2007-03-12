@@ -7,13 +7,14 @@ import java.util.Random;
 public class SearchId
 {
     public byte[] id = new byte[20];
+    private Random r = new Random();
+
     private SearchId()
     {
-        Random r = new Random(2);       
         r.nextBytes(id);
     }
     
-    private SearchId(byte[] id)
+    public SearchId(byte[] id)
     {
         this.id = id;
     }    
