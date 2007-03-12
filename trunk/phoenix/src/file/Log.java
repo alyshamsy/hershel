@@ -39,7 +39,7 @@ public class Log extends FileHandler {
 		this.append = append;
 	}
 
-	public void writeLogInitialize(){
+	public synchronized void writeLogInitialize(){
 		File newFile;
 		FileWriter fout;
 		String initialize;
@@ -68,7 +68,7 @@ public class Log extends FileHandler {
 	 *  Formart it will appear in:
 	 *  File:<FileName> NodeID: <NodeID> IP:<IP Address> Port: <Port #>  Chunk#: <Chunk #> Chunk Size: <Chunk Size> File Size: <File Size>
 	 */
-	public void writeTransferLog( String downloadFileName, int recvNodeID, 
+	public synchronized void writeTransferLog( String downloadFileName, int recvNodeID, 
 			InetAddress IPaddr, int recvPort, int chunkNum, int chunkSize, int fileSize ) 
 	{
 		String output;
