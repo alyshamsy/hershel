@@ -60,6 +60,13 @@ public class Controller{
 	public static void main(String args[])throws IOException{
 		Controller master = new Controller();
 		master.go();
+		/*
+		Message[]result = master.view.Parser();
+		
+		for (int i = 0; i < result.length; i++){
+			System.out.println(result[i].getData());
+		}
+		*/
 		
 	}
 	//classes for Newscast
@@ -229,6 +236,28 @@ public class Controller{
 			return nodeFiles;
 		}
 		
+		public Message[] Parser() {
+			int numNodes = this.nodes.size();
+			Message []decode = new Message[numNodes];
+			String tmp = "";
+			for (int i = 0; i < numNodes; i++){
+				String nodeID = this.nodes.get(i).id;
+				int nodeAge = this.nodes.get(i).age;
+				String[] nodeFiles = this.nodes.get(i).files.fileContents();
+				int nodeFilesSize = nodeFiles.length;
+				
+				tmp= nodeID + " " + nodeAge;
+				
+				for (int j =0; j < nodeFilesSize; j++){
+					tmp = tmp + " " + nodeFiles[j];  
+					
+				}
+				decode[i] = new Message(null,tmp);
+			}
+				
+			return decode ;
+}
+		
 	}
 //	Nodeid holds the age and id of a Node, as well as the files it has 
 	public class Nodeid{
@@ -275,7 +304,7 @@ public class Controller{
 		public ControllerServer() {
 			running = true;
 			try {
-				ss = new ServerSocket(10028);
+				ss = new ServerSocket(10036);
 			} catch (IOException e) {
 				System.out.println("Error: Can't bind socket to port");
 			}
@@ -313,7 +342,7 @@ public class Controller{
 		private class Server extends Thread{
 			private String filename;
 			private int chunkNum;
-			private String path = "/u/0T8/brownjo/ece361/fileoverlay/Phoenix/Shared/";
+			private String path = FileSystem.absPath();
 			private Socket s;
 			private BufferedReader in;
 			private PrintWriter out;
@@ -389,6 +418,7 @@ public class Controller{
 								chunkNum = Integer.valueOf(myMessage.getData(1));
 								System.out.println("File requested: "+ filename);
 								tempfile = new File(path + filename);
+								System.out.println("The Path is: " + path + filename);
 								if(!tempfile.exists()){
 									out.println("Error: 404");
 									System.out.println("Error: 404");
