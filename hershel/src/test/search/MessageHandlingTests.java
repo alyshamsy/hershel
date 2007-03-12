@@ -28,23 +28,7 @@ public class MessageHandlingTests
     private MessageHandler handler;
     private NodeState targetNode;
 
-    public class MockSearchClient implements SearchClient
-    {
-        
-        public SearchMessage lastMessage;
-        public NodeState lastDestination;
-        public void close()
-        {            
-            
-        }
-
-        public void sendMessage(SearchMessage message, NodeState destination) throws IOException
-        {
-            lastMessage = message;
-            lastDestination = destination;            
-        }
-
-    }
+    
     
     @Before public void setUp() throws UnknownHostException
     {

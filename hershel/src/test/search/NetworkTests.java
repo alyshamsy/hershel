@@ -41,7 +41,7 @@ public class NetworkTests
 
         public MockHandler()
         {
-            super(SearchId.fromHex("0987654321098765432109876543210987654321"), null);            
+            super(SearchId.fromHex("0987654321098765432109876543210987654321"), new MockSearchClient());            
         }
 
     }

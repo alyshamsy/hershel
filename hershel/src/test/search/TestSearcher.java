@@ -52,7 +52,7 @@ public class TestSearcher {
 
 	@Before
 	public void setUp() throws Exception {
-		client = new MessageHandlingTests().new MockSearchClient();
+		client = new MockSearchClient();
 		SearchId id = SearchId.getRandomId();
 		table = new RoutingTable(id, 10, new MockPinger());
 		searcher = new DefaultSearcher(table, client, id);
@@ -73,7 +73,7 @@ public class TestSearcher {
 		searcher.putSearchRequest(fileName);
 
 		SearchMessage sm =
-			((MessageHandlingTests.MockSearchClient)client).lastMessage;
+			((MockSearchClient)client).lastMessage;
 		assertEquals("find_value", sm.getCommand());
 		assertEquals(fileName.toString(), sm.arguments().get("file_name"));
 	}
