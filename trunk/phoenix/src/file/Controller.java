@@ -275,7 +275,7 @@ public class Controller{
 		public ControllerServer() {
 			running = true;
 			try {
-				ss = new ServerSocket(10027);
+				ss = new ServerSocket(10028);
 			} catch (IOException e) {
 				System.out.println("Error: Can't bind socket to port");
 			}
