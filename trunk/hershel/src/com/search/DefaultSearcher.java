@@ -1,6 +1,7 @@
 package com.search;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -12,11 +13,13 @@ public class DefaultSearcher extends Thread implements Searcher
 	{
 		boolean searchFailed;
 		int attemptsLeft;
+		ArrayList<NodeState> nodesSearched;
 
 		SearchStatus()
 		{
 			searchFailed = true;
 			attemptsLeft = nodesToSearch;
+			nodesSearched = new ArrayList<NodeState>();
 		}
 	}
 
@@ -93,23 +96,33 @@ public class DefaultSearcher extends Thread implements Searcher
 
 	private void sendSearchRequest(SearchId fileName) throws IOException
 	{
-		List nodes = table.findNode(fileName);
+		SearchStatus status = searchesInProgress.get(fileName);
+		ArrayList<NodeState> nodes = table.findNode(fileName);
 		SearchMessage request = new SearchMessage("find_value");
 		request.arguments().put("id", id.toString());
 		request.arguments().put("file_name", fileName.toString());
 
 		int messagesSent = 0;
-		for (int i = 0; i < alpha; i++)
+		for(NodeState n : nodes)
 		{
-			if (i >= nodes.size()) break;
-			client.sendMessage(request, (NodeState)(nodes.get(i)));
-			messagesSent+=1;
+			if(status.nodesSearched.contains(n)) continue;
+			if(messagesSent == alpha) break;
+			
+			client.sendMessage(request, n);
+			status.nodesSearched.add(n);
+			messagesSent++;
+		}		
+		
+		if(messagesSent == 0)
+		{
+			searchesInProgress.remove(fileName);
 		}
-
-		SearchStatus ss = searchesInProgress.get(fileName);
-		ss.attemptsLeft = ss.attemptsLeft - messagesSent;
-		ss.searchFailed = false;
-		searchesInProgress.put(fileName, ss);
+		else
+		{
+			status.attemptsLeft = status.attemptsLeft - messagesSent;
+			status.searchFailed = false;
+			searchesInProgress.put(fileName, status);
+		}		
 	}
 
 }

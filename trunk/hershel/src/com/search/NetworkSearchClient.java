@@ -73,7 +73,7 @@ public class NetworkSearchClient extends Thread implements SearchClient
     
     private DatagramPacket receiveMessage() throws IOException
     {
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[1024*2];
         DatagramPacket incommingPacket = new DatagramPacket(buffer, buffer.length);
         socket.receive(incommingPacket);
         /*//Shad's Addition.

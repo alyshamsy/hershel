@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -34,33 +36,65 @@ public class SearchGUI {
 		
 	}
 
+	static private String initialId = "1234567890123456789012345678901234567890";
 	private JFrame frame;
 	private JTextField input;
 	private JTextArea output;
 	private InputHandler handler;
 	private NetworkSearchClient client;
 
-	public SearchGUI(String id) throws SocketException {
+	public SearchGUI(String id, boolean visible) throws SocketException {
 		client = new NetworkSearchClient(id, 10000);
 		handler = new InputHandler();
-		setUpWindow();
+		addDemoKeywords();
+		setUpWindow(id, visible);
 		client.registerUI(this);
 		client.start();
 	}
 
-	public SearchGUI(int port) throws SocketException {
+	private void addDemoKeywords() {
+		String[] keywords = {
+				"bob", "maxim", "jason", "ryan", "jordan", "aly", "rock", "paper", "scissors",
+				"poop", "push", "strain", "laxatives", "brown", "borat"
+		};
+		
+		String fileName = keywords[(int)(Math.random() * 
+				keywords.length)];
+		System.out.println(fileName);
+		SearchId hashedFilename = new SearchId(SHA1Utils.getSHA1Digest(fileName.getBytes()));
+		
+		SearchId fileHash = SearchId.getRandomId();
+		ArrayList<SearchId> chunkHashes = new ArrayList<SearchId>();
+		ArrayList<InetSocketAddress> peers = new ArrayList<InetSocketAddress>();        
+        
+        for(int i = 0; i<4; i++)
+        {
+            chunkHashes.add(SearchId.getRandomId());
+        }
+        
+        for(int i = 0; i<4; i++)
+        {
+            peers.add(new InetSocketAddress("localhost", i+10));           
+        }
+        
+        SearchResult r = new SearchResult(hashedFilename, fileHash, chunkHashes, 4*512*1024-100, peers);
+        
+        client.getHandler().database().put(hashedFilename, r);
+	}
+
+	public SearchGUI(int port, boolean visible) throws SocketException {
 		String randomId = SearchId.getRandomId().toString();
-		System.out.println(randomId);
 		client = new NetworkSearchClient(randomId, port);
+		addDemoKeywords();
 		handler = new InputHandler();
-		setUpWindow();
+		setUpWindow(randomId, visible);
 		client.registerUI(this);
 		client.start();
 	}
 
-	private void setUpWindow() {
-		frame = new JFrame("Search Demo");
-		frame.setSize(350, 300);
+	private void setUpWindow(String title, boolean visible) {
+		frame = new JFrame("Search Demo - " + title);
+		frame.setSize(500, 500);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		input = new JTextField(20);
@@ -77,7 +111,7 @@ public class SearchGUI {
 
 		frame.add(inputArea, BorderLayout.SOUTH);
 		frame.add(new JScrollPane(output), BorderLayout.CENTER);
-		frame.setVisible(true);
+		frame.setVisible(visible);
 		input.requestFocusInWindow();
 	}
 
@@ -94,9 +128,11 @@ public class SearchGUI {
 		} else {
 			System.out.println("Usage: java SearchGUI <-port OR -id> <value>");
 		}*/
-		new SearchGUI("1234567890123456789012345678901234567890");
-		new SearchGUI(10050);
-		new SearchGUI(10051);
+		new SearchGUI(initialId, true);
+		int port = 10050;
+		for (int i = 0; i < 50; i++, port++) {
+			new SearchGUI(port, i % 10 == 0);			
+		}
 	}
 
 }

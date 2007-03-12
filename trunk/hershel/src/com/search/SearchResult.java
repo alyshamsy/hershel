@@ -58,10 +58,7 @@ public class SearchResult
     }
 
     public static SearchResult fromMessage(SearchMessage message)
-    {
-        if(!message.getCommand().equals("store")) 
-            throw new IllegalArgumentException("Expected a store command not "  + message.getCommand());
-        
+    {        
         SearchId fileName = SearchId.fromHex(message.arguments().get("file_name"));
         SearchId fileHash = SearchId.fromHex(message.arguments().get("file"));
         long fileSize = Long.parseLong(message.arguments().get("file_size"));

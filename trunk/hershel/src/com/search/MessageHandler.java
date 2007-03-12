@@ -2,6 +2,7 @@ package com.search;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -16,10 +17,13 @@ public class MessageHandler implements PingCommunicator
     private Pinger pinger;
     private Searcher searcher;
     
+    private Hashtable<NodeState, Long> recentlyReplicatedNodes;
+    
     private Hashtable<SearchId, SearchResult> storedValues;
     
     public MessageHandler(SearchId myId, SearchClient client)
     {
+    	recentlyReplicatedNodes = new Hashtable<NodeState, Long>();
         this.myId = myId;
         DefaultPinger p = new DefaultPinger(this);
         p.start();
@@ -87,6 +91,9 @@ public class MessageHandler implements PingCommunicator
     public void respondTo(SearchMessage request, InetAddress address, int port)
     {
     	client.sendToUI(request.toString());
+    	if(!request.arguments().containsKey("id"))
+    		System.out.println(request.getCommand());
+    	
         NodeState node = new NodeState(request.arguments().get("id"),
                 				address,
                 				port);
@@ -126,7 +133,9 @@ public class MessageHandler implements PingCommunicator
             	SearchResult result = storedValues.get(fileName);
             	if (result != null)
             	{
-            		client.sendMessage(result.createMessage("search_result"), node);
+            		SearchMessage m = result.createMessage("search_result");
+            		m.arguments().put("id", myId.toString());
+            		client.sendMessage(m, node);
             	}
             	else
             	{
@@ -161,11 +170,16 @@ public class MessageHandler implements PingCommunicator
 
     private void replicateDatabaseTo(NodeState node) throws IOException
     {
+    	if(recentlyReplicatedNodes.containsKey(node) && 
+    			System.currentTimeMillis() - recentlyReplicatedNodes.get(node) < 100000)
+    		return;
+    	
+    	recentlyReplicatedNodes.put(node, System.currentTimeMillis());
         for(Entry<SearchId, SearchResult> e : storedValues.entrySet())
-        {        
+        {
             byte[] myDistance = SearchId.getDistance(myId, e.getKey());
             byte[] guysDistance = SearchId.getDistance(node.id, e.getKey());
-
+      
             // TODO we need a distance class
             if(compareTo(myDistance, guysDistance) > 0)           
             {
