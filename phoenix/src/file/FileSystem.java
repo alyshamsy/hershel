@@ -34,6 +34,7 @@ public class FileSystem
     		 contains = false;
          }
          
+         /*
          public class chunks
          {
         	 public int chunk_tag;
@@ -43,25 +44,26 @@ public class FileSystem
         	 public chunks()
         	 {
         		 chunk_tag = 0;
-        		 chunks_array[0] = 0;
         		 chunk_exists = false;
         	 }
          }
+         */
      }
      
-     /*
+     
      public class chunks
      {
     	 public int chunk_tag;
     	 public byte[] chunks_array;
+    	 public boolean chunk_exists;
     	 
     	 public chunks()
     	 {
     		 chunk_tag = 0;
-    		 chunks_array[0] = 0;
+    		 chunk_exists = false;
     	 }
      }
-     */
+     
      
      public static int getFileSize(String fileName)
      {
@@ -70,6 +72,14 @@ public class FileSystem
          int file_len = (int)file.length();
          
          return file_len;
+     }
+     
+     public String toString(){
+    	 String fileList = null;
+    	 for(int i =0;i< fileTable.length;i++){
+    		 fileList = fileList.concat(fileTable[i].fileName + " ");
+    	 }
+    	 return fileList;
      }
      
      public int numberOfChunks(int file_size)
@@ -86,16 +96,20 @@ public class FileSystem
      
      public void fileInfo()
      {
+    	
     	 File dir = new File(dirName);
-    	    
+    	 
+    	
          String[] contents = dir.list();
+        
          size = contents.length;
-         
+        
          if (contents == null) 
          {
             System.out.println("No shared directory exists");
             return;
          }
+         
          
          fileTable = null; // garbage collector should take care of that
          
@@ -105,10 +119,26 @@ public class FileSystem
          {
         	 fileTable[i] = new fileHolder();
              fileTable[i].fileName = contents[i];
-                 
+             
+             System.out.println("The File Holder array contains " + fileTable[i].fileName);
+             		
              File file = new File(dirName + "/" + fileTable[i].fileName);
              int filesize = getFileSize(fileTable[i].fileName);
              fileTable[i].fileSize = filesize;
+             
+             int numChunks = numberOfChunks(filesize);
+             
+             fileTable[i].chunkarray = new chunks[numChunks];
+             for(int j = 0; j < numChunks; j++)
+             {
+            	 fileTable[i].chunkarray[j] = new chunks();
+            	 
+            	 fileTable[i].chunkarray[j].chunk_tag = j+1;
+            	 fileTable[i].chunkarray[j].chunks_array = new byte[chunkSize];
+            	 
+            	 
+            	 //chunkSegment()
+             }
              
              fileTable[i].tag = i+1;
                           
@@ -130,39 +160,36 @@ public class FileSystem
              fileTable[i].hashValue = SHA1utils.digestToHexString(result);   
          }
      }
-	 //NEW FUNCTION START
-     public String[] fileContents()
-     {
-    	 File dir = new File(dirName);
-    	 String[] contents = dir.list();
-    	 
-    	 return contents;
-     }
-     //NEW FUNCTION END
      
      //modify this
-     public boolean chunkSegment(RandomAccessFile file, int filesize) throws IOException
+     public synchronized boolean chunkSegment(RandomAccessFile file, int filesize, String fileName) throws IOException
      {
     	 int numOfChunks = numberOfChunks(filesize);
     	 
     	 for(int j = 0; j < size; j++)
     	 {
-    		 for(int i = 0; i < numOfChunks; i++)
+    		 if(fileName.equalsIgnoreCase(fileTable[j].fileName))
     		 {
-    			 fileTable[j].chunkarray[i].chunk_tag = i+1;
-    			 file.readFully(fileTable[j].chunkarray[i].chunks_array, i*chunkSize, chunkSize);
+    			 for(int i = 0; i < numOfChunks; i++)
+    			 {
+    				 fileTable[j].chunkarray[i].chunk_tag = i+1;
+    				 if(filesize < chunkSize)
+    					 file.readFully(fileTable[j].chunkarray[i].chunks_array, i*chunkSize, filesize);
+    				 else
+    					 file.readFully(fileTable[j].chunkarray[i].chunks_array, i*chunkSize, chunkSize);
+    				 System.out.println("Breaks into chunks");
+    				 return true;
+    			 }
     		 }
     	 }
-    	 
-    	 return true;
+    	 return false;
      }
-     
-     //chunkNumber starts at 1
+          
      public boolean chunkStorage(String fileName, int chunkNumber, byte[] chunk)
      {
     	 for(int i = 0; i < size; i++)
     	 {
-    		 if(fileName == fileTable[i].fileName)
+    		 if(fileName.equalsIgnoreCase(fileTable[i].fileName))
     		 {
     			 if(fileTable[i].contains == true)
     			 {
@@ -171,7 +198,7 @@ public class FileSystem
     			 }
     			 else
     			 {
-    				 System.arraycopy(chunk, 0, fileTable[i].chunkarray[chunkNumber-1].chunks_array, 0, chunk.length);
+    				 System.arraycopy(chunk, 0, fileTable[i].chunkarray[i].chunks_array[chunkNumber], 0, chunk.length);
     				 fileTable[i].fileSize += chunk.length;
     				 return true;
     			 }
@@ -179,6 +206,8 @@ public class FileSystem
     		 
     		 else
     		 {
+    			 //int filesize = getFileSize(fileName);
+    			 //int number_of_chunks = numberOfChunks(filesize);
     			 createFile(fileName, chunk, chunkNumber);
     			 return true;
     		 }
@@ -197,9 +226,9 @@ public class FileSystem
          fileTable[i].contains = false;
          fileTable[i].tag = i+1;
          
-         fileTable[i].chunkarray[chunkNumber-1].chunk_tag = chunkNumber;
-         System.arraycopy(chunk, 0, fileTable[i].chunkarray[chunkNumber-1].chunks_array, 0, chunk.length);
-         fileTable[i].chunkarray[chunkNumber-1].chunk_exists = true;
+         fileTable[i].chunkarray[chunkNumber].chunk_tag = chunkNumber;
+         System.arraycopy(chunk, 0, fileTable[i].chunkarray[chunkNumber].chunks_array, 0, chunk.length);
+         fileTable[i].chunkarray[chunkNumber].chunk_exists = true;
          count++;
      }
      
@@ -208,12 +237,12 @@ public class FileSystem
     	 int curr_file_pos = 0;
     	 for(int i = 0; i < size; i++)
     	 {
-    		 if(fileName == fileTable[i].fileName)
+    		 if(fileName.equalsIgnoreCase(fileTable[i].fileName))
     			 curr_file_pos = i;
     		 else
     		 {
     			 createFile(fileName, chunk, chunkNumber);
-    			 return true;
+    			 return false;
     		 }
     	 }
     	 
@@ -225,7 +254,7 @@ public class FileSystem
     	 
     	 else
     	 {
-    		if(fileTable[curr_file_pos].chunkarray[chunkNumber-1].chunk_exists == true)
+    		if(fileTable[curr_file_pos].chunkarray[chunkNumber].chunk_exists == true)
     		{
     			System.out.println("The Chunk already exists");
     			return false;
@@ -233,9 +262,9 @@ public class FileSystem
 
     		else
     		{
-    			fileTable[curr_file_pos].chunkarray[chunkNumber-1].chunk_tag = chunkNumber;
-    	        System.arraycopy(chunk, 0, fileTable[curr_file_pos].chunkarray[chunkNumber-1].chunks_array, 0, chunk.length);
-    	        fileTable[curr_file_pos].chunkarray[chunkNumber-1].chunk_exists = true;
+    			fileTable[curr_file_pos].chunkarray[chunkNumber].chunk_tag = chunkNumber;
+    	        System.arraycopy(chunk, 0, fileTable[curr_file_pos].chunkarray[chunkNumber].chunks_array, 0, chunk.length);
+    	        fileTable[curr_file_pos].chunkarray[chunkNumber].chunk_exists = true;
     	        count++;
     	        if(count == num_of_chunks)
     	        	fileTable[curr_file_pos].contains = true;
@@ -244,24 +273,19 @@ public class FileSystem
     	 }
      }
      
-     public boolean download_chunk(String fileName, int chunkNumber)
+     public synchronized byte[] download_chunk(String fileName, int chunkNumber)
      {
     	 for(int i = 0; i < size; i++)
     	 {
-    		 if(fileName != fileTable[i].fileName)
+    		 if(fileName.equalsIgnoreCase(fileTable[i].fileName))
     		 {
-    			 System.out.println("File Does not exist");
-    			 return false;
-    		 }
-    		 
-    		 else
-    		 {
-    			 System.arraycopy(fileTable[i].chunkarray[chunkNumber-1].chunks_array, 0, indiv_chunks, 0, fileTable[i].chunkarray[chunkNumber-1].chunks_array.length);
-    			 return true;
+    			 indiv_chunks = fileTable[i].chunkarray[chunkNumber-1].chunks_array;
+    			 System.out.println("Download Chunks: " + indiv_chunks.toString());
+    			 return indiv_chunks;
     		 }
     	 }
-    	 
-    	 return false;
+    	 System.out.println("File Does not exist");
+    	 return null;
      }
      
      public String absPath(File dirName)
@@ -270,17 +294,14 @@ public class FileSystem
     	 return absolutePath;
      }
      
-     public static String getIPaddr() throws IOException 
+     public synchronized static String getIPaddr() throws IOException 
      {
     	 InetAddress addr = InetAddress.getLocalHost();
-    	    
     	 // Get IP Address
-    	 byte[] ipAddr = addr.getAddress();
+    	 String ipaddr = addr.getHostAddress();
     	    
     	 // Get hostname
-    	 //String hostname = addr.getHostName();
-    	 
-    	 String ipaddress = ipAddr.toString();
-    	 return ipaddress;
+    	 String hostname = addr.getHostName();
+    	 return ipaddr;
      }
 }
