@@ -58,12 +58,12 @@ public class RoutingTable
 
         ArrayList<NodeState> nodes = new ArrayList<NodeState>();
         int i = index, j = 0;
-        while ((i < 160 || i >= 0) && nodes.size() < K)
+        while (nodes.size() < K)
         {
-            i += (j % 2 == 0) ? j : -j;
+        	i += (j % 2 == 0) ? j : -j;
             j++;
             if (i >= 160 || i < 0)
-                continue;
+                break;
 
             for (NodeState n : table.get(index))
             {
