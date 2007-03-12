@@ -31,8 +31,8 @@ public class ControllerClient extends Thread {
 	private static final int INPUT_TIME_OUT = 1000;		//number of ms before socket throws exception on input stream read
 	
 	// TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!
-	private static final int RYAN_PORT = 10125;
-	private static final int JORDAN_PORT = 10031;
+	private static final int RYAN_PORT = 10126;
+	private static final int JORDAN_PORT = 10035;
 	private static final String JORDAN_IP = "128.100.8.189";
 	
 	public static void main(String args[]) throws IOException {
