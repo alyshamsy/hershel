@@ -32,7 +32,7 @@ public class RoutingTable
     {
         int index = findIndex(node.id);
         if (index < 0)
-            throw new Error();
+            return;
 
         ArrayList<NodeState> kBucket = table.get(index);
         kBucket.contains(node);
@@ -49,11 +49,11 @@ public class RoutingTable
 
     public synchronized List findNode(SearchId nodeId)
     {
+    	ArrayList<NodeState> nodes = new ArrayList<NodeState>();
         int index = findIndex(nodeId);
         if (index < 0)
-            throw new Error();
+            return nodes;
 
-        ArrayList<NodeState> nodes = new ArrayList<NodeState>();
         int i = index, j = 0;
         while (nodes.size() < K)
         {
