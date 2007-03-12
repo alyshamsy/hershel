@@ -165,16 +165,26 @@ public class MessageHandler implements PingCommunicator
             byte[] myDistance = SearchId.getDistance(myId, e.getKey());
             byte[] guysDistance = SearchId.getDistance(node.id, e.getKey());
 
-            for (int i = 0; i < 20; i++)
+            // TODO we need a distance class
+            if(compareTo(myDistance, guysDistance) > 0)           
             {
-            	if (guysDistance[i] >= myDistance[i])
-            		continue outer;
+                SearchMessage replicateMessage = e.getValue().createMessage("store");
+                replicateMessage.arguments().put("id", myId.toString());
+                client.sendMessage(replicateMessage, node);
             }
-
-            SearchMessage replicateMessage = e.getValue().createMessage("store");
-            replicateMessage.arguments().put("id", myId.toString());
-            client.sendMessage(replicateMessage, node);
         }
+    }
+    
+    private int compareTo(byte[] first, byte[] second)
+    {
+        for (int i = 19; i >= 0; i--)
+        {
+            if(first[i] != second[i])
+            {
+                return ((int)first[i] & 0x000000ff) - ((int)second[i] & 0x000000ff);
+            }
+        }
+        return 0;
     }
 
     public RoutingTable routingTable()

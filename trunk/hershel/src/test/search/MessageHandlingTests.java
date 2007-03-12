@@ -53,7 +53,6 @@ public class MessageHandlingTests
         
         handler.respondTo(pingMessage(), targetNode.address, targetNode.port);        
 
-        // TODO Make sure that 156 is the right kbucket
         NodeState node = handler.routingTable().getRoutingTable().get(156).get(0);
 
         assertEquals("1234567890123456789012345678901234567890", node.id.toString());
@@ -101,6 +100,7 @@ public class MessageHandlingTests
         assertNull(mock.lastMessage);
     }
     
+    // TODO the store tests need to be refactored
     @Test public void storeCommandAddsItemToTheDatabase()
     {        
         SearchResult r = createSearchResult();
@@ -132,9 +132,26 @@ public class MessageHandlingTests
         assertEquals(fileNameHash.toString(), mock.lastMessage.arguments().get("file_name"));
     }
     
+    @Test public void storeCommandDoesNotDuplicateDatabaseToEveryNode() throws UnknownHostException
+    {
+        SearchResult r = createSearchResult();       
+        SearchMessage storeMessage = r.createMessage("store");
+        storeMessage.arguments().put("id", targetNode.id.toString());
+        
+        handler.respondTo(storeMessage, targetNode.address, targetNode.port); 
+        NodeState unknownNode = new NodeState(SearchId.fromHex("0000000000000000000000000000000000000000"), 
+                InetAddress.getByName("localhost"), 45);
+        SearchMessage unknownPing = new SearchMessage("ping");
+        unknownPing.arguments().put("id", "0000000000000000000000000000000000000000");
+        handler.respondTo(unknownPing, unknownNode.address, unknownNode.port);
+        
+        assertEquals(unknownNode, mock.lastDestination);
+        assertEquals("ping", mock.lastMessage.getCommand());        
+    }
+    
     public SearchResult createSearchResult()
     {
-        SearchId fileNameHash = SearchId.getRandomId();
+        SearchId fileNameHash = SearchId.fromHex("ffffffffffffffffffffffffffffffffffffffff");
         SearchId fileHash = SearchId.getRandomId();
         ArrayList<SearchId> chunkHashes = new ArrayList<SearchId>();
         for(int i = 0; i<4; i++)
