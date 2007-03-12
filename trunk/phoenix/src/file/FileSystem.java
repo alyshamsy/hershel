@@ -130,6 +130,15 @@ public class FileSystem
              fileTable[i].hashValue = SHA1utils.digestToHexString(result);   
          }
      }
+	 //NEW FUNCTION START
+     public String[] fileContents()
+     {
+    	 File dir = new File(dirName);
+    	 String[] contents = dir.list();
+    	 
+    	 return contents;
+     }
+     //NEW FUNCTION END
      
      //modify this
      public boolean chunkSegment(RandomAccessFile file, int filesize) throws IOException
