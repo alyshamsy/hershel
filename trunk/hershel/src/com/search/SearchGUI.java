@@ -44,6 +44,7 @@ public class SearchGUI {
 		client = new NetworkSearchClient(id, 10000);
 		handler = new InputHandler();
 		setUpWindow();
+		client.run();
 	}
 
 	public SearchGUI(int port) throws SocketException {
@@ -51,6 +52,7 @@ public class SearchGUI {
 				SearchId.getRandomId().toString(), port);
 		handler = new InputHandler();
 		setUpWindow();
+		client.run();
 	}
 
 	private void setUpWindow() {
@@ -74,6 +76,10 @@ public class SearchGUI {
 		frame.add(new JScrollPane(output), BorderLayout.CENTER);
 		frame.setVisible(true);
 		input.requestFocusInWindow();
+	}
+
+	public void getMessage(String s) {
+		output.append("> " + s + "\n");
 	}
 
 	public static void main(String[] args) throws SocketException {
