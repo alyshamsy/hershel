@@ -275,7 +275,7 @@ public class Controller{
 		public ControllerServer() {
 			running = true;
 			try {
-				ss = new ServerSocket(10014);
+				ss = new ServerSocket(10027);
 			} catch (IOException e) {
 				System.out.println("Error: Can't bind socket to port");
 			}
@@ -313,7 +313,7 @@ public class Controller{
 		private class Server extends Thread{
 			private String filename;
 			private int chunkNum;
-			private String path = "/u/0T8/brownjo/ece361/fileoverlay/Phoenix/src/file/";
+			private String path = "/u/0T8/brownjo/ece361/fileoverlay/Phoenix/Shared/";
 			private Socket s;
 			private BufferedReader in;
 			private PrintWriter out;
@@ -355,6 +355,7 @@ public class Controller{
 				try {
 					in = new BufferedReader(new InputStreamReader(s.getInputStream()));
 					out = new PrintWriter(s.getOutputStream(), true);
+					outData = s.getOutputStream();
 					running = true;
 				} catch (IOException e) {
 					System.out.println("IOException: allocating Buffers");
@@ -405,7 +406,7 @@ public class Controller{
 			
 								try {
 									file = new RandomAccessFile(tempfile, "rw");
-									view.getNode(FileSystem.getIPaddr()).chunkSegment(file, FileSystem.getFileSize(filename));
+									view.getNode(FileSystem.getIPaddr()).chunkSegment(file, FileSystem.getFileSize(filename), filename);
 							    } catch (FileNotFoundException e2) {
 									//this should not happen as we already checked if the file existed
 								}
@@ -426,6 +427,7 @@ public class Controller{
 									running = false;
 									continue;
 								}
+								System.out.println(data.toString());
 							    //send the data
 								if (running) {
 									try {
