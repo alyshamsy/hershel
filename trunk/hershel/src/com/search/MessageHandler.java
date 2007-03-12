@@ -21,7 +21,9 @@ public class MessageHandler implements PingCommunicator
     public MessageHandler(SearchId myId, SearchClient client)
     {
         this.myId = myId;
-        pinger = new DefaultPinger(this);
+        DefaultPinger p = new DefaultPinger(this);
+        p.start();
+        pinger = p;
         table = new RoutingTable(myId, 20, pinger);
         searcher = new DefaultSearcher(table, client, myId);
         searcher.start();

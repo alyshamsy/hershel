@@ -35,10 +35,7 @@ public class RoutingTable
             throw new Error();
 
         ArrayList<NodeState> kBucket = table.get(index);
-        for (NodeState n : kBucket)
-        {
-        	if (node.equals(n)) return;
-        }
+        kBucket.contains(node);
 
         if (kBucket.size() < K)
         {
