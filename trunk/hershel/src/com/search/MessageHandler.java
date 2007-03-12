@@ -81,10 +81,12 @@ public class MessageHandler implements PingCommunicator
     				Integer.parseInt(args[2]));
     		table.addNode(n);
     	}
+    	client.sendToUI(table.getRoutingTable().toString());
     }
 
     public void respondTo(SearchMessage request, InetAddress address, int port)
     {
+    	client.sendToUI(request.toString());
         NodeState node = new NodeState(request.arguments().get("id"),
                 				address,
                 				port);
@@ -159,7 +161,6 @@ public class MessageHandler implements PingCommunicator
 
     private void replicateDatabaseTo(NodeState node) throws IOException
     {
-    	outer:
         for(Entry<SearchId, SearchResult> e : storedValues.entrySet())
         {        
             byte[] myDistance = SearchId.getDistance(myId, e.getKey());

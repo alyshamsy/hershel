@@ -35,7 +35,7 @@ public class RoutingTable
             return;
 
         ArrayList<NodeState> kBucket = table.get(index);
-        kBucket.contains(node);
+        if(kBucket.contains(node)) return;
 
         if (kBucket.size() < K)
         {
@@ -53,21 +53,29 @@ public class RoutingTable
         int index = findIndex(nodeId);
         if (index < 0)
             return nodes;
-
+        
         int i = index, j = 0;
-        while (nodes.size() < K)
+        boolean searchRight = true, searchLeft = true;;
+        while ((searchRight || searchLeft) && nodes.size() < K)
         {
-        	i += (j % 2 == 0) ? j : -j;
+        	i += (j % 2 == 0) ? j : -j;        	
             j++;
-            if (i >= 160 || i < 0)
-                break;
+            if (i >= 160)
+            {
+            	searchRight = false;
+                continue;
+            }
+            if (i < 0)
+            {
+            	searchLeft = false;
+            	continue;
+            }
 
-            for (NodeState n : table.get(index))
+            for (NodeState n : table.get(i))
             {
                 if (nodes.size() < K)
                     nodes.add(n);
-                else
-                    break;
+                else break;
             }
         }
 

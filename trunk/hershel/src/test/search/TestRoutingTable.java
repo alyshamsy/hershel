@@ -1,11 +1,12 @@
 package test.search;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -97,6 +98,25 @@ public class TestRoutingTable
         assertEquals(newNode, t.getRoutingTable().get(7).get(1));
     }   
     
+    @Test public void routingTableDoesNotAddItself() throws IOException
+    {
+    	NodeState me = new NodeState(SearchId.fromHex(myId), InetAddress.getByName("localhost"), 5678);
+    	t.addNode(me);
+    	for(ArrayList<NodeState> kbucket: t.getRoutingTable())
+    	{
+    		for(NodeState n: kbucket)
+    		{
+    			assertNotSame(me, n);
+    		}
+    	}
+    }
+
+    @Test public void routingTableSearchesAllKBuckets()
+    {
+    	List l = t.findNode(SearchId.fromHex("ffffffffffffffffffffffffffffffffffffffff"));
+    	assertEquals(2, l.size());
+    }
+
     public class MockPinger implements Pinger
     {
         public NodeState lastNodePinged;
