@@ -42,6 +42,7 @@ public class NetworkSearchClient extends Thread implements SearchClient
     {
     	// Connect to "first node".
     	try {
+    		handler.routingTable().addNode(firstNode);
     		handler.findNode(firstNode, handler.getId());
     	} catch (IOException e) {
     		e.printStackTrace();
@@ -123,5 +124,18 @@ public class NetworkSearchClient extends Thread implements SearchClient
     public MessageHandler getHandler()
     {
     	return handler;
+    }
+
+    // For testing purposes.
+    private SearchGUI ui;
+    
+    public void registerUI(SearchGUI ui)
+    {
+    	this.ui = ui;
+    }
+
+    public void sendToUI(String s)
+    {
+    	ui.getMessage(s);
     }
 }
