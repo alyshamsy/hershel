@@ -95,10 +95,8 @@ public class FileSystem
      }
      
      public void fileInfo()
-     {
-    	
+     {    	
     	 File dir = new File(dirName);
-    	 
     	
          String[] contents = dir.list();
         
@@ -160,6 +158,16 @@ public class FileSystem
              fileTable[i].hashValue = SHA1utils.digestToHexString(result);   
          }
      }
+     
+     //NEW FUNCTION START
+     public String[] fileContents()
+     {
+    	 File dir = new File(dirName);
+    	 String[] contents = dir.list();
+
+    	 return contents;
+     }
+     //NEW FUNCTION END
      
      //modify this
      public synchronized boolean chunkSegment(RandomAccessFile file, int filesize, String fileName) throws IOException
@@ -288,9 +296,10 @@ public class FileSystem
     	 return null;
      }
      
-     public String absPath(File dirName)
+     public static String absPath()
      {
-    	 String absolutePath = dirName.getAbsolutePath();
+    	 File dir = new File(dirName);
+    	 String absolutePath = dir.getAbsolutePath();
     	 return absolutePath;
      }
      
