@@ -27,6 +27,11 @@ public class NodeState
         }
         return false;
     }
+    
+    public int hashCode()
+    {
+    	return 1;
+    }
 
     public String toString()
     {

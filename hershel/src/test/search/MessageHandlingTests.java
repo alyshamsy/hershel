@@ -132,6 +132,24 @@ public class MessageHandlingTests
         assertEquals(fileNameHash.toString(), mock.lastMessage.arguments().get("file_name"));
     }
     
+    @Test public void dontReplicateToRecentlySeenNodes() throws UnknownHostException
+    {
+        SearchResult r = createSearchResult();
+        SearchId fileNameHash = r.fileNameHash;
+        SearchMessage storeMessage = r.createMessage("store");
+        storeMessage.arguments().put("id", targetNode.id.toString());
+        
+        handler.respondTo(storeMessage, targetNode.address, targetNode.port); 
+        NodeState unknownNode = new NodeState(fileNameHash, InetAddress.getByName("localhost"), 45);
+        SearchMessage unknownPing = new SearchMessage("ping");
+        unknownPing.arguments().put("id", fileNameHash.toString());
+        handler.respondTo(unknownPing, unknownNode.address, unknownNode.port);
+        
+        handler.respondTo(unknownPing, unknownNode.address, unknownNode.port);
+        assertEquals(unknownNode, mock.lastDestination);
+        assertEquals("ping", mock.lastMessage.getCommand());
+    }
+    
     @Test public void storeCommandDoesNotDuplicateDatabaseToEveryNode() throws UnknownHostException
     {
         SearchResult r = createSearchResult();       

@@ -47,7 +47,7 @@ public class RoutingTable
         }
     }
 
-    public synchronized List findNode(SearchId nodeId)
+    public synchronized ArrayList<NodeState> findNode(SearchId nodeId)
     {
     	ArrayList<NodeState> nodes = new ArrayList<NodeState>();
         int index = findIndex(nodeId);
