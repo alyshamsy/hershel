@@ -60,6 +60,7 @@ public class MessageHandler implements PingCommunicator
     {
     	SearchMessage nodeList = new SearchMessage(message);
     	nodeList.arguments().put("nodes", nodes.toString());
+    	nodeList.arguments().put("id", myId.toString());
     	return nodeList;
     }
 
@@ -68,11 +69,15 @@ public class MessageHandler implements PingCommunicator
     	String nodeList = request.arguments().get("nodes");
     	nodeList = nodeList.replaceAll("[\\[\\]]", "");
     	String[] nodes = nodeList.split(", ");
+
+    	if (nodeList.length() == 0) return;
+
     	for (String s : nodes)
     	{
     		String[] args = s.split(";");
+    		String address = args[1].substring(args[1].indexOf('/') + 1);
     		NodeState n = new NodeState(args[0],
-    				InetAddress.getByName(args[1]),
+    				InetAddress.getByName(address),
     				Integer.parseInt(args[2]));
     		table.addNode(n);
     	}
@@ -154,6 +159,7 @@ public class MessageHandler implements PingCommunicator
 
     private void replicateDatabaseTo(NodeState node) throws IOException
     {
+    	outer:
         for(Entry<SearchId, SearchResult> e : storedValues.entrySet())
         {        
             byte[] myDistance = SearchId.getDistance(myId, e.getKey());
@@ -162,7 +168,7 @@ public class MessageHandler implements PingCommunicator
             for (int i = 0; i < 20; i++)
             {
             	if (guysDistance[i] >= myDistance[i])
-            		continue;
+            		continue outer;
             }
 
             SearchMessage replicateMessage = e.getValue().createMessage("store");
