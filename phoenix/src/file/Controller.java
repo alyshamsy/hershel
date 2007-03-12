@@ -3,7 +3,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
-
+//main class that controls ControllerClient and Controller Server
 public class Controller{
 	public PartialView view;
 	public Nodeid node;
@@ -17,44 +17,60 @@ public class Controller{
 	
 
 	public Controller(){
-		String tempip = "128.100.8.221 ";
+		String tempip;
 		try {
-			ip = InetAddress.getByName(tempip);
-		} catch (UnknownHostException e) {}
+			tempip = FileSystem.getIPaddr();
+		} catch (IOException e1) {
+		
+		}
+		try {
+			Nodeid node = new Nodeid(FileSystem.getIPaddr(), 0);
+			view = new PartialView(node);
+			//must listen on same port as connecting to
+			//ss = new ServerSocket(10002);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		s = new Socket();
+		//try {
+			//ip = InetAddress.getByName(tempip);
+		//} catch (UnknownHostException e) {}
 		port = 650;
 		filesize = 1024*1000;
 		filename = "blah.txt";
 	}
 	
-	public void main()throws IOException{
+	public void go(){
+		ControllerServer server = new ControllerServer();
+		server.start();
 		//start Newscast threads
-		Nodeid node = new Nodeid("128.100.8.145", 0);
-		view = new PartialView(node);
-		ss = new ServerSocket(10000);
+		
 		
 		/*
 		Newscast active = new Newscast(s, null);
 		Newscast passive = new Newscast(null, ss);
 		active.start();
 		passive.start();*/
-		
-		//start server 
-		ControllerServer server = new ControllerServer();
-		server.start();
-		//start a client to download
+//		start a client to download
 		//ControllerClient client = new ControllerClient(ip, port, filesize, filename);
 		//client.start();
-		
-		
+	}
+	
+	public static void main(String args[])throws IOException{
+		Controller master = new Controller();
+		master.go();
 		
 	}
 	//classes for Newscast
 	public class Newscast extends Thread{
 		private Socket s;
 		private ServerSocket ss;
-		private BufferedReader in;
-		private PrintWriter out;
+		private BufferedReader inA;
+		private BufferedReader inP;
+		private PrintWriter outP;
 		private OutputStream outData;
+		private PrintWriter outA;
 		
 		public Newscast(Socket s , ServerSocket ss){
 			this.s = s;
@@ -65,20 +81,79 @@ public class Controller{
 		public void run(){
 			//active thread
 			if(ss==null){
+				while(true){
+					String input = null;
+					String ipstr = view.getRandomNode();
+					InetSocketAddress ipAddr;
+					InetSocketAddress portAddr; 
+					InetAddress ip;
+					
+					//address using
+					portAddr = new InetSocketAddress(10001);
+					try {
+						s.bind(portAddr);
+					} catch (IOException e1) {
+						System.out.println("Error: Could not bind socket to port(NEWSCAST A)");
+					}
+					try {
+						ip = InetAddress.getByName(ipstr);
+						//address connecting to
+						ipAddr = new InetSocketAddress(ip, 10002);
+						s.connect(ipAddr);
+					} catch (UnknownHostException e1) {
+						System.out.println("Error: Could not find host(NEWSCAST A)");
+					} catch (IOException e1) {
+						System.out.println("Error: Could not connect to host(NEWSCAST A)");
+					}	
+					
+					try {
+						inA = new BufferedReader(new InputStreamReader(s.getInputStream()));
+						outA = new PrintWriter(s.getOutputStream(), true);
+					} catch (IOException e){System.out.println("Error: Could not get input stream (NEWSCAST A)");}
+					
+					try {
+						wait(10000);
+					} catch (InterruptedException e) {
+						System.out.println("Error: Could not wait(NEWSCAST A)");
+					}
+					Message outView = new Message("gossip", view.toStringArray()); 
+					outA.println(outView);
+					try {
+						input = inA.readLine();
+					} catch (IOException e) {
+						System.out.println("Error: Could not read a line (NEWSCAST A)");}
+						Message inView = Message.parse(input);
+					if(inView.cmdEquals("gossip")){
+						
+					}
+				}
+					
+				
 				
 			}
 			//passive thread
 			if(s==null){
+				String input = null;
 				while(true){
 					try {
 						s = ss.accept();
 					} catch (IOException e){}
 					try {
-						in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-					} catch (IOException e){}
+						inP = new BufferedReader(new InputStreamReader(s.getInputStream()));
+						outP = new PrintWriter(s.getOutputStream(), true);
+					} catch (IOException e){System.out.println("Error: Could not get input stream (NEWSCAST P)");}
+					try {
+						input = inP.readLine();
+					} catch (IOException e) {
+						System.out.println("Error: Could not read a line (NEWSCAST P)");}
 					
-				}
-				
+					Message inView = Message.parse(input);
+					Message outView = new Message("gossip", view.toStringArray());
+					outP.println(outView);
+					if(inView.cmdEquals("gossip")){
+						
+					}
+				}	
 				
 			}
 		}
@@ -89,21 +164,30 @@ public class Controller{
 		private ArrayList<Nodeid> nodes;
 		
 		public PartialView(Nodeid id){
-			nodes.add(id);
+			//try{
+				nodes = new ArrayList<Nodeid>();
+				nodes.add(id);
+			//}
+			//catch(Exception e){System.out.println("SHIT");}
 		}
 		
 		//Merge takes two partial views and adds all objects in the parameters
 		//Node list to the objects node list.
 		//Then, the 10 freshest Nodeid's are saved and the rest discarded
-		public void merge(PartialView view){
+		public void merge(String[] view){
 			boolean add = false;
-			for(int j = 0;j<view.nodes.size();j++){
+			Nodeid newN = null;
+			for(int j = 0;j<view.length;j++){
 				for(int i = 0;i<this.nodes.size();i++){
-					if(!view.nodes.get(j).equals(this.nodes.get(i))){
+					if(!this.nodes.get(i).equals(view[j])){
 						add = true;
+						//change this : newN = new Nodeid(view[j], 0);
 					}
+					else{
+						add = false;
+					}
+					if(add)this.nodes.add(newN);
 				}
-				if(add) this.nodes.add(view.nodes.get(j));
 			}
 			int tempage = 0;
 			Nodeid tempnode =  null;
@@ -119,11 +203,12 @@ public class Controller{
 			}
 		}
 		
-		public Nodeid getRandomNode(){
+		public String getRandomNode(){
 			int index = (int)Math.floor(Math.random()*this.nodes.size());
-			return this.nodes.get(index);
+			return this.nodes.get(index).id;
 		}
 		
+		//return a node based on it's IP address
 		public FileSystem getNode(String Address){
 			for(int i=0;i<nodes.size();i++){
 				if(nodes.get(i).equals(Address)) return nodes.get(i).files;
@@ -136,6 +221,14 @@ public class Controller{
 			return Ips;
 		}
 		
+		public String[] toStringArray(){
+			String nodeFiles[] = new String[nodes.size()];
+			for(int i =0;i<nodes.size();i++){
+				nodeFiles[i] = nodes.get(i).id + nodes.get(i).age + " " + nodes.get(i).toString();
+			}
+			return nodeFiles;
+		}
+		
 	}
 //	Nodeid holds the age and id of a Node, as well as the files it has 
 	public class Nodeid{
@@ -146,20 +239,31 @@ public class Controller{
 		public Nodeid(String id, int age){
 			this.id = id;
 			this.age = age;
+			files = new FileSystem();
 			files.fileInfo();
+			
 		}
 		
+		//equality between 2 nodes
 		public boolean equals(Nodeid node){
 			if(this.id.equalsIgnoreCase(node.id))return true;
 			return false;
 		}
 		
+		//equality between a node and an IP address
 		public boolean equals(String id){
 			if(this.id.equalsIgnoreCase(id))return true;
 			return false;
 		}
+		
+		public String toString(){
+			String fileList = null;
+			fileList = files.toString();
+			return fileList;
+		}
 	}
 	
+	//server class which deals with requests for files and dispatches them 
 	public class ControllerServer extends Thread {
 		//sockets for recieving files and sending files
 		private ServerSocket ss; 
@@ -171,7 +275,7 @@ public class Controller{
 		public ControllerServer() {
 			running = true;
 			try {
-				ss = new ServerSocket(10011);
+				ss = new ServerSocket(10014);
 			} catch (IOException e) {
 				System.out.println("Error: Can't bind socket to port");
 			}
@@ -184,6 +288,10 @@ public class Controller{
 			
 		}
 		
+		//Run
+		//No parameters
+		//Runs forever accepting connections and dispatching
+		//instances of the server class to handle file requests
 		public synchronized void run() {
 			
 			while (running) {
@@ -194,10 +302,7 @@ public class Controller{
 				Server server = new Server(s);
 		    	server.start();
 				
-				try {
-					wait(100);
-				} catch (Exception e) {}
-				} catch (IOException e) {}
+				} catch (IOException e) {System.out.println("Error: Could not accept connection");}
 			}
 				
 		}
@@ -206,6 +311,8 @@ public class Controller{
 		//Server class which will parse incoming request and dispatch
 		//available chunks
 		private class Server extends Thread{
+			private String filename;
+			private int chunkNum;
 			private String path = "/u/0T8/brownjo/ece361/fileoverlay/Phoenix/src/file/";
 			private Socket s;
 			private BufferedReader in;
@@ -214,7 +321,10 @@ public class Controller{
 			private boolean running;
 			private boolean more;
 			private File tempfile;
+			private byte[] data;
 			
+			//Constructor
+			//parameters: a socket that is the redirection of an accepted connection
 			public Server(Socket s) {
 				this.s = s;
 				this.running = false;
@@ -236,7 +346,9 @@ public class Controller{
 				
 				
 			}
-			
+			//Run
+			//No parameters
+			//Communicates with client and dispatches a requested chunk
 			public void run(){
 				System.out.println("Connection Established");
 				RandomAccessFile file;
@@ -250,13 +362,13 @@ public class Controller{
 				}
 				
 				while (running) {
-					int chunkNum;
 					String input = null;
 					try {
 						//receive the command
 						input = in.readLine();
 					} catch (IOException e) {
 						running = false;
+						System.out.println("Error: IOException when reading first command");
 						continue;
 					}
 					
@@ -266,55 +378,67 @@ public class Controller{
 					}
 					
 					Message myMessage = Message.parse(input);
-					if(myMessage.getCmd().equalsIgnoreCase("get")){
-						//check if the file exists and if not dispatch error code
-						System.out.println("File requested "+ myMessage.getData(0));
-						tempfile = new File(path + myMessage.getData(0));
-						if(!tempfile.exists()){
-							out.println("Error: 404");
-							System.out.println("Error: 404");
-							running = false;
-							continue;
-						}
-						//file exists, respond 
-						out.println("OK: 200");
-						System.out.println("OK: 200");
-						chunkNum = myMessage.countDataTokens()-1;
-						//send out chunks that were requested
-						System.out.println("Number of Chunks: " + chunkNum);
-						//for(int i = 0; i<chunkNum; i++){
-							//assign data to the chunk(ALY CODING) 
-							FileInputStream fstream;
-							file = new RandomAccessFile(tempfile, "r");
-							
-							view.getNode("128.100.8.145").chunkSegment(file, FileSystem.getFileSize(myMessage.getData(0)));
-							
-							byte [] data = new byte[15];
-							
-								try {
-									outData = s.getOutputStream();
-									fstream = new FileInputStream(tempfile.toString());
-									DataInputStream inData = new DataInputStream(fstream);
-									System.out.println("Read in " + inData.read(data, Integer.getInteger(myMessage.getData(1))*12, 12) + " bytes");
-								} catch (IOException e1) {
-									System.out.println("IOException: getting Socket output stream");
-								}
-							 
-							
+					if(myMessage.getCmd().equalsIgnoreCase("get"))
+							{
 								
-							//send the data
-							if (running) {
+								//check if the file exists and if not dispatch error code
+								//the first token is the filename, and the second
+								//is the chunk number requested
+								filename = myMessage.getData(0);
+								chunkNum = Integer.valueOf(myMessage.getData(1));
+								System.out.println("File requested: "+ filename);
+								tempfile = new File(path + filename);
+								if(!tempfile.exists()){
+									out.println("Error: 404");
+									System.out.println("Error: 404");
+									running = false;
+									continue;
+								}
+								//file exists, respond 
+								out.println("OK: 200");
+								System.out.println("OK: 200");
+								
+								//SEND OUT REQUESTED CHUNK
+								//***********************************
+								System.out.println("Chunk requested: " + chunkNum);
+		                        //break requested file into chunks
+			
 								try {
-									System.out.println("Sending data");
-									outData.write(data);
-								} catch (IOException e) {
-								//should we retry?
-									System.out.println("Error: could not send data");
-								}	
+									file = new RandomAccessFile(tempfile, "rw");
+									view.getNode(FileSystem.getIPaddr()).chunkSegment(file, FileSystem.getFileSize(filename));
+							    } catch (FileNotFoundException e2) {
+									//this should not happen as we already checked if the file existed
+								}
+							    catch(IOException e){
+							    	System.out.println("Error: IOException on chunk segment");
+							    }
+							    //assign data to correct chunk
+								
+							    try {
+									data = view.getNode(FileSystem.getIPaddr()).download_chunk(filename, chunkNum);
+								} catch (IOException e1) {
+									System.out.println("Error: IOException on download_chunk");
+								}
+									
+								
+								if(data == null){
+									System.out.println("Do not have requested chunk");
+									running = false;
+									continue;
+								}
+							    //send the data
+								if (running) {
+									try {
+										System.out.println("Sending data");
+										outData.write(data);
+									} catch (IOException e) {
+									//should we retry?
+										System.out.println("Error: could not send data");
+									}	
+								}
+								//}
+									
 							}
-						//}
-							
-					}
 				}
 				
 					
