@@ -31,9 +31,9 @@ public class ControllerClient extends Thread {
 	private static final int INPUT_TIME_OUT = 1000;		//number of ms before socket throws exception on input stream read
 	
 	// TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!
-	private static final int RYAN_PORT = 10126;
-	private static final int JORDAN_PORT = 10035;
-	private static final String JORDAN_IP = "128.100.8.189";
+	private static final int RYAN_PORT = 10130;
+	private static final int JORDAN_PORT = 10041;
+	private static final String JORDAN_IP = "142.150.139.154";
 	
 	public static void main(String args[]) throws IOException {
 		int ports[] = {RYAN_PORT};	//port #s to use on this client machine for D/Ling
@@ -128,6 +128,7 @@ public class ControllerClient extends Thread {
 	}
 	
 	public synchronized void run() {
+
 		System.out.println("Client Running");
 		
 		while (running) {
@@ -273,6 +274,8 @@ public class ControllerClient extends Thread {
 		 * 		not attempted. Otherwise
 		 */
 		public void run() {
+			file.fileInfo();
+			
 			if (pieceStates[id] == FAILED) {
 				this.close();
 				return;
@@ -319,7 +322,7 @@ public class ControllerClient extends Thread {
 	private synchronized void print() {
 		System.out.println("Total Pieces: " + pieceStates.length);
 		for (int i = 0; i < pieceStates.length; i++) {
-			System.out.println(" Piece " + i + " State: " + getStateName(pieceStates[i]));
+			System.out.println(" Piece " + i+1 + " State: " + getStateName(pieceStates[i]));
 		}
 		System.out.println();
 	}
