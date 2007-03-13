@@ -235,7 +235,7 @@ public class Controller{
 			}
 			return nodeFiles;
 		}
-		
+		/*
 		public Message[] Parser() {
 			int numNodes = this.nodes.size();
 			Message []decode = new Message[numNodes];
@@ -256,7 +256,8 @@ public class Controller{
 			}
 				
 			return decode ;
-}
+		}
+		*/
 		
 	}
 //	Nodeid holds the age and id of a Node, as well as the files it has 
@@ -304,7 +305,7 @@ public class Controller{
 		public ControllerServer() {
 			running = true;
 			try {
-				ss = new ServerSocket(10036);
+				ss = new ServerSocket(10041);
 			} catch (IOException e) {
 				System.out.println("Error: Can't bind socket to port");
 			}
@@ -342,7 +343,7 @@ public class Controller{
 		private class Server extends Thread{
 			private String filename;
 			private int chunkNum;
-			private String path = FileSystem.absPath();
+			private String path = FileSystem.absPath() + "\\";
 			private Socket s;
 			private BufferedReader in;
 			private PrintWriter out;
@@ -418,7 +419,6 @@ public class Controller{
 								chunkNum = Integer.valueOf(myMessage.getData(1));
 								System.out.println("File requested: "+ filename);
 								tempfile = new File(path + filename);
-								System.out.println("The Path is: " + path + filename);
 								if(!tempfile.exists()){
 									out.println("Error: 404");
 									System.out.println("Error: 404");
