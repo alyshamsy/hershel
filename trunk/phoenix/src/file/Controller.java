@@ -235,7 +235,7 @@ public class Controller{
 			}
 			return nodeFiles;
 		}
-		/*
+		
 		public Message[] Parser() {
 			int numNodes = this.nodes.size();
 			Message []decode = new Message[numNodes];
@@ -257,7 +257,7 @@ public class Controller{
 				
 			return decode ;
 		}
-		*/
+		
 		
 	}
 //	Nodeid holds the age and id of a Node, as well as the files it has 
