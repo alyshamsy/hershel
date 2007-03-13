@@ -154,6 +154,16 @@ public class FileSystem
          }
      }
      
+//   NEW FUNCTION START
+     public String[] fileContents()
+     {
+    	 File dir = new File(dirName);
+    	 String[] contents = dir.list();
+
+    	 return contents;
+     }
+     //NEW FUNCTION END
+     
      //modify this
      public synchronized boolean chunkSegment(RandomAccessFile file, int filesize, String fileName) throws IOException
      {
