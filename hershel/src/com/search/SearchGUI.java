@@ -16,7 +16,7 @@ public class SearchGUI {
 
 		public void actionPerformed(ActionEvent e) {
 			String[] command = input.getText().split(" ");
-			output.append(">");
+			output.append("#");
 			for (int i = 0; i < command.length; i++)
 				output.append(" " + command[i]);
 			output.append("\n");
@@ -116,7 +116,7 @@ public class SearchGUI {
 	}
 
 	public void getMessage(String s) {
-		output.append("< " + s + "\n");
+		output.append(s + "\n");
 	}
 
 	public static void main(String[] args) throws SocketException {

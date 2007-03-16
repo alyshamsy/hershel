@@ -108,6 +108,7 @@ public class NetworkSearchClient extends Thread implements SearchClient
      */
     public void sendMessage(SearchMessage message, NodeState destination) throws IOException
     {
+    	sendToUI(message.toString(), "< ");
         DatagramPacket outgoingPacket = new DatagramPacket(message.getBytes(), message.getBytes().length, 
                 destination.address, destination.port);                
         socket.send(outgoingPacket);
@@ -134,8 +135,8 @@ public class NetworkSearchClient extends Thread implements SearchClient
     	this.ui = ui;
     }
 
-    public void sendToUI(String s)
+    public void sendToUI(String s, String direction)
     {
-    	ui.getMessage(s);
+    	ui.getMessage(direction + s);
     }
 }

@@ -9,5 +9,5 @@ public interface SearchClient
 
     public abstract void close();
 
-    void sendToUI(String s);
+    void sendToUI(String s, String direction);
 }

@@ -85,12 +85,12 @@ public class MessageHandler implements PingCommunicator
     				Integer.parseInt(args[2]));
     		table.addNode(n);
     	}
-    	client.sendToUI(table.getRoutingTable().toString());
+    	client.sendToUI(table.getRoutingTable().toString(), "");
     }
 
     public void respondTo(SearchMessage request, InetAddress address, int port)
     {
-    	client.sendToUI(request.toString());
+    	client.sendToUI(request.toString(), "> ");
     	if(!request.arguments().containsKey("id"))
     		System.out.println(request.getCommand());
     	
