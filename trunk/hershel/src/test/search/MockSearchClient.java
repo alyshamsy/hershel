@@ -24,6 +24,6 @@ public class MockSearchClient implements SearchClient
         lastDestination = destination;
     }
 
-    public void sendToUI(String s){}
+    public void sendToUI(String s, String direction){}
 
 }
