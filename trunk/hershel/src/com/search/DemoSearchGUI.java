@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 
-public class DemoSearchGUI {
+public class DemoSearchGUI implements GUI {
 
 	private class InputHandler implements ActionListener {
 

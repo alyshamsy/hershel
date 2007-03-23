@@ -128,9 +128,9 @@ public class NetworkSearchClient extends Thread implements SearchClient
     }
 
     // For testing purposes.
-    private DemoSearchGUI ui;
+    private GUI ui;
     
-    public void registerUI(DemoSearchGUI ui)
+    public void registerUI(GUI ui)
     {
     	this.ui = ui;
     }
