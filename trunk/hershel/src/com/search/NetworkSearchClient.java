@@ -128,15 +128,16 @@ public class NetworkSearchClient extends Thread implements SearchClient
     }
 
     // For testing purposes.
-    private SearchGUI ui;
+    private DemoSearchGUI ui;
     
-    public void registerUI(SearchGUI ui)
+    public void registerUI(DemoSearchGUI ui)
     {
     	this.ui = ui;
     }
 
     public void sendToUI(String s, String direction)
     {
-    	ui.getMessage(direction + s);
+    	if (ui != null)
+    		ui.getMessage(direction + s);
     }
 }
