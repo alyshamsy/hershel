@@ -3,6 +3,7 @@ package com.search;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 
 import com.shadanan.P2PMonitor.IRemote;
@@ -14,9 +15,9 @@ public class SearchGUI implements GUI, IRemote {
 	private NetworkSearchClient client;
 
 	public SearchGUI() throws IOException {
-		client = new NetworkSearchClient("1234567890123456789012345678901234567890", 10010);
+		client = new NetworkSearchClient("1234567890123456789012345678901234567890", 10000);
 		ms = new MonitorService(10000, this,
-				new InetSocketAddress(InetAddress.getLocalHost(), 10002));
+				new InetSocketAddress(InetAddress.getLocalHost(), 10000));
 		client.registerUI(this);
 		client.start();
 		ms.start();
@@ -38,7 +39,7 @@ public class SearchGUI implements GUI, IRemote {
 
 	public HashMap<String, String> getInfo() {
 		// TODO Auto-generated method stub
-		return null;
+		return new HashMap<String, String>();
 	}
 
 	public int getLayerCount() {
@@ -47,9 +48,11 @@ public class SearchGUI implements GUI, IRemote {
 	}
 
 	public InetSocketAddress getLocalAddress() {
-		// return new InetSocketAddress("localhost", 10000);
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return new InetSocketAddress(InetAddress.getLocalHost(), 10000);
+		} catch (UnknownHostException e) {
+			return null;
+		}
 	}
 
 	public InetSocketAddress[] getPeers(int layer) {
@@ -67,6 +70,10 @@ public class SearchGUI implements GUI, IRemote {
 				ms.println("! Searching error.\n");
 			}
 		}
+	}
+
+	public static void main(String[] args) throws IOException {
+		new SearchGUI();
 	}
 
 }
