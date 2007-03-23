@@ -1422,8 +1422,9 @@ public class Monitor extends JPanel {
 		return drawAdjacencyCheckBoxMenuItem;
 	}
 
-	public static void main(String args[]) {
+	public static void main(String args[]) throws IOException {
 		new Monitor();
+		new com.search.SearchGUI();
 	}
 
 	/**
