@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 
-public class SearchGUI {
+public class DemoSearchGUI {
 
 	private class InputHandler implements ActionListener {
 
@@ -43,7 +43,7 @@ public class SearchGUI {
 	private InputHandler handler;
 	private NetworkSearchClient client;
 
-	public SearchGUI(String id, boolean visible) throws SocketException {
+	public DemoSearchGUI(String id, boolean visible) throws SocketException {
 		client = new NetworkSearchClient(id, 10000);
 		handler = new InputHandler();
 		addDemoKeywords();
@@ -82,7 +82,7 @@ public class SearchGUI {
         client.getHandler().database().put(hashedFilename, r);
 	}
 
-	public SearchGUI(int port, boolean visible) throws SocketException {
+	public DemoSearchGUI(int port, boolean visible) throws SocketException {
 		String randomId = SearchId.getRandomId().toString();
 		client = new NetworkSearchClient(randomId, port);
 		addDemoKeywords();
@@ -128,10 +128,10 @@ public class SearchGUI {
 		} else {
 			System.out.println("Usage: java SearchGUI <-port OR -id> <value>");
 		}*/
-		new SearchGUI(initialId, true);
+		new DemoSearchGUI(initialId, true);
 		int port = 10050;
 		for (int i = 0; i < 50; i++, port++) {
-			new SearchGUI(port, i % 10 == 0);			
+			new DemoSearchGUI(port, i % 10 == 0);			
 		}
 	}
 
