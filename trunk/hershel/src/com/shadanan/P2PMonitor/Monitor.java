@@ -1423,7 +1423,14 @@ public class Monitor extends JPanel {
 	}
 
 	public static void main(String args[]) throws IOException {
-		new Monitor();
+		Monitor m = new Monitor();
+		new com.search.SearchGUI();
+		m.addContact("localhost", 10001);
+		int port = 10002;
+		for (int i = 0; i < 2; i++, port += 2) {
+			new com.search.SearchGUI(port);
+			m.addContact("localhost", port + 1);
+		}
 	}
 
 	/**

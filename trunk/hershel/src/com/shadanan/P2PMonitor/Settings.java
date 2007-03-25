@@ -28,7 +28,7 @@ public class Settings implements Serializable {
 		active = true;
 		animated = true;
 		autoclear = true;
-		autoconnect = true;
+		autoconnect = false;
 		infoFilter = ".*";
 		selectedReposition = null;
 		selectedAdjacency = null;
