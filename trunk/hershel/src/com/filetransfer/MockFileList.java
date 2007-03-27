@@ -1,6 +1,6 @@
 package com.filetransfer;
 
-public class FileList
+public class MockFileList implements FileList
 {
     public Piece getPiece(String file, int index)
     {

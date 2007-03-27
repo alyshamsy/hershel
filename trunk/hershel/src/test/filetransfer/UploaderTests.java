@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import com.filetransfer.FileList;
+import com.filetransfer.MockFileList;
 import com.filetransfer.FileTransferListener;
 
 public class UploaderTests
@@ -22,7 +22,7 @@ public class UploaderTests
         
 		HashMap<String, ArrayList<Integer>> availablePieces = new HashMap<String, ArrayList<Integer>>();        
 		availablePieces.put("1234567890123456789012345678901234567890", pieces(3));
-		FileTransferListener uploader = new FileTransferListener(availablePieces, new FileList());
+		FileTransferListener uploader = new FileTransferListener(availablePieces, new MockFileList());
 		
         uploader.readReady(new InetSocketAddress("localhost", 12000), reader, writer);
 		assertEquals("have 0,1,2\r\nget_pieces 1234567890123456789012345678901234567890\r\n", writer.toString());
@@ -35,7 +35,7 @@ public class UploaderTests
         
         HashMap<String, ArrayList<Integer>> availablePieces = new HashMap<String, ArrayList<Integer>>();        
         availablePieces.put("1234567890123456789012345678901234567890", pieces(3));
-        FileTransferListener uploader = new FileTransferListener(availablePieces, new FileList());
+        FileTransferListener uploader = new FileTransferListener(availablePieces, new MockFileList());
         
         uploader.readReady(new InetSocketAddress("localhost", 12000), reader, writer);
         assertEquals("piece 5 1234567890123456789012345678901234567890 10\r\n0123456789", writer.toString());
