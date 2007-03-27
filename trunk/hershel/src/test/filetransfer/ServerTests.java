@@ -16,7 +16,7 @@ public class ServerTests
 	{
 		FileTransferServer s = new FileTransferServer(10000);
 		s.start();
-		
+        
 		Socket client = new Socket("localhost", 10000);
 		Assert.assertTrue(client.isConnected());
 		client.close();
