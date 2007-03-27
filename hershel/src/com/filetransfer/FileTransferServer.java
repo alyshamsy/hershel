@@ -1,6 +1,8 @@
 package com.filetransfer;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -43,8 +45,6 @@ public class FileTransferServer extends Thread
 
     public void run()
     {
-       
-
         // Wait for something of interest to happen
         try
         {
@@ -82,7 +82,9 @@ public class FileTransferServer extends Thread
                     else if(key.isValid() && key.isReadable())
                     {                       
                         SocketChannel channel = (SocketChannel)key.channel();
-                        listener.readReady(channel.socket());
+                        listener.readReady(new InetSocketAddress(channel.socket().getInetAddress(), channel.socket().getPort()), 
+                                new InputStreamReader(channel.socket().getInputStream()), 
+                                new OutputStreamWriter(channel.socket().getOutputStream()));
                     }
                     else
                     {

@@ -2,6 +2,8 @@ package test.filetransfer;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -48,7 +50,7 @@ public class ServerTests
         PrintWriter out = new PrintWriter(client.getOutputStream());
         out.println("hello");
         out.flush();
-        Thread.sleep(200);
+        Thread.sleep(100);
         
         Assert.assertNotNull(mock.lastSignaled);
         out.close();        
@@ -56,10 +58,10 @@ public class ServerTests
     
     public class MockEventListener implements SocketEventListener
     {
-        public Socket lastSignaled;
-        public void readReady(Socket s)
+        public InetSocketAddress lastSignaled;
+        public void readReady(InetSocketAddress peer, Reader reader, Writer writer)
         {
-            lastSignaled = s;
+            lastSignaled = peer;
         }
     }
 }
