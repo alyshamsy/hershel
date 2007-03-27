@@ -1,6 +1,5 @@
 package com.filetransfer;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
@@ -10,7 +9,7 @@ import com.search.SearchId;
 
 public class DefaultFileList implements FileList
 {
-    private HashMap<String, File> trackedFiles;
+    HashMap<String, File> trackedFiles;
     
     public DefaultFileList()
     {
@@ -21,7 +20,7 @@ public class DefaultFileList implements FileList
     {
         File file = getFile(filenameHash);
         RandomAccessFile in = new RandomAccessFile(file.getName(), "r");
-        in.seek(index*file.length());
+        in.seek(index*file.sizeOfPiece(0));
         byte[] data = new byte[file.sizeOfPiece(index)];
         in.read(data);
         in.close();

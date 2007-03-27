@@ -2,7 +2,6 @@ package test.filetransfer;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -10,34 +9,31 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import com.filetransfer.MockFileList;
 import com.filetransfer.FileTransferListener;
 
 public class UploaderTests
 {
 	@Test public void InitialHandshake() throws InterruptedException
-	{
-		StringReader reader = new StringReader("get_pieces 1234567890123456789012345678901234567890\r\n");
+	{		
 		StringWriter writer = new StringWriter();
         
 		HashMap<String, ArrayList<Integer>> availablePieces = new HashMap<String, ArrayList<Integer>>();        
 		availablePieces.put("1234567890123456789012345678901234567890", pieces(3));
-		FileTransferListener uploader = new FileTransferListener(availablePieces, new MockFileList());
+		FileTransferListener uploader = new FileTransferListener(new MockFileList());
 		
-        uploader.readReady(new InetSocketAddress("localhost", 12000), reader, writer);
+        uploader.readReady(new InetSocketAddress("localhost", 12000), "get_pieces 1234567890123456789012345678901234567890\r\n", writer);
 		assertEquals("have 0,1,2\r\nget_pieces 1234567890123456789012345678901234567890\r\n", writer.toString());
 	}
     
     @Test public void SendPiece()
-    {
-        StringReader reader = new StringReader("get 5 1234567890123456789012345678901234567890");
+    {       
         StringWriter writer = new StringWriter();
         
         HashMap<String, ArrayList<Integer>> availablePieces = new HashMap<String, ArrayList<Integer>>();        
         availablePieces.put("1234567890123456789012345678901234567890", pieces(3));
-        FileTransferListener uploader = new FileTransferListener(availablePieces, new MockFileList());
+        FileTransferListener uploader = new FileTransferListener(new MockFileList());
         
-        uploader.readReady(new InetSocketAddress("localhost", 12000), reader, writer);
+        uploader.readReady(new InetSocketAddress("localhost", 12000), "get 5 1234567890123456789012345678901234567890", writer);
         assertEquals("piece 5 1234567890123456789012345678901234567890 10\r\n0123456789", writer.toString());
     }
 
