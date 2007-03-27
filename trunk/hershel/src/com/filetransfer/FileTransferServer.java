@@ -1,16 +1,20 @@
 package com.filetransfer;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -19,7 +23,7 @@ public class FileTransferServer extends Thread
     private ServerSocketChannel channel;
 
     private Selector selector;
-    
+
     private SocketEventListener listener;
 
     public FileTransferServer(int port, SocketEventListener listener) throws IOException
@@ -35,7 +39,7 @@ public class FileTransferServer extends Thread
     {
         try
         {
-            channel.close();           
+            channel.close();
         }
         catch (IOException e)
         {
@@ -45,15 +49,22 @@ public class FileTransferServer extends Thread
 
     public void run()
     {
-        // Wait for something of interest to happen
         try
         {
+            Charset charset = Charset.forName("ISO-8859-1");
+            CharsetDecoder decoder = charset.newDecoder();
+            CharsetEncoder encoder = charset.newEncoder();
+
+            // Allocate buffers
+            ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+            CharBuffer charBuffer = CharBuffer.allocate(1024);
+
             // Register interest in when connection
             channel.register(selector, SelectionKey.OP_ACCEPT);
-            
+
             while (selector.select() > 0)
             {
-                
+
                 // Get set of ready objects
                 Set readyKeys = selector.selectedKeys();
                 Iterator readyItor = readyKeys.iterator();
@@ -65,10 +76,10 @@ public class FileTransferServer extends Thread
                     SelectionKey key = (SelectionKey) readyItor.next();
 
                     // Remove current entry
-                    readyItor.remove();                   
+                    readyItor.remove();
                     if (key.isValid() && key.isAcceptable())
                     {
-                        
+
                         // Get channel
                         ServerSocketChannel keyChannel = (ServerSocketChannel) key.channel();
 
@@ -77,40 +88,59 @@ public class FileTransferServer extends Thread
 
                         // Accept request
                         Socket socket = serverSocket.accept();
-                        addClient(socket);                        
+                        addClient(socket);
                     }
-                    else if(key.isValid() && key.isReadable())
-                    {                       
-                        SocketChannel channel = (SocketChannel)key.channel();
-                        listener.readReady(new InetSocketAddress(channel.socket().getInetAddress(), channel.socket().getPort()), 
-                                new InputStreamReader(channel.socket().getInputStream()), 
-                                new OutputStreamWriter(channel.socket().getOutputStream()));
+                    else if (key.isValid() && key.isReadable())
+                    {
+                        SocketChannel channel = (SocketChannel) key.channel();
+
+                        // Read what's ready in response
+                        channel.read(buffer);
+                        buffer.flip();
+
+                        // Decode buffer
+                        decoder.decode(buffer, charBuffer, false);
+
+                        // Display
+                        charBuffer.flip();
+                        //System.out.print("> " + charBuffer);
+
+                        StringWriter writer = new StringWriter();
+                        listener.readReady(new InetSocketAddress(channel.socket().getInetAddress(), channel
+                                .socket().getPort()), charBuffer.toString(), writer);
+
+                        channel.write(encoder.encode(CharBuffer.wrap(writer.toString())));
+
+                        // Clear for next pass
+                        buffer.clear();
+                        charBuffer.clear();
+
                     }
                     else
                     {
-                        //System.err.println("Ooops");
+                        // System.err.println("Ooops");
                     }
 
                 }
             }
         }
-        catch(ClosedChannelException ignore)
+        catch (ClosedChannelException ignore)
         {
             ignore.printStackTrace();
         }
         catch (IOException e)
-        {            
+        {
             e.printStackTrace();
         }
     }
 
     private void addClient(Socket socket) throws IOException
-    {       
+    {
         SocketChannel channel = socket.getChannel();
         channel.configureBlocking(false);
-        
+
         channel.register(selector, SelectionKey.OP_READ);
-        
+
     }
 
 }

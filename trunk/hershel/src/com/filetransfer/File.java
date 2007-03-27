@@ -1,11 +1,14 @@
 package com.filetransfer;
 
+import java.util.ArrayList;
+
 public class File
 {
     private java.io.File file;
     private int pieceSize;
     private int numberOfPieces;
     private int lastPiece;
+    private ArrayList<Integer> availablePieces;
 
     public File(String filename, int pieceSize)
     {
@@ -17,15 +20,23 @@ public class File
             numberOfPieces+=1;
         }
         lastPiece = numberOfPieces - 1;
+        availablePieces = new ArrayList<Integer>();
+        for(int i = 0; i<numberOfPieces; i++)
+        {
+            availablePieces.add(i);
+        }
     }
+    
     public String getName()
     {
         return file.getName();
     }
+    
     public long length()
     {
         return file.length();
     }
+    
     public int sizeOfPiece(int index)
     {
         if(index == lastPiece)
@@ -36,5 +47,10 @@ public class File
         {
             return pieceSize;
         }
+    }
+    
+    public ArrayList<Integer> availablePieces()
+    {
+       return availablePieces;
     }
 }

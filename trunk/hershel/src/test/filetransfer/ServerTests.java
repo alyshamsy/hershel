@@ -2,7 +2,6 @@ package test.filetransfer;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.io.Writer;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -59,7 +58,7 @@ public class ServerTests
     public class MockEventListener implements SocketEventListener
     {
         public InetSocketAddress lastSignaled;
-        public void readReady(InetSocketAddress peer, Reader reader, Writer writer)
+        public void readReady(InetSocketAddress peer, String message, Writer writer)
         {
             lastSignaled = peer;
         }

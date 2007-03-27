@@ -2,28 +2,24 @@ package com.filetransfer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class FileTransferListener implements SocketEventListener
-{
-    private HashMap<String, ArrayList<Integer>> availablePieces;
+{   
     private FileList list;
       
-    public FileTransferListener(HashMap<String, ArrayList<Integer>> availablePieces, FileList fileList)
-    {    
-        this.availablePieces = availablePieces;
+    public FileTransferListener(FileList fileList)
+    {   
         list = fileList;
     }   
 
-    public void readReady(InetSocketAddress peer, Reader reader, Writer out)
+    public void readReady(InetSocketAddress peer, String message, Writer out)
     {
         try
         {
-            BufferedReader in = new BufferedReader(reader);
+            BufferedReader in = new BufferedReader(new StringReader(message));
             String header = in.readLine();
             String[] words = header.split("\\s");
             String command = words[0];
@@ -55,7 +51,7 @@ public class FileTransferListener implements SocketEventListener
     {
         String filename = words[1];
         String pieces = null;
-        for (Integer i : availablePieces.get(filename))
+        for (Integer i : list.getFile(filename).availablePieces())
         {
             pieces = pieces == null ? i.toString() : pieces + "," + i.toString();
         }

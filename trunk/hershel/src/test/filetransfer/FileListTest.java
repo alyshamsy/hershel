@@ -10,14 +10,14 @@ import com.filetransfer.DefaultFileList;
 
 public class FileListTest
 {
-    @Test public void CalculateHashOfFileName()
+    @Test public void calculateHashOfFileName()
     {
         DefaultFileList list = new DefaultFileList();
         list.register("wrnpc11.txt", 11);
         Assert.assertEquals("wrnpc11.txt", list.getFile("4dd974e5ddca2736619a83ec4ca9e3846c7ac54f").getName());
     }
     
-    @Test public void ReadPiece() throws IOException
+    @Test public void readPiece() throws IOException
     {
         DefaultFileList list = new DefaultFileList();
         list.register("wrnpc11.txt", 11);
