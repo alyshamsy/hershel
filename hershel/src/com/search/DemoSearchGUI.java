@@ -23,20 +23,43 @@ public class DemoSearchGUI implements GUI {
 			input.setText(null);
 
 			MessageHandler h = client.getHandler();
-			if (command[0].equals("find_node")) {
-				//h.findNode(targetNode, targetId);
-			} else if (command[0].equals("find_value")) {
+			if (command[0].equalsIgnoreCase("search")) {
 				try {
-					h.findValue(new SearchId(SHA1Utils.getSHA1Digest(command[1].getBytes())));
+					SearchId file = new SearchId(SHA1Utils
+							.getSHA1Digest(command[1].getBytes()));
+					h.findValue(file);
 				} catch (IOException ex) {
 					output.append("! Searching error.\n");
 				}
+			} else if (command[0].equalsIgnoreCase("download")) {
+				try {
+					SearchId file = new SearchId(SHA1Utils
+							.getSHA1Digest(command[1].getBytes()));
+					SearchResult result = h.database().get(file);
+			    	//fileClient.beginDownload(result);
+				} catch (Exception ex) {
+					output.append("! Downloading error.\n");
+				}
+			} else if (command[0].equalsIgnoreCase("help")) {
+				output.append("? P2P Commands:\n");
+				output.append("? search <filename>\n");
+				output.append("?    - search for <filename>\n");
+				output.append("? download <filename>\n");
+				output.append("?    - begin download for <filename>\n");
+				output.append("?    - you should run 'find' first\n");
+				output.append("? help\n");
+				output.append("?    - this listing\n");
+			} else {
+				output.append("! Invalid command. " +
+						"Type 'help' for a list of commands.\n");
 			}
 		}
-		
 	}
 
-	static private String initialId = "1234567890123456789012345678901234567890";
+	static private String initialId =
+		"1234567890123456789012345678901234567890";
+	static private final boolean debug = false;
+
 	private JFrame frame;
 	private JTextField input;
 	private JTextArea output;
@@ -52,36 +75,6 @@ public class DemoSearchGUI implements GUI {
 		client.start();
 	}
 
-	private void addDemoKeywords() {
-		String[] keywords = {
-				"bob", "maxim", "jason", "ryan", "jordan", "aly", "rock", "paper", "scissors",
-				"poop", "push", "strain", "laxatives", "brown", "borat"
-		};
-		
-		String fileName = keywords[(int)(Math.random() * 
-				keywords.length)];
-		System.out.println(fileName);
-		SearchId hashedFilename = new SearchId(SHA1Utils.getSHA1Digest(fileName.getBytes()));
-		
-		SearchId fileHash = SearchId.getRandomId();
-		ArrayList<SearchId> chunkHashes = new ArrayList<SearchId>();
-		ArrayList<InetSocketAddress> peers = new ArrayList<InetSocketAddress>();        
-        
-        for(int i = 0; i<4; i++)
-        {
-            chunkHashes.add(SearchId.getRandomId());
-        }
-        
-        for(int i = 0; i<4; i++)
-        {
-            peers.add(new InetSocketAddress("localhost", i+10));           
-        }
-        
-        SearchResult r = new SearchResult(hashedFilename, fileHash, chunkHashes, 4*512*1024-100, peers);
-        
-        client.getHandler().database().put(hashedFilename, r);
-	}
-
 	public DemoSearchGUI(int port, boolean visible) throws SocketException {
 		String randomId = SearchId.getRandomId().toString();
 		client = new NetworkSearchClient(randomId, port);
@@ -90,6 +83,34 @@ public class DemoSearchGUI implements GUI {
 		setUpWindow(randomId, visible);
 		client.registerUI(this);
 		client.start();
+	}
+
+	private void addDemoKeywords() {
+		String[] keywords = { "bob", "maxim", "jason", "ryan", "jordan", "aly",
+				"rock", "paper", "scissors", "poop", "push", "strain",
+				"laxatives", "brown", "borat" };
+
+		String fileName = keywords[(int) (Math.random() * keywords.length)];
+		System.out.println(fileName);
+		SearchId hashedFilename = new SearchId(SHA1Utils.getSHA1Digest(fileName
+				.getBytes()));
+
+		SearchId fileHash = SearchId.getRandomId();
+		ArrayList<SearchId> chunkHashes = new ArrayList<SearchId>();
+		ArrayList<InetSocketAddress> peers = new ArrayList<InetSocketAddress>();
+
+		for (int i = 0; i < 4; i++) {
+			chunkHashes.add(SearchId.getRandomId());
+		}
+
+		for (int i = 0; i < 4; i++) {
+			peers.add(new InetSocketAddress("localhost", i + 10));
+		}
+
+		SearchResult r = new SearchResult(hashedFilename, fileHash,
+				chunkHashes, 4 * 512 * 1024 - 100, peers);
+
+		client.getHandler().database().put(hashedFilename, r);
 	}
 
 	private void setUpWindow(String title, boolean visible) {
@@ -116,22 +137,15 @@ public class DemoSearchGUI implements GUI {
 	}
 
 	public void getMessage(String s) {
-		output.append(s + "\n");
+		if (debug)
+			output.append(s + "\n");
 	}
 
 	public static void main(String[] args) throws SocketException {
-		/*if (args.length == 2) {
-			if (args[0].equals("-id"))
-				new SearchGUI(args[1]);
-			else if (args[0].equals("-port"))
-				new SearchGUI(Integer.parseInt(args[1]));
-		} else {
-			System.out.println("Usage: java SearchGUI <-port OR -id> <value>");
-		}*/
 		new DemoSearchGUI(initialId, true);
 		int port = 10050;
 		for (int i = 0; i < 50; i++, port++) {
-			new DemoSearchGUI(port, i % 10 == 0);			
+			new DemoSearchGUI(port, i % 10 == 0);
 		}
 	}
 
