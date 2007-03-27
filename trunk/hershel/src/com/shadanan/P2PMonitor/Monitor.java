@@ -1429,7 +1429,7 @@ public class Monitor extends JPanel {
 		int port = 10002;
 		for (int i = 0; i < 2; i++, port += 2) {
 			new com.search.SearchGUI(port);
-			m.addContact("localhost", port + 1);
+			//m.addContact("localhost", port + 1);
 		}
 	}
 

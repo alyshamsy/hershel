@@ -55,7 +55,7 @@ public class SearchGUI implements GUI, IRemote {
 
 	public int getLayerCount() {
 		// TODO Auto-generated method stub
-		return 2;
+		return 1;
 	}
 
 	public InetSocketAddress getLocalAddress() {
