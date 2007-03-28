@@ -2,7 +2,8 @@ package com.search;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.HashMap;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -88,12 +89,48 @@ public class MessageHandler implements PingCommunicator
     	client.sendToUI(table.getRoutingTable().toString(), "");
     }
 
+    public void update(SearchId file, InetSocketAddress node) throws IOException
+    {
+    	ArrayList<InetSocketAddress> oldPeers =
+    		storedValues.get(file).peers;
+    	oldPeers.add(node);
+
+    	sendAnnounce(file);
+    }
+
+    private void sendAnnounce(SearchId file) throws IOException
+    {
+    	SearchMessage announce =
+    		storedValues.get(file).createMessage("announce");
+    	announce.arguments().put("id", myId.toString());
+    	ArrayList<NodeState> nodes = table.findNode(file);
+    	for (NodeState n : nodes)
+    	{
+    		client.sendMessage(announce, n);
+    	}
+    }
+
+    private boolean addPeerToDatabase(SearchResult r)
+    {
+    	ArrayList<InetSocketAddress> oldPeers =
+    		storedValues.get(r.fileNameHash).peers;
+    	ArrayList<InetSocketAddress> newPeers = r.peers;
+    	boolean peerAdded = false;
+    	for (InetSocketAddress peer : newPeers)
+    	{
+    		if (oldPeers.contains(peer)) continue;
+    		oldPeers.add(peer);
+    		peerAdded = true;
+    	}
+    	return peerAdded;
+    }
+
     public void respondTo(SearchMessage request, InetAddress address, int port)
     {
     	client.sendToUI(request.toString(), "> ");
     	if(!request.arguments().containsKey("id"))
     		System.out.println(request.getCommand());
-    	
+
         NodeState node = new NodeState(request.arguments().get("id"),
                 				address,
                 				port);
@@ -125,7 +162,14 @@ public class MessageHandler implements PingCommunicator
             else if(request.getCommand().equals("store"))
             {
                 SearchResult r = SearchResult.fromMessage(request);
-                storedValues.put(r.fileNameHash, r);
+                if (storedValues.get(r.fileNameHash) == null)
+                {
+                	storedValues.put(r.fileNameHash, r);
+                }
+                else
+                {
+                	addPeerToDatabase(r);
+                }
             }
             else if(request.getCommand().equals("find_value"))
             {
@@ -149,14 +193,32 @@ public class MessageHandler implements PingCommunicator
             {
             	SearchResult r = SearchResult.fromMessage(request);
             	searcher.searchSuccessful(r.fileNameHash);
-                storedValues.put(r.fileNameHash, r);
-                // startDownload(r);
+            	if (storedValues.get(r.fileNameHash) == null)
+                {
+                	storedValues.put(r.fileNameHash, r);
+                }
+            	else
+            	{
+            		addPeerToDatabase(r);
+            	}
             }
             else if(request.getCommand().equals("search_failed"))
             {
             	addNodesToTable(request);
             	String fileName = request.arguments().get("file_name");
             	searcher.searchFailed(SearchId.fromHex(fileName));
+            }
+            else if(request.getCommand().equals("announce"))
+            {
+            	SearchResult r = SearchResult.fromMessage(request);
+            	if (storedValues.get(r.fileNameHash) == null) return;
+            	
+            	boolean peerAdded = addPeerToDatabase(r);
+
+            	if (peerAdded)
+            	{
+            		sendAnnounce(r.fileNameHash);
+            	}
             }
 
             replicateDatabaseTo(node);

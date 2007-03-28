@@ -12,7 +12,7 @@ import com.shadanan.P2PMonitor.MonitorService;
 
 public class SearchGUI implements GUI, IRemote {
 
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 	private static String initialId =
 		"1234567890123456789012345678901234567890";
 	private MonitorService ms;

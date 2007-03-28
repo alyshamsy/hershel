@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.*;
@@ -1426,7 +1427,7 @@ public class Monitor extends JPanel {
 	public static void main(String args[]) throws IOException {
 		int port = 10002;
 		new com.search.SearchGUI();
-		for (int i = 0; i < 50; i++, port += 2)
+		for (int i = 0; i < 40; i++, port += 2)
 			new com.search.SearchGUI(port);
 		Monitor m = new Monitor();
 		m.addContact("localhost", 10001);
