@@ -1,6 +1,10 @@
 package com.filetransfer;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.search.SearchResult;
 
 public class File
 {
@@ -9,6 +13,7 @@ public class File
     private int numberOfPieces;
     private int lastPiece;
     private ArrayList<Integer> availablePieces;
+    public HashMap<Integer, ArrayList<InetSocketAddress>> missingPieces;
 
     public File(String filename, int pieceSize)
     {
@@ -25,6 +30,8 @@ public class File
         {
             availablePieces.add(i);
         }
+        
+        missingPieces = new HashMap<Integer, ArrayList<InetSocketAddress>>();
     }
     
     public String getName()
@@ -52,5 +59,10 @@ public class File
     public ArrayList<Integer> availablePieces()
     {
        return availablePieces;
+    }
+
+    public static File downloadingFile(String destinationName, SearchResult newFile)
+    {
+        return new File(destinationName, 42);
     }
 }

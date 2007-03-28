@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.filetransfer.File;
 import com.filetransfer.FileList;
 import com.filetransfer.Piece;
+import com.search.SearchResult;
 
 public class MockFileList implements FileList
 {
@@ -46,6 +47,12 @@ public class MockFileList implements FileList
                 pieces.add(i);
             return pieces;
         }
+        
+    }
+
+    public void registerDownload(SearchResult newFile, String destinationName)
+    {
+        // TODO Auto-generated method stub
         
     }
 }   

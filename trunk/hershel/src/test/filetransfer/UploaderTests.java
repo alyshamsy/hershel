@@ -4,43 +4,32 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.filetransfer.FileTransferListener;
 
 public class UploaderTests
 {
-	@Test public void InitialHandshake() throws InterruptedException
+	private StringWriter writer;
+    private FileTransferListener uploader;
+    
+    @Before public void setUp()
+    {
+        writer = new StringWriter();
+        uploader = new FileTransferListener(new MockFileList());
+    }
+
+    @Test public void InitialHandshake() throws InterruptedException
 	{		
-		StringWriter writer = new StringWriter();
-        
-		HashMap<String, ArrayList<Integer>> availablePieces = new HashMap<String, ArrayList<Integer>>();        
-		availablePieces.put("1234567890123456789012345678901234567890", pieces(3));
-		FileTransferListener uploader = new FileTransferListener(new MockFileList());
-		
         uploader.readReady(new InetSocketAddress("localhost", 12000), "get_pieces 1234567890123456789012345678901234567890\r\n", writer);
 		assertEquals("have 0,1,2\r\nget_pieces 1234567890123456789012345678901234567890\r\n", writer.toString());
 	}
     
     @Test public void SendPiece()
-    {       
-        StringWriter writer = new StringWriter();
-        
-        HashMap<String, ArrayList<Integer>> availablePieces = new HashMap<String, ArrayList<Integer>>();        
-        availablePieces.put("1234567890123456789012345678901234567890", pieces(3));
-        FileTransferListener uploader = new FileTransferListener(new MockFileList());
-        
+    {     
         uploader.readReady(new InetSocketAddress("localhost", 12000), "get 5 1234567890123456789012345678901234567890", writer);
         assertEquals("piece 5 1234567890123456789012345678901234567890 10\r\n0123456789", writer.toString());
     }
-
-	private ArrayList<Integer> pieces(int number) {
-		ArrayList<Integer> pieces = new ArrayList<Integer>();
-		for(int i = 0; i<number; i++)
-			pieces.add(i);
-		return pieces;
-	}
 }
