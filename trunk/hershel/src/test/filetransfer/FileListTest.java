@@ -33,14 +33,19 @@ public class FileListTest
          Assert.assertEquals("The Project", new String(list.getPiece("4dd974e5ddca2736619a83ec4ca9e3846c7ac54f", 0).data));
     }
     
-    /*@Test public void writePiece()
+    @Test public void writePiece() throws IOException
     {
     	java.io.File f = new java.io.File("output.txt");
     	if(f.exists())
     		f.delete();
     	
-    	list.registerDownload(newFile, destinationName)
-    }*/
+    	SearchResult r = createSearchResult();
+    	list.registerDownload(r, "output.txt");
+    	list.writePiece(r.fileNameHash.toString(), 0, "1234567890".getBytes("ISO-8859-1"));
+    	list.writePiece(r.fileNameHash.toString(), 1, "1234567890".getBytes("ISO-8859-1"));
+    	f = new java.io.File("output.txt");
+    	Assert.assertEquals(52l, f.length());
+    }
     
     public SearchResult createSearchResult()
     {
@@ -58,6 +63,6 @@ public class FileListTest
             peers.add(new InetSocketAddress("localhost", i+10));           
         }
         
-        return new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, 512*1024, peers);
+        return new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, 10, peers);
     }
 }

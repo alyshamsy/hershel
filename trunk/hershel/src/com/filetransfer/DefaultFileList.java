@@ -43,12 +43,20 @@ public class DefaultFileList implements FileList
 
     public void registerDownload(SearchResult newFile, String destinationName)
     {
-       trackedFiles.put(newFile.fileNameHash.toString(), File.downloadingFile(destinationName, newFile));
-        
+       trackedFiles.put(newFile.fileNameHash.toString(), File.downloadingFile(destinationName, newFile));    
     }
 
 	public Set<String> files() {
 		return trackedFiles.keySet();
+	}
+
+	public void writePiece(String filenameHash, int piece, byte[] data) throws IOException
+	{
+		File file = getFile(filenameHash);
+        RandomAccessFile in = new RandomAccessFile(file.getName(), "rw");
+        in.seek(piece*file.sizeOfPiece(0));
+        in.write(data);
+        in.close();		
 	}
 
 }

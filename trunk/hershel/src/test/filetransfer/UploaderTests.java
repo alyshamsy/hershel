@@ -23,13 +23,13 @@ public class UploaderTests
 
     @Test public void InitialHandshake() throws InterruptedException
 	{		
-        uploader.readReady(new InetSocketAddress("localhost", 12000), "get_pieces 1234567890123456789012345678901234567890\r\n", writer);
+        uploader.readReady(new InetSocketAddress("localhost", 12000), DownloadTest.toStream("get_pieces 1234567890123456789012345678901234567890\r\n"), writer);
 		assertEquals("have 0,1,2\r\nget_pieces 1234567890123456789012345678901234567890\r\n", writer.toString());
 	}
     
     @Test public void SendPiece()
     {     
-        uploader.readReady(new InetSocketAddress("localhost", 12000), "get 5 1234567890123456789012345678901234567890", writer);
+        uploader.readReady(new InetSocketAddress("localhost", 12000), DownloadTest.toStream("get 5 1234567890123456789012345678901234567890"), writer);
         assertEquals("piece 5 1234567890123456789012345678901234567890 10\r\n0123456789", writer.toString());
     }
 }
