@@ -2,6 +2,7 @@ package com.filetransfer;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Set;
 
 import com.search.SearchResult;
 
@@ -13,5 +14,7 @@ public interface FileList
     public File getFile(String filenameHash);
 
     public void registerDownload(SearchResult newFile, String destinationName);
+
+	public Set<String> files();
 
 }

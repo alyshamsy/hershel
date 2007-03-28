@@ -1,6 +1,7 @@
 package test.filetransfer;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import com.filetransfer.File;
 import com.filetransfer.FileList;
@@ -55,4 +56,9 @@ public class MockFileList implements FileList
         // TODO Auto-generated method stub
         
     }
+
+	public Set<String> files() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }   

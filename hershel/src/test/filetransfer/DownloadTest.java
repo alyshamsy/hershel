@@ -80,7 +80,7 @@ public class DownloadTest
             peers.add(new InetSocketAddress("localhost", i+10));           
         }
         
-        return new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, peers);
+        return new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, 512*1024, peers);
     }
     
     public class MockServer implements Connector

@@ -3,6 +3,7 @@ package com.filetransfer;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
+import java.util.Set;
 
 import com.search.SHA1Utils;
 import com.search.SearchId;
@@ -10,7 +11,7 @@ import com.search.SearchResult;
 
 public class DefaultFileList implements FileList
 {
-    HashMap<String, File> trackedFiles;
+    private HashMap<String, File> trackedFiles;
     
     public DefaultFileList()
     {
@@ -45,5 +46,9 @@ public class DefaultFileList implements FileList
        trackedFiles.put(newFile.fileNameHash.toString(), File.downloadingFile(destinationName, newFile));
         
     }
+
+	public Set<String> files() {
+		return trackedFiles.keySet();
+	}
 
 }
