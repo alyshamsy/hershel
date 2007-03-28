@@ -12,19 +12,22 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-public class FileTransferServer extends Thread
+public class FileTransferServer extends Thread implements Connector
 {
     private ServerSocketChannel channel;
-
     private Selector selector;
-
     private SocketEventListener listener;
+    private HashMap<InetSocketAddress, Socket> connectedPeers = new HashMap<InetSocketAddress, Socket>();
+    private CharsetDecoder decoder;
+    private CharsetEncoder encoder;
 
     public FileTransferServer(int port, SocketEventListener listener) throws IOException
     {
@@ -33,6 +36,8 @@ public class FileTransferServer extends Thread
         channel.socket().bind(new InetSocketAddress(port));
         selector = Selector.open();
         this.listener = listener;
+        decoder = Charset.forName("ISO-8859-1").newDecoder();
+        encoder = Charset.forName("ISO-8859-1").newEncoder();
     }
 
     public void close()
@@ -51,10 +56,6 @@ public class FileTransferServer extends Thread
     {
         try
         {
-            Charset charset = Charset.forName("ISO-8859-1");
-            CharsetDecoder decoder = charset.newDecoder();
-            CharsetEncoder encoder = charset.newEncoder();
-
             // Allocate buffers
             ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
             CharBuffer charBuffer = CharBuffer.allocate(1024);
@@ -76,7 +77,7 @@ public class FileTransferServer extends Thread
                     SelectionKey key = (SelectionKey) readyItor.next();
 
                     // Remove current entry
-                    readyItor.remove();
+                    readyItor.remove();                    
                     if (key.isValid() && key.isAcceptable())
                     {
 
@@ -95,7 +96,11 @@ public class FileTransferServer extends Thread
                         SocketChannel channel = (SocketChannel) key.channel();
 
                         // Read what's ready in response
-                        channel.read(buffer);
+                        if(channel.read(buffer) == -1)
+                        {
+                            Socket socket = channel.socket();
+                            connectedPeers.remove(new InetSocketAddress(socket.getInetAddress(), socket.getPort()));
+                        }
                         buffer.flip();
 
                         // Decode buffer
@@ -114,11 +119,10 @@ public class FileTransferServer extends Thread
                         // Clear for next pass
                         buffer.clear();
                         charBuffer.clear();
-
                     }
                     else
                     {
-                        // System.err.println("Ooops");
+                        System.err.println("Ooops");
                     }
 
                 }
@@ -135,12 +139,49 @@ public class FileTransferServer extends Thread
     }
 
     private void addClient(Socket socket) throws IOException
-    {
+    {        
         SocketChannel channel = socket.getChannel();
         channel.configureBlocking(false);
-
         channel.register(selector, SelectionKey.OP_READ);
+        connectedPeers.put(new InetSocketAddress(socket.getInetAddress(), socket.getPort()), socket);
+    }
 
+    public void connect(InetSocketAddress peer)
+    {
+        try
+        {
+            Socket s = new Socket(peer.getAddress(), peer.getPort());
+            addClient(s);
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public void send(InetSocketAddress peer, String message)
+    {
+        SocketChannel channel = connectedPeers.get(peer).getChannel();
+        try
+        {
+            channel.write(encoder.encode(CharBuffer.wrap(message)));           
+        }
+        catch (CharacterCodingException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public HashMap<InetSocketAddress, Socket> connectedPeers()
+    {
+       return connectedPeers;
     }
 
 }
