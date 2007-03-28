@@ -48,7 +48,7 @@ public class Settings implements Serializable {
 		try {
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
 			Settings settings = (Settings)ois.readObject();
-			return settings;
+			//return settings;
 		} catch (Exception e) {}
 		file.delete();
 		return new Settings();

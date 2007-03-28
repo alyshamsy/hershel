@@ -16,7 +16,6 @@ import com.search.MessageHandler;
 import com.search.NodeState;
 import com.search.Pinger;
 import com.search.RoutingTable;
-import com.search.SearchClient;
 import com.search.SearchId;
 import com.search.SearchMessage;
 import com.search.SearchResult;
@@ -99,7 +98,21 @@ public class MessageHandlingTests
         assertNull(mock.lastDestination);
         assertNull(mock.lastMessage);
     }
-    
+
+    @Test public void announceSentOnUpdate() throws IOException
+    {
+    	SearchId file = SearchId.getRandomId();
+    	handler.database().put(file,
+    			new SearchResult(file, SearchId.getRandomId(),
+    					new ArrayList<SearchId>(), 0, 0,
+    					new ArrayList<InetSocketAddress>()));
+    	handler.update(file,
+    			new InetSocketAddress(targetNode.address,
+    					targetNode.port));
+
+    	assertEquals("announce", mock.lastMessage.getCommand());
+    }
+
     // TODO the store tests need to be refactored
     @Test public void storeCommandAddsItemToTheDatabase()
     {        

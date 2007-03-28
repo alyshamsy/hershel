@@ -1,9 +1,11 @@
 package test.search;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import com.search.NodeState;
 import com.search.SearchClient;
+import com.search.SearchId;
 import com.search.SearchMessage;
 
 public class MockSearchClient implements SearchClient
