@@ -2,7 +2,8 @@ package com.filetransfer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Writer;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -20,11 +21,11 @@ public class FileTransferListener implements SocketEventListener
         list = fileList;
     }
 
-    public void readReady(InetSocketAddress peer, String message, Writer out)
+    public void readReady(InetSocketAddress peer, InputStream message, Writer out)
     {
         try
         {
-            BufferedReader in = new BufferedReader(new StringReader(message));
+            BufferedReader in = new BufferedReader(new InputStreamReader(message));
             String header = in.readLine();
             String[] words = header.split("\\s");
             String command = words[0];

@@ -1,5 +1,7 @@
 package test.filetransfer;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -53,10 +55,15 @@ public class DownloadTest
     @Test public void requestPiecesOnceAvailabilityIsKnown()
     {
         downloader.download(r, "hello.txt", mock);
-        downloader.readReady(r.peers.get(0), "have 0987654321098765432109876543210987654321 1\r\n", writer);
+        downloader.readReady(r.peers.get(0), toStream("have 0987654321098765432109876543210987654321 1\r\n"), writer);
         
         Assert.assertEquals("get 1 0987654321098765432109876543210987654321\r\n", mock.lastMessage);
         Assert.assertEquals(r.peers.get(0), mock.lastPeer);
+    }
+    
+    public static InputStream toStream(String s)
+    {
+    	return new ByteArrayInputStream(s.getBytes());
     }
     
     public class MockDownloadFileList extends DefaultFileList

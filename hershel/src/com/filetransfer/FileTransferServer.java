@@ -1,5 +1,6 @@
 package com.filetransfer;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
@@ -112,9 +113,12 @@ public class FileTransferServer extends Thread implements Connector
                         charBuffer.flip();
                         //System.out.print("> " + charBuffer);
 
-                        StringWriter writer = new StringWriter();
+                        StringWriter writer = new StringWriter();   
+                        byte[] message = new byte[buffer.remaining()];
+                        buffer.get(message);
+                        ByteArrayInputStream stream = new ByteArrayInputStream(message);
                         listener.readReady(new InetSocketAddress(channel.socket().getInetAddress(), channel
-                                .socket().getPort()), charBuffer.toString(), writer);
+                                .socket().getPort()), stream, writer);
 
                         channel.write(encoder.encode(CharBuffer.wrap(writer.toString())));
 
