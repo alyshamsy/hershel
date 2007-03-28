@@ -10,15 +10,17 @@ public class SearchResult
     public long fileSize;
     public ArrayList<SearchId> chunkHashes;
     public ArrayList<InetSocketAddress> peers;
+	private int chunkSize;
     
     public SearchResult(SearchId fileNameHash, SearchId fileHash, ArrayList<SearchId> chunkHashes,
-            long fileSize, ArrayList<InetSocketAddress> peers)
+            long fileSize, int chunkSize, ArrayList<InetSocketAddress> peers)
     {
         this.fileNameHash = fileNameHash;
         this.fileHash = fileHash;
         this.fileSize = fileSize;
         this.chunkHashes = chunkHashes;
         this.peers = peers;
+        this.chunkSize = chunkSize;
     }
 
     public SearchMessage createMessage(String commans)
@@ -27,6 +29,7 @@ public class SearchResult
         storeMessage.arguments().put("file_name", fileNameHash.toString());
         storeMessage.arguments().put("file", fileHash.toString());
         storeMessage.arguments().put("file_size", String.valueOf(fileSize));
+        storeMessage.arguments().put("chunk_size", String.valueOf(chunkSize));
         String chunks = "";
         for(SearchId id : chunkHashes)
         {
@@ -51,8 +54,8 @@ public class SearchResult
         {
             SearchResult other = (SearchResult)o;
             
-            return fileNameHash.equals(other.fileNameHash) && fileSize == fileSize && other.fileHash.equals(fileHash)
-                   && chunkHashes.equals(other.chunkHashes) && peers.equals(other.peers);
+            return fileNameHash.equals(other.fileNameHash) && fileSize == other.fileSize && other.fileHash.equals(fileHash)
+                   && chunkHashes.equals(other.chunkHashes) && peers.equals(other.peers) && chunkSize == other.chunkSize;
         }
         return false;
     }
@@ -62,6 +65,7 @@ public class SearchResult
         SearchId fileName = SearchId.fromHex(message.arguments().get("file_name"));
         SearchId fileHash = SearchId.fromHex(message.arguments().get("file"));
         long fileSize = Long.parseLong(message.arguments().get("file_size"));
+        int chunkSize = Integer.parseInt(message.arguments().get("chunk_size"));
         ArrayList<SearchId> chunks = new ArrayList<SearchId>();
         for(int i = 0; i<message.arguments().get("chunks").length(); i+=40)
         {
@@ -76,7 +80,7 @@ public class SearchResult
                     Integer.parseInt(address.substring(address.indexOf(':')+1))));
         }
         
-        return new SearchResult(fileName, fileHash, chunks, fileSize, peers);
+        return new SearchResult(fileName, fileHash, chunks, fileSize, chunkSize, peers);
     }
 
 }

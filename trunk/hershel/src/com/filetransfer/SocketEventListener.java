@@ -8,4 +8,6 @@ public interface SocketEventListener
 
     public abstract void readReady(InetSocketAddress peer, String message, Writer writer);
 
+	public void disconnected(InetSocketAddress peer);
+
 }

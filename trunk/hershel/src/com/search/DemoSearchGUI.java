@@ -108,7 +108,7 @@ public class DemoSearchGUI implements GUI {
 		}
 
 		SearchResult r = new SearchResult(hashedFilename, fileHash,
-				chunkHashes, 4 * 512 * 1024 - 100, peers);
+				chunkHashes, 4 * 512 * 1024 - 100, 512*1024, peers);
 
 		client.getHandler().database().put(hashedFilename, r);
 	}

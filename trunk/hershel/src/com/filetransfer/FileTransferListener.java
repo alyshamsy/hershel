@@ -115,4 +115,16 @@ public class FileTransferListener implements SocketEventListener
             connector.send(peer, "get_pieces " + newFile.fileNameHash.toString() + "\r\n");
         }
     }
+
+	public void disconnected(InetSocketAddress peer)
+	{
+		for(String file : list.files())
+		{
+			File f = list.getFile(file);
+			for(ArrayList<InetSocketAddress> peers: f.missingPieces.values())
+			{
+				peers.remove(peer);
+			}
+		}
+	}
 }

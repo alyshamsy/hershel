@@ -99,7 +99,9 @@ public class FileTransferServer extends Thread implements Connector
                         if(channel.read(buffer) == -1)
                         {
                             Socket socket = channel.socket();
-                            connectedPeers.remove(new InetSocketAddress(socket.getInetAddress(), socket.getPort()));
+                            InetSocketAddress disconnectedPeer = new InetSocketAddress(socket.getInetAddress(), socket.getPort());
+							connectedPeers.remove(disconnectedPeer);
+							listener.disconnected(disconnectedPeer);
                         }
                         buffer.flip();
 

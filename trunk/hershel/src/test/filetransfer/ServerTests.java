@@ -27,19 +27,26 @@ public class ServerTests
 
     @Before public void setUp() throws IOException, InterruptedException
     {
-        mock = new MockEventListener();
-        s = new FileTransferServer(10000, mock);
-        s.start();
-        
-       
-        client = new Socket();
-        client.connect(new InetSocketAddress("localhost", 10000));       
+        try {
+			mock = new MockEventListener();
+			s = new FileTransferServer(20000, mock);
+			s.start();
+			
+			//Thread.sleep(100);
+			client = new Socket();
+			client.connect(new InetSocketAddress("localhost", 20000));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw e;
+		}       
     }
     
-    @After public void tearDown() throws IOException
+    @After public void tearDown() throws IOException, InterruptedException
     {
         client.close();
         s.close();
+        Thread.sleep(100);
     }
     
 	@Test public void ServerAcceptsConnection() throws UnknownHostException, IOException, InterruptedException
@@ -55,7 +62,7 @@ public class ServerTests
         Thread.sleep(100);
         
         Assert.assertNotNull(mock.lastSignaled);
-        out.close();        
+        //out.close();        
     }
     
     @Test public void sendMessagesByIpAddress() throws InterruptedException, IOException
@@ -78,12 +85,28 @@ public class ServerTests
         Assert.assertEquals(0, s.connectedPeers().size());
     }
     
+    @Test public void notifyAboutDisconnectedPeers() throws IOException, InterruptedException
+    {
+    	client.shutdownOutput();
+        client.shutdownInput();
+        Thread.sleep(100);
+        Assert.assertEquals(0, s.connectedPeers().size());        
+        Assert.assertNotNull(mock.lastDisconnected);
+    }
+    
     public class MockEventListener implements SocketEventListener
     {
         public InetSocketAddress lastSignaled;
+        public InetSocketAddress lastDisconnected;
+        
         public void readReady(InetSocketAddress peer, String message, Writer writer)
         {
             lastSignaled = peer;
+        }
+        
+        public void disconnected(InetSocketAddress peer)
+        {
+        	lastDisconnected = peer;
         }
     }
 }
