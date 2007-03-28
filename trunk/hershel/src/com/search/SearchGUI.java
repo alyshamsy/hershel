@@ -11,6 +11,8 @@ import com.shadanan.P2PMonitor.IRemote;
 import com.shadanan.P2PMonitor.MonitorService;
 
 public class SearchGUI implements GUI, IRemote {
+
+	private static final boolean debug = true;
 	private static String initialId =
 		"1234567890123456789012345678901234567890";
 	private MonitorService ms;
@@ -39,7 +41,8 @@ public class SearchGUI implements GUI, IRemote {
 	}
 
 	public void getMessage(String s) {
-
+		if (debug)
+			ms.println(s);
 	}
 
 	public void addContact(InetSocketAddress peer) {
@@ -87,12 +90,35 @@ public class SearchGUI implements GUI, IRemote {
 	public void message(String text) {
 		String[] command = text.split(" ");
 		MessageHandler h = client.getHandler();
-		if (command[0].equals("search")) {
+		if (command[0].equalsIgnoreCase("search")) {
 			try {
-				h.findValue(new SearchId(SHA1Utils.getSHA1Digest(command[1].getBytes())));
+				SearchId file = new SearchId(SHA1Utils
+						.getSHA1Digest(command[1].getBytes()));
+				h.findValue(file);
 			} catch (IOException ex) {
 				ms.println("! Searching error.\n");
 			}
+		} else if (command[0].equalsIgnoreCase("download")) {
+			try {
+				SearchId file = new SearchId(SHA1Utils
+						.getSHA1Digest(command[1].getBytes()));
+				SearchResult result = h.database().get(file);
+		    	//fileClient.beginDownload(result);
+			} catch (Exception ex) {
+				ms.println("! Downloading error.\n");
+			}
+		} else if (command[0].equalsIgnoreCase("help")) {
+			ms.println("? P2P Commands:\n");
+			ms.println("? search <filename>\n");
+			ms.println("?    - search for <filename>\n");
+			ms.println("? download <filename>\n");
+			ms.println("?    - begin download for <filename>\n");
+			ms.println("?    - you should run 'find' first\n");
+			ms.println("? help\n");
+			ms.println("?    - this listing\n");
+		} else {
+			ms.println("! Invalid command. " +
+					"Type 'help' for a list of commands.\n");
 		}
 	}
 
