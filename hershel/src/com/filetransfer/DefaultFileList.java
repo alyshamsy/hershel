@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import com.search.SHA1Utils;
 import com.search.SearchId;
+import com.search.SearchResult;
 
 public class DefaultFileList implements FileList
 {
@@ -37,6 +38,12 @@ public class DefaultFileList implements FileList
     public File getFile(String filenameHash)
     {
         return trackedFiles.get(filenameHash);
+    }
+
+    public void registerDownload(SearchResult newFile, String destinationName)
+    {
+       trackedFiles.put(newFile.fileNameHash.toString(), File.downloadingFile(destinationName, newFile));
+        
     }
 
 }
