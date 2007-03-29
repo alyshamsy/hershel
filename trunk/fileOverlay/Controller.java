@@ -69,6 +69,7 @@ public class Controller{
 		
 	}
 	
+	/*
 	//classes for Newscast
 	public class Newscast extends Thread
 	{
@@ -238,6 +239,7 @@ public class Controller{
 		}
 		
 	}
+	
 //	Nodeid holds the age and id of a Node, as well as the files it has 
 	public class Nodeid
 	{
@@ -271,6 +273,7 @@ public class Controller{
 			return fileList;
 		}
 	}
+	*/
 	
 	//server class which deals with requests for files and dispatches them 
 	public class ControllerServer extends Thread {
