@@ -2,6 +2,7 @@ package test.filetransfer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.filetransfer.File;
@@ -59,8 +60,7 @@ public class MockFileList implements FileList
     }
 
 	public Set<String> files() {
-		// TODO Auto-generated method stub
-		return null;
+		return new HashSet<String>();
 	}
 
     public void writePiece(String filenameHash, int piece, byte[] data) throws IOException

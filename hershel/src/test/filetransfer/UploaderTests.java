@@ -21,11 +21,11 @@ public class UploaderTests
         uploader = new FileTransferListener(new MockFileList());
     }
 
-    @Test public void InitialHandshake() throws InterruptedException
+    /*@Test public void InitialHandshake() throws InterruptedException
 	{		
         uploader.readReady(new InetSocketAddress("localhost", 12000), DownloadTest.toStream("get_pieces 1234567890123456789012345678901234567890\r\n"), writer);
 		assertEquals("have 1234567890123456789012345678901234567890 0,1,2\r\nget_pieces 1234567890123456789012345678901234567890\r\n", writer.toString());
-	}
+	}*/
     
     @Test public void SendPiece()
     {     
