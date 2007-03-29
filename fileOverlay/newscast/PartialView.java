@@ -1,6 +1,5 @@
 package newscast;
 
-import java.io.*;
 import java.net.*;
 
 import java.sql.Timestamp;
