@@ -7,16 +7,16 @@ public class Newscast {
 	
 	private PartialView []view = new PartialView[SIZE];
 	
-	private boolean addElement(PartialView elem, int index){
+	public boolean addElement(PartialView elem, int index){
 		if (index >= 0 && index < SIZE){
-			view[index] = elem;
+			view[index] = new PartialView(elem);
 			return true;
 		}
 		else
 			return false;
 	}
 	
-	private boolean removeElement( int index){
+	public boolean removeElement( int index){
 		if (index >= 0 && index < SIZE ){
 			view[index] = null;
 			return true;
@@ -25,5 +25,9 @@ public class Newscast {
 			return false;
 	}
 	
+	public PartialView[] getNews(){
+	
+		return this.view;
+	}
 	
 }

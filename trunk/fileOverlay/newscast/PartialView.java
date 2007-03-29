@@ -13,6 +13,11 @@ public class PartialView {
 		this.time = null;
 	}
 	
+	PartialView(PartialView elem){
+		this.addr = elem.addr;
+		this.time = elem.time;
+	}
+	
 	PartialView (InetAddress addr, long time){
 		this.addr = addr;
 		this.time.setTime(time);
