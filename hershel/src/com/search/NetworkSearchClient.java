@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 public class NetworkSearchClient extends Thread implements SearchClient
 {
@@ -38,9 +39,15 @@ public class NetworkSearchClient extends Thread implements SearchClient
         this.handler = handler;
     }
 
+    // Interface to the file overlay
     public void updateDatabase(SearchId file, InetSocketAddress node) throws IOException
     {
-    	handler.update(file, node);
+    	handler.updateDatabase(file, node);
+    }
+
+    public void initializeDatabase(ArrayList<SearchResult> files)
+    {
+    	handler.initializeDatabase(files);
     }
 
     public void run()
