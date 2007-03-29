@@ -36,7 +36,7 @@ public class SearchResultTest
             peers.add(new InetSocketAddress("localhost", i+10));           
         }
         
-        r = new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, 512*1024, peers);
+        r = new SearchResult("sample.txt", fileNameHash, fileHash, chunkHashes, 4*512*1024-100, 512*1024, peers);
     }
 
     @Test public void generateMessageWithStoreCommand()
@@ -62,6 +62,11 @@ public class SearchResultTest
     @Test public void messageHasChunkSize()
     {
         assertEquals(512*1024, Integer.parseInt(r.createMessage("store").arguments().get("chunk_size")));
+    }
+    
+    @Test public void messageHashFilename()
+    {
+        assertEquals("sample.txt", r.createMessage("store").arguments().get("original_name"));
     }
     
     @Test public void messageHasHashOfEachChunk()

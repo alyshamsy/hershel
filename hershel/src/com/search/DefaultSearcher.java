@@ -50,7 +50,9 @@ public class DefaultSearcher extends Thread implements Searcher
 	{
 		while (running) {
 			try {
+				System.out.println("waiting");
 				wait();
+				System.out.println("notified");
 				for (Entry<SearchId, SearchStatus> e : searchesInProgress.entrySet()) {
 					SearchStatus ss = e.getValue();					
 					if ((ss.attemptsLeft > 0) && (ss.searchFailed == true)) {
@@ -70,9 +72,10 @@ public class DefaultSearcher extends Thread implements Searcher
 		}
 	}
 
-	public void close()
+	public synchronized void close()
 	{
 		running = false;
+		notify();
 	}
 
 	public synchronized void putSearchRequest(SearchId fileName) throws IOException
@@ -91,6 +94,7 @@ public class DefaultSearcher extends Thread implements Searcher
 		SearchStatus ss = searchesInProgress.get(fileName);
 		if (ss == null) return;
 		ss.searchFailed = true;
+		System.out.println("notifying");
 		notify();
 	}
 

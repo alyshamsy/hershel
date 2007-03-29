@@ -17,6 +17,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -30,6 +31,7 @@ public class FileTransferServer extends Thread implements Connector
     private SocketEventListener listener;
 
     private HashMap<InetSocketAddress, Socket> connectedPeers = new HashMap<InetSocketAddress, Socket>();
+    private ArrayList<InetSocketAddress> pendingConnections;
 
     private CharsetDecoder decoder;
 
@@ -44,6 +46,7 @@ public class FileTransferServer extends Thread implements Connector
         this.listener = listener;
         decoder = Charset.forName("ISO-8859-1").newDecoder();
         encoder = Charset.forName("ISO-8859-1").newEncoder();
+        pendingConnections = new ArrayList<InetSocketAddress>();
     }
 
     public void close()
@@ -71,6 +74,18 @@ public class FileTransferServer extends Thread implements Connector
 
             while (selector.select(300) >= 0)
             {
+            	
+            	synchronized(this)
+            	{
+            		for(InetSocketAddress peer: pendingConnections)
+            		{
+            			SocketChannel channel = SocketChannel.open();
+                        channel.configureBlocking(false);
+                        channel.connect(peer);
+                        channel.register(selector, SelectionKey.OP_READ|SelectionKey.OP_CONNECT);
+            		}
+            		pendingConnections.clear();
+            	}
 
                 // Get set of ready objects
                 Set readyKeys = selector.selectedKeys();
@@ -79,6 +94,7 @@ public class FileTransferServer extends Thread implements Connector
                 // Walk through set
                 while (readyItor.hasNext())
                 {
+                	
                     // Get key from set
                     SelectionKey key = (SelectionKey) readyItor.next();
 
@@ -124,11 +140,11 @@ public class FileTransferServer extends Thread implements Connector
                         buffer.flip();
 
                         // Decode buffer
-                        decoder.decode(buffer, charBuffer, false);
+                        //decoder.decode(buffer, charBuffer, false);
 
                         // Display
-                        charBuffer.flip();
-                        System.out.print("> " + charBuffer);
+                        //charBuffer.flip();
+                        //System.out.print("> " + charBuffer);
 
                         StringWriter writer = new StringWriter();   
                         byte[] message = new byte[buffer.remaining()];
@@ -171,18 +187,10 @@ public class FileTransferServer extends Thread implements Connector
 
     public void connect(InetSocketAddress peer)
     {
-        try
-        {
-            SocketChannel channel = SocketChannel.open();
-            channel.configureBlocking(false);
-            channel.connect(peer);
-            channel.register(selector, SelectionKey.OP_READ|SelectionKey.OP_CONNECT);
-            
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+    	synchronized(this)
+    	{
+    		pendingConnections.add(peer);
+    	}
     }
 
     public void send(InetSocketAddress peer, String message)

@@ -15,7 +15,7 @@ public class FileTransferListener implements SocketEventListener
     private Connector connector;
 
     public FileTransferListener(FileList fileList)
-    {
+    { 
         list = fileList;
     }
 
@@ -34,12 +34,12 @@ public class FileTransferListener implements SocketEventListener
                 }
                 header.append((char)c);
             }
-            
+            System.out.println(header);
             String[] words = header.toString().split("\\s");
             String command = words[0];
             if (command.equals("get_pieces"))
             {
-                sendHave(out, words);
+                sendHave(out, words, peer);
             }
             else if (command.equals("get"))
             {
@@ -116,7 +116,7 @@ public class FileTransferListener implements SocketEventListener
         out.write(new String(piece.data));
     }
 
-    private void sendHave(Writer out, String[] words) throws IOException
+    private void sendHave(Writer out, String[] words, InetSocketAddress peer) throws IOException
     {
         String filename = words[1];
         String pieces = null;
@@ -125,8 +125,8 @@ public class FileTransferListener implements SocketEventListener
             pieces = pieces == null ? i.toString() : pieces + "," + i.toString();
         }
 
-        out.write("have " + pieces + "\r\n");
-        out.write("get_pieces " + filename + "\r\n");
+        connector.send(peer, "have " + filename + " " + pieces + "\r\n");
+        connector.send(peer, "get_pieces " + filename + "\r\n");
     }
 
     public void download(SearchResult newFile, String destinationName, Connector connector)
@@ -140,7 +140,7 @@ public class FileTransferListener implements SocketEventListener
         
         try
         {
-            Thread.sleep(100);
+            Thread.sleep(500);
         }
         catch (InterruptedException e)
         {

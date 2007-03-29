@@ -43,6 +43,6 @@ public class FileUploader
         peers.add(new InetSocketAddress("localhost", 10000));           
        
         
-        return new SearchResult(fileNameHash, fileHash, chunkHashes, 3284807, 16*1024, peers);
+        return new SearchResult("sample.txt", fileNameHash, fileHash, chunkHashes, 3284807, 16*1024, peers);
     }
 }

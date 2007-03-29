@@ -90,7 +90,7 @@ public class ServerTests
     {
     	client.shutdownOutput();
         client.shutdownInput();
-        Thread.sleep(100);
+        Thread.sleep(500);
         Assert.assertEquals(0, s.connectedPeers().size());        
         Assert.assertNotNull(mock.lastDisconnected);
     }
