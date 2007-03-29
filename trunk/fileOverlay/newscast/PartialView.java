@@ -13,9 +13,9 @@ public class PartialView {
 		this.time = null;
 	}
 	
-	PartialView (InetAddress addr, Timestamp time){
+	PartialView (InetAddress addr, long time){
 		this.addr = addr;
-		this.time = time;
+		this.time.setTime(time);
 	}
 	
 	void setAddr(InetAddress addr){
@@ -34,6 +34,7 @@ public class PartialView {
 		this.time.setTime(time);
 	}
 	
+	//Updates the age of the node in the list
 	void updateTime (Timestamp temp){
 		long newTime = temp.getTime();
 		long oldTime = time.getTime();
