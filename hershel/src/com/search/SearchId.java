@@ -75,4 +75,16 @@ public class SearchId
         return new SearchId(bts);
     }
 
+	public static SearchId fromReverseHex(String string)
+	{
+		SearchId temp = SearchId.fromHex(string);
+		for(int begin = 0, end = 19; begin < end; begin++, end--)
+		{
+			byte t = temp.id[begin];
+			temp.id[begin] = temp.id[end];
+			temp.id[end] = t;
+		}
+		return temp;
+	}
+
 }

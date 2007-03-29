@@ -21,6 +21,12 @@ public class SearchIdTest
         assertEquals((byte)0x34, id.id[18]);
     }
     
+    @Test public void reverseHexString()
+    {
+    	SearchId reverse = SearchId.fromReverseHex("4fc57a6c84e3a94cec839a613627cadde574d94d");
+    	assertEquals(SearchId.fromHex("4dd974e5ddca2736619a83ec4ca9e3846c7ac54f"), reverse);
+    }
+    
     @Test public void strangeString()
     {
         assertEquals("?", new String(new byte[] {63}));
