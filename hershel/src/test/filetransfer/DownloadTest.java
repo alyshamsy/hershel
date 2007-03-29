@@ -1,6 +1,7 @@
 package test.filetransfer;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
@@ -61,6 +62,18 @@ public class DownloadTest
         Assert.assertEquals(r.peers.get(0), mock.lastPeer);
     }
     
+    @Test public void storeDownloadedPiece()
+    {
+        downloader.download(r, "hello.txt", mock);
+        downloader.readReady(r.peers.get(0), toStream("have 0987654321098765432109876543210987654321 1\r\n"), writer);
+        
+        downloader.readReady(r.peers.get(0), toStream("piece 5 0987654321098765432109876543210987654321 10\r\n0123456789"), writer);
+        
+        Assert.assertEquals("0987654321098765432109876543210987654321", mockList.lastFile);
+        Assert.assertEquals(5, mockList.lastPiece);
+        Assert.assertEquals("0123456789", new String(mockList.lastData));
+    }
+    
     public static InputStream toStream(String s)
     {
     	return new ByteArrayInputStream(s.getBytes());
@@ -68,6 +81,17 @@ public class DownloadTest
     
     public class MockDownloadFileList extends DefaultFileList
     {
+        public byte[] lastData;
+        public int lastPiece;
+        public String lastFile;
+        @Override
+        public void writePiece(String filenameHash, int piece, byte[] data) throws IOException
+        {
+            lastFile = filenameHash;
+            lastPiece = piece;
+            lastData = data;
+        }
+        
         
     }
     

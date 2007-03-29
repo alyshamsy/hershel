@@ -1,5 +1,6 @@
 package test.filetransfer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -61,4 +62,10 @@ public class MockFileList implements FileList
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    public void writePiece(String filenameHash, int piece, byte[] data) throws IOException
+    {
+        // TODO Auto-generated method stub
+        
+    }
 }   

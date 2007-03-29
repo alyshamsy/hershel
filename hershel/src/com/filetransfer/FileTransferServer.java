@@ -24,10 +24,15 @@ import java.util.Set;
 public class FileTransferServer extends Thread implements Connector
 {
     private ServerSocketChannel channel;
+
     private Selector selector;
+
     private SocketEventListener listener;
+
     private HashMap<InetSocketAddress, Socket> connectedPeers = new HashMap<InetSocketAddress, Socket>();
+
     private CharsetDecoder decoder;
+
     private CharsetEncoder encoder;
 
     public FileTransferServer(int port, SocketEventListener listener) throws IOException
@@ -58,13 +63,13 @@ public class FileTransferServer extends Thread implements Connector
         try
         {
             // Allocate buffers
-            ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
-            CharBuffer charBuffer = CharBuffer.allocate(1024);
+            ByteBuffer buffer = ByteBuffer.allocateDirect(64*1024);
+            CharBuffer charBuffer = CharBuffer.allocate(64*1024);
 
             // Register interest in when connection
             channel.register(selector, SelectionKey.OP_ACCEPT);
 
-            while (selector.select() > 0)
+            while (selector.select(300) >= 0)
             {
 
                 // Get set of ready objects
@@ -90,7 +95,19 @@ public class FileTransferServer extends Thread implements Connector
 
                         // Accept request
                         Socket socket = serverSocket.accept();
-                        addClient(socket);
+                        addClient(socket);                       
+                        System.out.println("Connection accepted");
+                    }
+                    else if (key.isConnectable())
+                    {
+                        System.out.println("Something is connecting");
+                        SocketChannel channel = (SocketChannel) key.channel();
+                        if (channel.isConnectionPending())
+                        {
+                            channel.finishConnect();
+                        }
+                        connectedPeers.put(new InetSocketAddress(channel.socket().getInetAddress(), channel.socket()
+                                .getPort()), channel.socket());
                     }
                     else if (key.isValid() && key.isReadable())
                     {
@@ -111,7 +128,7 @@ public class FileTransferServer extends Thread implements Connector
 
                         // Display
                         charBuffer.flip();
-                        //System.out.print("> " + charBuffer);
+                        System.out.print("> " + charBuffer);
 
                         StringWriter writer = new StringWriter();   
                         byte[] message = new byte[buffer.remaining()];
@@ -145,7 +162,7 @@ public class FileTransferServer extends Thread implements Connector
     }
 
     private void addClient(Socket socket) throws IOException
-    {        
+    {
         SocketChannel channel = socket.getChannel();
         channel.configureBlocking(false);
         channel.register(selector, SelectionKey.OP_READ);
@@ -156,12 +173,14 @@ public class FileTransferServer extends Thread implements Connector
     {
         try
         {
-            Socket s = new Socket(peer.getAddress(), peer.getPort());
-            addClient(s);
+            SocketChannel channel = SocketChannel.open();
+            channel.configureBlocking(false);
+            channel.connect(peer);
+            channel.register(selector, SelectionKey.OP_READ|SelectionKey.OP_CONNECT);
+            
         }
         catch (IOException e)
         {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -171,7 +190,7 @@ public class FileTransferServer extends Thread implements Connector
         SocketChannel channel = connectedPeers.get(peer).getChannel();
         try
         {
-            channel.write(encoder.encode(CharBuffer.wrap(message)));           
+            channel.write(encoder.encode(CharBuffer.wrap(message)));
         }
         catch (CharacterCodingException e)
         {
@@ -187,7 +206,7 @@ public class FileTransferServer extends Thread implements Connector
 
     public HashMap<InetSocketAddress, Socket> connectedPeers()
     {
-       return connectedPeers;
+        return connectedPeers;
     }
 
 }
