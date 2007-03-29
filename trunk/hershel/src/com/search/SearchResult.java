@@ -10,10 +10,11 @@ public class SearchResult
     public long fileSize;
     public ArrayList<SearchId> chunkHashes;
     public ArrayList<InetSocketAddress> peers;
-	private int chunkSize;
+	public int chunkSize;
+	public String filename;
     
-    public SearchResult(SearchId fileNameHash, SearchId fileHash, ArrayList<SearchId> chunkHashes,
-            long fileSize, int chunkSize, ArrayList<InetSocketAddress> peers)
+    public SearchResult(String filename, SearchId fileNameHash, SearchId fileHash,
+            ArrayList<SearchId> chunkHashes, long fileSize, int chunkSize, ArrayList<InetSocketAddress> peers)
     {
         this.fileNameHash = fileNameHash;
         this.fileHash = fileHash;
@@ -21,6 +22,7 @@ public class SearchResult
         this.chunkHashes = chunkHashes;
         this.peers = peers;
         this.chunkSize = chunkSize;
+        this.filename = filename;
     }
 
     public SearchMessage createMessage(String commans)
@@ -30,6 +32,7 @@ public class SearchResult
         storeMessage.arguments().put("file", fileHash.toString());
         storeMessage.arguments().put("file_size", String.valueOf(fileSize));
         storeMessage.arguments().put("chunk_size", String.valueOf(chunkSize));
+        storeMessage.arguments().put("original_name", filename);
         String chunks = "";
         for(SearchId id : chunkHashes)
         {
@@ -55,7 +58,8 @@ public class SearchResult
             SearchResult other = (SearchResult)o;
             
             return fileNameHash.equals(other.fileNameHash) && fileSize == other.fileSize && other.fileHash.equals(fileHash)
-                   && chunkHashes.equals(other.chunkHashes) && peers.equals(other.peers) && chunkSize == other.chunkSize;
+                   && chunkHashes.equals(other.chunkHashes) && peers.equals(other.peers) && chunkSize == other.chunkSize &&
+                   other.filename.equals(filename);
         }
         return false;
     }
@@ -80,7 +84,8 @@ public class SearchResult
                     Integer.parseInt(address.substring(address.indexOf(':')+1))));
         }
         
-        return new SearchResult(fileName, fileHash, chunks, fileSize, chunkSize, peers);
+        String filename = message.arguments().get("original_name");
+		return new SearchResult(filename, fileName, fileHash, chunks, fileSize, chunkSize, peers);
     }
 
 }

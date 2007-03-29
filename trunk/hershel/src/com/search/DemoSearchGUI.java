@@ -107,8 +107,8 @@ public class DemoSearchGUI implements GUI {
 			peers.add(new InetSocketAddress("localhost", i + 10));
 		}
 
-		SearchResult r = new SearchResult(hashedFilename, fileHash,
-				chunkHashes, 4 * 512 * 1024 - 100, 512*1024, peers);
+		SearchResult r = new SearchResult("sample.txt", hashedFilename,
+				fileHash, chunkHashes, 4 * 512 * 1024 - 100, 512*1024, peers);
 
 		client.getHandler().database().put(hashedFilename, r);
 	}

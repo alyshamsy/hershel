@@ -5,10 +5,16 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.net.InetAddress;
 
-import com.search.*;
-
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.search.DefaultSearcher;
+import com.search.NodeState;
+import com.search.Pinger;
+import com.search.RoutingTable;
+import com.search.SearchId;
+import com.search.SearchMessage;
 
 public class TestSearcher {
 
@@ -65,6 +71,11 @@ public class TestSearcher {
         		InetAddress.getByName("localhost"), 5670);
         table.addNode(node);
 	}
+	
+	@After public void tearDown()
+	{
+		searcher.close();
+	}
 
 	@Test public void findValueMessageSent() throws IOException {
 		SearchId fileName =
@@ -91,7 +102,7 @@ public class TestSearcher {
 		table.addNode(newNode);		
 		searcher.searchFailed(fileName);
 		
-		Thread.sleep(150);
+		Thread.sleep(1000);
 		SearchMessage sm = client.lastMessage;
 		assertEquals("find_value", sm.getCommand());
 		assertEquals(newNode, client.lastDestination);

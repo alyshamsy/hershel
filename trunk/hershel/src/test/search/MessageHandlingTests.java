@@ -102,9 +102,9 @@ public class MessageHandlingTests
     @Test public void announceSentOnUpdate() throws IOException
     {
     	SearchId file = SearchId.getRandomId();
-    	SearchResult r = new SearchResult(file, SearchId.getRandomId(),
-    			new ArrayList<SearchId>(), 0, 0,
-				new ArrayList<InetSocketAddress>());
+    	SearchResult r = new SearchResult("sample.txt", file,
+    			SearchId.getRandomId(), new ArrayList<SearchId>(), 0,
+				0, new ArrayList<InetSocketAddress>());
     	handler.database().put(file, r);
     	handler.routingTable().addNode(targetNode);
     	handler.updateDatabase(file,
@@ -118,16 +118,16 @@ public class MessageHandlingTests
     @Test public void announcePropogates() throws IOException
     {
     	SearchId file = SearchId.getRandomId();
-    	SearchResult r = new SearchResult(file, SearchId.getRandomId(),
-    			new ArrayList<SearchId>(), 0, 0,
-				new ArrayList<InetSocketAddress>());
+    	SearchResult r = new SearchResult("sample.txt", file,
+    			SearchId.getRandomId(), new ArrayList<SearchId>(), 0,
+				0, new ArrayList<InetSocketAddress>());
     	r.peers.add(new InetSocketAddress(InetAddress.getLocalHost(), 12345));
     	handler.database().put(file, r);
     	handler.routingTable().addNode(targetNode);
 
-    	SearchResult resultSent = new SearchResult(file, SearchId.getRandomId(),
-    			new ArrayList<SearchId>(), 0, 0,
-				new ArrayList<InetSocketAddress>());
+    	SearchResult resultSent = new SearchResult("sample.txt", file,
+    			SearchId.getRandomId(), new ArrayList<SearchId>(), 0,
+				0, new ArrayList<InetSocketAddress>());
     	resultSent.peers.add(new InetSocketAddress(
     			InetAddress.getLocalHost(), 23456));
 
@@ -141,9 +141,9 @@ public class MessageHandlingTests
     @Test public void announceStopsBeingSent() throws UnknownHostException
     {
     	SearchId file = SearchId.getRandomId();
-    	SearchResult r = new SearchResult(file, SearchId.getRandomId(),
-    			new ArrayList<SearchId>(), 0, 0,
-				new ArrayList<InetSocketAddress>());
+    	SearchResult r = new SearchResult("sample.txt", file,
+    			SearchId.getRandomId(), new ArrayList<SearchId>(), 0,
+				0, new ArrayList<InetSocketAddress>());
     	r.peers.add(new InetSocketAddress(InetAddress.getLocalHost(), 12345));
     	SearchMessage announce = r.createMessage("announce");
     	announce.arguments().put("id", handler.getId().toString());
@@ -235,7 +235,7 @@ public class MessageHandlingTests
             peers.add(new InetSocketAddress("localhost", i+10));           
         }
         
-        return new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, 512*1024, peers);
+        return new SearchResult("sample.txt", fileNameHash, fileHash, chunkHashes, 4*512*1024-100, 512*1024, peers);
     }
 
     @Test

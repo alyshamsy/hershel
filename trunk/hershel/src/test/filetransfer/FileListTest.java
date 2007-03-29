@@ -63,6 +63,6 @@ public class FileListTest
             peers.add(new InetSocketAddress("localhost", i+10));           
         }
         
-        return new SearchResult(fileNameHash, fileHash, chunkHashes, 4*512*1024-100, 10, peers);
+        return new SearchResult("sample.txt", fileNameHash, fileHash, chunkHashes, 4*512*1024-100, 10, peers);
     }
 }
