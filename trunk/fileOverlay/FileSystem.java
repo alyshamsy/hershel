@@ -1,5 +1,4 @@
 
-
 import java.io.*;
 //import java.lang.*;
 import java.net.*;
@@ -155,9 +154,9 @@ public class FileSystem
             	 //System.out.println("TRY failed for reading the file");
              }
                   
-             //byte[] data = test.getBytes();
-             //byte[] result = SHA1utils.getSHA1Digest(data);
-             //fileTable[i].hashValue = SHA1utils.digestToHexString(result);   
+             byte[] data = test.getBytes();
+             byte[] result = SHA1utils.getSHA1Digest(data);
+             fileTable[i].hashValue = SHA1utils.digestToHexString(result);   
          }
      }
      
@@ -275,24 +274,6 @@ public class FileSystem
          {
         	 //System.out.println("TRY failed for reading the file");
          }
-       /*       
-         byte[] data = test.getBytes();
-         byte[] result = SHA1utils.getSHA1Digest(data);
-         fileTable[i].hashValue = SHA1utils.digestToHexString(result);
-         
-         if(chunk.length < chunkSize)
-        	 System.arraycopy(chunk, 0, fileTable[i].chunkarray[chunkNumber-1].chunks_array, 0, chunk.length);
-         else
-        	 System.arraycopy(chunk, 0, fileTable[i].chunkarray[chunkNumber-1].chunks_array, 0, chunkSize);
-         
-         fileTable[i].chunkarray[chunkNumber-1].chunk_exists = true;
-         count++;
-         
-         if(numChunks == 1)
-        	 fileTable[i].contains = true;
-         else
-        	 fileTable[i].contains = false;
-        */
      }
      
      //file.updateFile(FILE_NAME, NUM_CHUNKS, data, id + 1);
@@ -393,4 +374,3 @@ public class FileSystem
     	 }
      }
 }
-
