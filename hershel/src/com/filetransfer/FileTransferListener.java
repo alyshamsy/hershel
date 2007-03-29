@@ -36,7 +36,7 @@ public class FileTransferListener implements SocketEventListener
 	                }
 	                header.append((char)c);
 	            }
-	            System.out.println(header);
+	            //System.out.println(header);
 	            String[] words = header.toString().split("\\s");
 	            String command = words[0];
 	            if (command.equals("get_pieces"))
@@ -68,35 +68,39 @@ public class FileTransferListener implements SocketEventListener
     private void receivePiece(Writer out, String[] words, InputStream message) throws IOException
     {
         int piece = Integer.parseInt(words[1]);
+        System.out.println(piece);
         String file = words[2];
         byte[] data = new byte[Integer.parseInt(words[3])];
         
-        message.read(data);
+        System.out.println(message.read(data) + " bytes");
         
         list.writePiece(file, piece, data);
     }
 
     private void updatePieceState(Writer out, String[] words, InetSocketAddress peer) throws IOException
     {
-        File file = list.getFile(words[1]);
+		if (words.length >= 3)
+		{
+			File file = list.getFile(words[1]);
+			String[] indecies = words[2].split(",");
+			for (String i : indecies)
+			{
+				int index = Integer.parseInt(i);
+				if (!file.missingPieces.containsKey(index))
+				{
+					file.missingPieces.put(index,
+							new ArrayList<InetSocketAddress>());
+				}
 
-        String[] indecies = words[2].split(",");
-        for (String i : indecies)
-        {
-            int index = Integer.parseInt(i);
-            if (!file.missingPieces.containsKey(index))
-            {
-                file.missingPieces.put(index, new ArrayList<InetSocketAddress>());
-            }
-
-            ArrayList<InetSocketAddress> peers = file.missingPieces.get(index);
-            if (!peers.contains(peer))
-            {
-                peers.add(peer);
-            }
-        }
-
-        requestNewPiece(words[1]);
+				ArrayList<InetSocketAddress> peers = file.missingPieces
+						.get(index);
+				if (!peers.contains(peer))
+				{
+					peers.add(peer);
+				}
+			}
+			requestNewPiece(words[1]);
+		}        
     }
 
     private void requestNewPiece(String filenameHash)
@@ -122,14 +126,17 @@ public class FileTransferListener implements SocketEventListener
     private void sendHave(Writer out, String[] words, InetSocketAddress peer) throws IOException
     {
         String filename = words[1];
-        String pieces = null;
-        for (Integer i : list.getFile(filename).availablePieces())
-        {
-            pieces = pieces == null ? i.toString() : pieces + "," + i.toString();
-        }
-
-        out.write("have " + filename + " " + pieces + "\r\n");
-        out.write("get_pieces " + filename + "\r\n");
+        String pieces = "";
+		if (list.files().contains(filename))
+		{
+			for (Integer i : list.getFile(filename).availablePieces())
+			{
+				pieces = pieces.equals("") ? i.toString() : pieces + ","
+						+ i.toString();
+			}
+			out.write("have " + filename + " " + pieces + "\r\n");
+		}        
+		
     }
 
     public void download(SearchResult newFile, String destinationName, Connector connector)
