@@ -17,4 +17,7 @@ public interface FileList
 
 	public Set<String> files();
 
+
+    public void writePiece(String filenameHash, int piece, byte[] data) throws IOException;
+
 }

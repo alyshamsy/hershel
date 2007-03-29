@@ -1,9 +1,7 @@
 package com.filetransfer;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Writer;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -25,9 +23,19 @@ public class FileTransferListener implements SocketEventListener
     {
         try
         {
-            BufferedReader in = new BufferedReader(new InputStreamReader(message));
-            String header = in.readLine();
-            String[] words = header.split("\\s");
+            StringBuilder header = new StringBuilder();
+            int c;
+            while((c = message.read()) != -1)
+            {               
+                if(c == '\r')
+                {
+                    message.read();
+                    break;
+                }
+                header.append((char)c);
+            }
+            
+            String[] words = header.toString().split("\\s");
             String command = words[0];
             if (command.equals("get_pieces"))
             {
@@ -41,6 +49,10 @@ public class FileTransferListener implements SocketEventListener
             {
                 updatePieceState(out, words, peer);
             }
+            else if(command.equals("piece"))
+            {
+                receivePiece(out, words, message);
+            }
 
             out.flush();
         }
@@ -48,6 +60,17 @@ public class FileTransferListener implements SocketEventListener
         {
             e.printStackTrace();
         }
+    }
+
+    private void receivePiece(Writer out, String[] words, InputStream message) throws IOException
+    {
+        int piece = Integer.parseInt(words[1]);
+        String file = words[2];
+        byte[] data = new byte[Integer.parseInt(words[3])];
+        
+        message.read(data);
+        
+        list.writePiece(file, piece, data);
     }
 
     private void updatePieceState(Writer out, String[] words, InetSocketAddress peer) throws IOException
@@ -113,6 +136,18 @@ public class FileTransferListener implements SocketEventListener
         for (InetSocketAddress peer : newFile.peers)
         {
             connector.connect(peer);
+        }
+        
+        try
+        {
+            Thread.sleep(100);
+        }
+        catch (InterruptedException e)
+        {
+           
+        }
+        for (InetSocketAddress peer : newFile.peers)
+        {            
             connector.send(peer, "get_pieces " + newFile.fileNameHash.toString() + "\r\n");
         }
     }
