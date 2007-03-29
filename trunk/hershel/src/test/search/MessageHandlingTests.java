@@ -102,15 +102,54 @@ public class MessageHandlingTests
     @Test public void announceSentOnUpdate() throws IOException
     {
     	SearchId file = SearchId.getRandomId();
-    	handler.database().put(file,
-    			new SearchResult(file, SearchId.getRandomId(),
-    					new ArrayList<SearchId>(), 0, 0,
-    					new ArrayList<InetSocketAddress>()));
-    	handler.update(file,
+    	SearchResult r = new SearchResult(file, SearchId.getRandomId(),
+    			new ArrayList<SearchId>(), 0, 0,
+				new ArrayList<InetSocketAddress>());
+    	handler.database().put(file, r);
+    	handler.routingTable().addNode(targetNode);
+    	handler.updateDatabase(file,
     			new InetSocketAddress(targetNode.address,
     					targetNode.port));
 
     	assertEquals("announce", mock.lastMessage.getCommand());
+    	assertEquals(r, SearchResult.fromMessage(mock.lastMessage));
+    }
+
+    @Test public void announcePropogates() throws IOException
+    {
+    	SearchId file = SearchId.getRandomId();
+    	SearchResult r = new SearchResult(file, SearchId.getRandomId(),
+    			new ArrayList<SearchId>(), 0, 0,
+				new ArrayList<InetSocketAddress>());
+    	r.peers.add(new InetSocketAddress(InetAddress.getLocalHost(), 12345));
+    	handler.database().put(file, r);
+    	handler.routingTable().addNode(targetNode);
+
+    	SearchResult resultSent = new SearchResult(file, SearchId.getRandomId(),
+    			new ArrayList<SearchId>(), 0, 0,
+				new ArrayList<InetSocketAddress>());
+    	resultSent.peers.add(new InetSocketAddress(
+    			InetAddress.getLocalHost(), 23456));
+
+    	SearchMessage announce = resultSent.createMessage("announce");
+    	announce.arguments().put("id", handler.getId().toString());
+    	handler.respondTo(announce, targetNode.address, targetNode.port);
+
+    	assertEquals("announce", mock.lastMessage.getCommand());
+    }
+
+    @Test public void announceStopsBeingSent() throws UnknownHostException
+    {
+    	SearchId file = SearchId.getRandomId();
+    	SearchResult r = new SearchResult(file, SearchId.getRandomId(),
+    			new ArrayList<SearchId>(), 0, 0,
+				new ArrayList<InetSocketAddress>());
+    	r.peers.add(new InetSocketAddress(InetAddress.getLocalHost(), 12345));
+    	SearchMessage announce = r.createMessage("announce");
+    	announce.arguments().put("id", handler.getId().toString());
+    	handler.respondTo(announce, targetNode.address, targetNode.port);
+
+    	assertNull(mock.lastMessage);
     }
 
     // TODO the store tests need to be refactored

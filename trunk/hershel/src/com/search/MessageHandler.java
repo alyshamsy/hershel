@@ -89,7 +89,7 @@ public class MessageHandler implements PingCommunicator
     	client.sendToUI(table.getRoutingTable().toString(), "");
     }
 
-    public void update(SearchId file, InetSocketAddress node) throws IOException
+    public void updateDatabase(SearchId file, InetSocketAddress node) throws IOException
     {
     	ArrayList<InetSocketAddress> oldPeers =
     		storedValues.get(file).peers;
@@ -124,6 +124,14 @@ public class MessageHandler implements PingCommunicator
     	}
     	return peerAdded;
     }
+
+    public void initializeDatabase(ArrayList<SearchResult> files)
+    {
+		for (SearchResult r : files)
+		{
+			storedValues.put(r.fileNameHash, r);
+		}
+	}
 
     public void respondTo(SearchMessage request, InetAddress address, int port)
     {
