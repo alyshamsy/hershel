@@ -7,8 +7,10 @@ import java.net.InetSocketAddress;
 public interface SocketEventListener
 {
 
-    public abstract void readReady(InetSocketAddress peer, InputStream message, Writer writer);
+    public void readReady(InetSocketAddress peer, InputStream message, Writer writer);
 
 	public void disconnected(InetSocketAddress peer);
+
+	public void connected(InetSocketAddress peer);
 
 }

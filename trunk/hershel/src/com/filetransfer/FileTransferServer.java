@@ -36,6 +36,8 @@ public class FileTransferServer extends Thread implements Connector
     private CharsetDecoder decoder;
 
     private CharsetEncoder encoder;
+    
+    private int port;
 
     public FileTransferServer(int port, SocketEventListener listener) throws IOException
     {
@@ -47,6 +49,7 @@ public class FileTransferServer extends Thread implements Connector
         decoder = Charset.forName("ISO-8859-1").newDecoder();
         encoder = Charset.forName("ISO-8859-1").newEncoder();
         pendingConnections = new ArrayList<InetSocketAddress>();
+        this.port = port;
     }
 
     public void close()
@@ -114,7 +117,7 @@ public class FileTransferServer extends Thread implements Connector
                         addClient(socket);                       
                         System.out.println("Connection accepted");
                     }
-                    else if (key.isConnectable())
+                    else if (key.isValid() && key.isConnectable())
                     {
                         System.out.println("Something is connecting");
                         SocketChannel channel = (SocketChannel) key.channel();
@@ -122,8 +125,11 @@ public class FileTransferServer extends Thread implements Connector
                         {
                             channel.finishConnect();
                         }
-                        connectedPeers.put(new InetSocketAddress(channel.socket().getInetAddress(), channel.socket()
-                                .getPort()), channel.socket());
+                        InetSocketAddress peer = new InetSocketAddress(channel.socket().getInetAddress(), channel.socket()
+						                                .getPort());
+						connectedPeers.put(peer, channel.socket());
+						
+						listener.connected(peer);
                     }
                     else if (key.isValid() && key.isReadable())
                     {

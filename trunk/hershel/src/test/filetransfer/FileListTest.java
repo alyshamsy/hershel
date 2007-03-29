@@ -44,7 +44,7 @@ public class FileListTest
     	list.writePiece(r.fileNameHash.toString(), 0, "1234567890".getBytes("ISO-8859-1"));
     	list.writePiece(r.fileNameHash.toString(), 1, "1234567890".getBytes("ISO-8859-1"));
     	f = new java.io.File("output.txt");
-    	Assert.assertEquals(52l, f.length());
+    	Assert.assertEquals(20l, f.length());
     }
     
     public SearchResult createSearchResult()
