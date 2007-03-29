@@ -23,38 +23,41 @@ public class FileTransferListener implements SocketEventListener
     {
         try
         {
-            StringBuilder header = new StringBuilder();
-            int c;
-            while((c = message.read()) != -1)
-            {               
-                if(c == '\r')
-                {
-                    message.read();
-                    break;
-                }
-                header.append((char)c);
-            }
-            System.out.println(header);
-            String[] words = header.toString().split("\\s");
-            String command = words[0];
-            if (command.equals("get_pieces"))
-            {
-                sendHave(out, words, peer);
-            }
-            else if (command.equals("get"))
-            {
-                sendPiece(out, words);
-            }
-            else if (command.equals("have"))
-            {
-                updatePieceState(out, words, peer);
-            }
-            else if(command.equals("piece"))
-            {
-                receivePiece(out, words, message);
-            }
-
-            out.flush();
+        	int c = 0;
+        	while(c != -1)
+        	{
+	            StringBuilder header = new StringBuilder();
+	            while((c = message.read()) != -1)
+	            {               
+	                if(c == '\r')
+	                {
+	                    message.read();
+	                    break;
+	                }
+	                header.append((char)c);
+	            }
+	            System.out.println(header);
+	            String[] words = header.toString().split("\\s");
+	            String command = words[0];
+	            if (command.equals("get_pieces"))
+	            {
+	                sendHave(out, words, peer);
+	            }
+	            else if (command.equals("get"))
+	            {
+	                sendPiece(out, words);
+	            }
+	            else if (command.equals("have"))
+	            {
+	                updatePieceState(out, words, peer);
+	            }
+	            else if(command.equals("piece"))
+	            {
+	                receivePiece(out, words, message);
+	            }
+	
+	            out.flush();
+        	}
         }
         catch (IOException e)
         {
@@ -125,8 +128,8 @@ public class FileTransferListener implements SocketEventListener
             pieces = pieces == null ? i.toString() : pieces + "," + i.toString();
         }
 
-        connector.send(peer, "have " + filename + " " + pieces + "\r\n");
-        connector.send(peer, "get_pieces " + filename + "\r\n");
+        out.write("have " + filename + " " + pieces + "\r\n");
+        out.write("get_pieces " + filename + "\r\n");
     }
 
     public void download(SearchResult newFile, String destinationName, Connector connector)
@@ -136,19 +139,6 @@ public class FileTransferListener implements SocketEventListener
         for (InetSocketAddress peer : newFile.peers)
         {
             connector.connect(peer);
-        }
-        
-        try
-        {
-            Thread.sleep(500);
-        }
-        catch (InterruptedException e)
-        {
-           
-        }
-        for (InetSocketAddress peer : newFile.peers)
-        {            
-            connector.send(peer, "get_pieces " + newFile.fileNameHash.toString() + "\r\n");
         }
     }
 
@@ -161,6 +151,14 @@ public class FileTransferListener implements SocketEventListener
 			{
 				peers.remove(peer);
 			}
+		}
+	}
+
+	public void connected(InetSocketAddress peer)
+	{
+		for(String file : list.files())
+		{
+			connector.send(peer, "get_pieces " + file + "\r\n");
 		}
 	}
 }

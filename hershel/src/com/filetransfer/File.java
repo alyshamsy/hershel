@@ -63,6 +63,6 @@ public class File
 
     public static File downloadingFile(String destinationName, SearchResult newFile)
     {
-        return new File(destinationName, 42);
+        return new File(destinationName, newFile.chunkSize);
     }
 }

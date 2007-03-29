@@ -43,7 +43,8 @@ public class DownloadTest
     
     @Test public void initiateHandshake()
     {
-        downloader.download(r, "hello.txt", mock);        
+        downloader.download(r, "hello.txt", mock);  
+        downloader.connected(null);
         Assert.assertEquals("get_pieces 0987654321098765432109876543210987654321\r\n", mock.lastMessage);
     }
     

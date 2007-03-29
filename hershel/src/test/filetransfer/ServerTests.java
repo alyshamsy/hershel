@@ -50,10 +50,11 @@ public class ServerTests
         Thread.sleep(100);
     }
     
-	@Test public void ServerAcceptsConnection() throws UnknownHostException, IOException, InterruptedException
+	@Test public void serverAcceptsConnection() throws UnknownHostException, IOException, InterruptedException
 	{	
 		Assert.assertTrue(client.isConnected());		
 	}
+	
     
     @Test public void notifyIfSocketHasInformation() throws IOException, InterruptedException
     {                    
@@ -109,5 +110,10 @@ public class ServerTests
         {
         	lastDisconnected = peer;
         }
+
+		public void connected(InetSocketAddress peer) {
+			// TODO Auto-generated method stub
+			
+		}
     }
 }
