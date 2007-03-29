@@ -69,7 +69,7 @@ public class Controller{
 		
 	}
 	
-	/*
+	
 	//classes for Newscast
 	public class Newscast extends Thread
 	{
@@ -273,7 +273,7 @@ public class Controller{
 			return fileList;
 		}
 	}
-	*/
+	
 	
 	//server class which deals with requests for files and dispatches them 
 	public class ControllerServer extends Thread {
