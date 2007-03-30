@@ -53,6 +53,7 @@ public class NetworkSearchClient extends Thread implements SearchClient
     public void run()
     {
     	// Connect to "first node".
+    	System.out.println(handler.database().size());
     	try {
     		handler.routingTable().addNode(firstNode);
     		handler.findNode(firstNode, handler.getId());
@@ -66,7 +67,8 @@ public class NetworkSearchClient extends Thread implements SearchClient
             try
             {
                 DatagramPacket incommingPacket = receiveMessage();                
-                String message = new String(incommingPacket.getData(), 0, findMessageLength(incommingPacket.getData()));                
+                String message = new String(incommingPacket.getData(), 0, findMessageLength(incommingPacket.getData()));
+                System.out.println(message);
                 SearchMessage request = SearchMessage.parse(message);       
                 
                 handler.respondTo(request, incommingPacket.getAddress(), incommingPacket.getPort());
