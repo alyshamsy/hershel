@@ -16,7 +16,7 @@ public class FileUploader
             f.delete();
         
         DefaultFileList list = new DefaultFileList();
-        list.register("wrnpc11.txt", 1024);
+        list.register("wrnpc11.txt", 16*1024);
         FileTransferListener listener = new FileTransferListener(list);
         FileTransferServer server = new FileTransferServer(10000, listener);
         server.start();
@@ -43,6 +43,6 @@ public class FileUploader
         peers.add(new InetSocketAddress("localhost", 10000));           
        
         
-        return new SearchResult("sample.txt", fileNameHash, fileHash, chunkHashes, 3284807, 1024, peers);
+        return new SearchResult("sample.txt", fileNameHash, fileHash, chunkHashes, 3284807, 16*1024, peers);
     }
 }

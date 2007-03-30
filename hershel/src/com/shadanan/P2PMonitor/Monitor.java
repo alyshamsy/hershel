@@ -1424,12 +1424,12 @@ public class Monitor extends JPanel {
 	}
 
 	public static void main(String args[]) throws IOException {
-		int port = 16002;
+		int port = 10002;
 		new com.search.SearchGUI();
-		for (int i = 0; i < 1; i++, port += 2)
+		for (int i = 0; i < 40; i++, port += 2)
 			new com.search.SearchGUI(port);
 		Monitor m = new Monitor();
-		m.addContact("localhost", 16001);
+		m.addContact("localhost", 10001);
 	}
 
 	/**

@@ -21,6 +21,10 @@ public class DefaultFileList implements FileList
     public Piece getPiece(String filenameHash, int index) throws IOException
     {
         File file = getFile(filenameHash);
+        if(file == null)
+        {
+            System.out.println("Could not find file " + filenameHash);
+        }
         RandomAccessFile in = new RandomAccessFile(file.getName(), "r");
         in.seek(index*file.sizeOfPiece(0));
         byte[] data = new byte[file.sizeOfPiece(index)];
