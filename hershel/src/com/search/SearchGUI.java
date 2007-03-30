@@ -10,6 +10,8 @@ import java.util.HashMap;
 import com.shadanan.P2PMonitor.IRemote;
 import com.shadanan.P2PMonitor.MonitorService;
 
+import file.Controller;
+
 public class SearchGUI implements GUI, IRemote {
 
 	private static final boolean debug = true;
@@ -20,10 +22,10 @@ public class SearchGUI implements GUI, IRemote {
 	private int port;
 
 	public SearchGUI() throws IOException {
-		port = 10000;
-		client = new NetworkSearchClient(initialId, 10000);
-		ms = new MonitorService(10001, this,
-				new InetSocketAddress(InetAddress.getByName("localhost"), 10000));
+		port = 16000;
+		client = new NetworkSearchClient(initialId, 16000);
+		ms = new MonitorService(16001, this,
+				new InetSocketAddress(InetAddress.getByName("localhost"), 16000));
 		client.registerUI(this);
 		client.start();
 		ms.start();
@@ -38,6 +40,9 @@ public class SearchGUI implements GUI, IRemote {
 		client.registerUI(this);
 		client.start();
 		ms.start();
+		
+		Controller master = new Controller();
+		master.go(client);
 	}
 
 	public void getMessage(String s) {

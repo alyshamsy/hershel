@@ -29,7 +29,7 @@ public class Controller{
 	private static final int CHUNK_SIZE = 10;
 	
 	//for testing!!!!
-	public static final int serverPort = 10003;
+	public static final int serverPort = 10005;
 	private InetSocketAddress thisIP;	// this server's IP
 	
 	public Controller(){
@@ -54,8 +54,8 @@ public class Controller{
 		//} catch (UnknownHostException e) {}
 	}
 	
-	public void go(){
-		ArrayList<SearchResult> files;
+	public void go(NetworkSearchClient searchClient){
+		ArrayList<SearchResult> files = new ArrayList<SearchResult>();
 		try {
 			this.thisIP = new InetSocketAddress(FileSystem.getIPaddr(), serverPort);
 		} catch (IOException e) {
@@ -68,24 +68,29 @@ public class Controller{
 		ArrayList<SearchId> list = new ArrayList<SearchId>();
 		for (int i = 0; i < FileSystem.fileTable.length; i++){
 			if (FileSystem.fileTable[i] != null) {
-				SearchResult file = new SearchResult(FileSystem.fileTable[i].fileName, SearchId.fromReverseHex(FileSystem.fileTable[i].hashValue), SearchId.getRandomId(), list, FileSystem.fileTable[i].fileSize, CHUNK_SIZE, def_peers);
+				SearchResult file = new SearchResult(FileSystem.fileTable[i].fileName, 
+						new SearchId(SHA1utils.getSHA1Digest(FileSystem.fileTable[i].fileName.getBytes())), 
+						SearchId.getRandomId(), list, FileSystem.fileTable[i].fileSize, CHUNK_SIZE, 
+						def_peers);
+				files.add(file);
 			}
 			else
 				break;
 		}
 		
+		searchClient.initializeDatabase(files);
 		ControllerServer server = new ControllerServer();
 		server.start();
 		//start Newscast threads
-		ArrayList<InetSocketAddress> peers = new ArrayList<InetSocketAddress>();
-		InetSocketAddress addr = new InetSocketAddress("128.100.8.156", 10000);
-		peers.add(addr);
+		//ArrayList<InetSocketAddress> peers = new ArrayList<InetSocketAddress>();
+		//InetSocketAddress addr = new InetSocketAddress("128.100.8.156", 10000);
+		//peers.add(addr);
 		/*addr = new InetSocketAddress("128.100.8.156", serverPort);
 		peers.add(addr);
 		addr = new InetSocketAddress("128.100.8.156", serverPort);
 		peers.add(addr);*/
 		
-		SearchResult sr = new SearchResult("test.txt", null, null, null, 62, CHUNK_SIZE, peers);
+		//SearchResult sr = new SearchResult("test.txt", null, null, null, 62, CHUNK_SIZE, peers);
 		
 		
 		/*
@@ -94,19 +99,19 @@ public class Controller{
 		active.start();
 		passive.start();*/
 //		start a client to download
-		NetworkSearchClient searchClient = null;
-		try {
-			searchClient = new NetworkSearchClient("1111111111111111111111111111111111111111", 10100);
-		} catch (SocketException e) {
-			System.out.println("Could not create searchClient.");
-		}
-		ControllerClient client = new ControllerClient(sr, searchClient);
-		client.start();
+		//NetworkSearchClient searchClient = null;
+		//try {
+		//	searchClient = new NetworkSearchClient("1111111111111111111111111111111111111111", 10100);
+		//} catch (SocketException e) {
+		//	System.out.println("Could not create searchClient.");
+		//}
+		//ControllerClient client = new ControllerClient(sr, searchClient);
+		//client.start();
 	}
 	
 	public static void main(String args[])throws IOException{
 		Controller master = new Controller();
-		master.go();
+		master.go(null);
 		
 	}
 	//classes for Newscast
@@ -324,7 +329,7 @@ public class Controller{
 			try {
 				ss = new ServerSocket(serverPort);
 			} catch (IOException e) {
-				System.out.println("Error: Can't bind socket to port");
+				System.out.println(e.getLocalizedMessage());
 			}
 		}
 		

@@ -131,6 +131,7 @@ public class MessageHandler implements PingCommunicator
 		{
 			storedValues.put(r.fileNameHash, r);
 		}
+		System.out.println(storedValues.size());
 	}
 
     public void respondTo(SearchMessage request, InetAddress address, int port)
@@ -138,7 +139,7 @@ public class MessageHandler implements PingCommunicator
     	client.sendToUI(request.toString(), "> ");
     	if(!request.arguments().containsKey("id"))
     		System.out.println(request.getCommand());
-
+    	System.out.println(storedValues.size());
         NodeState node = new NodeState(request.arguments().get("id"),
                 				address,
                 				port);
