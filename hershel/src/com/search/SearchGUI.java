@@ -34,7 +34,6 @@ public class SearchGUI implements GUI, IRemote
         ms = new MonitorService(10001, this, new InetSocketAddress(InetAddress.getByName("localhost"), 10000));
         client.registerUI(this);
         client.start();
-        ms.start();
 
         ArrayList<SearchResult> results = new ArrayList<SearchResult>();
         results.add(createSearchResult());
@@ -45,6 +44,8 @@ public class SearchGUI implements GUI, IRemote
         listener = new FileTransferListener(list);
         fileTransferServer = new FileTransferServer(port + 6000, listener);
         fileTransferServer.start();
+
+        ms.start();
     }
 
     public SearchGUI(int port) throws IOException
@@ -56,12 +57,13 @@ public class SearchGUI implements GUI, IRemote
                 port));
         client.registerUI(this);
         client.start();
-        ms.start();
 
         DefaultFileList list = new DefaultFileList();
         listener = new FileTransferListener(list);
         fileTransferServer = new FileTransferServer(port + 6000, listener);
         fileTransferServer.start();
+
+        ms.start();
     }
 
     public static SearchResult createSearchResult()
@@ -161,7 +163,7 @@ public class SearchGUI implements GUI, IRemote
                 SearchId file = new SearchId(SHA1Utils.getSHA1Digest(command[1].getBytes()));
                 SearchResult result = h.database().get(file);
                 client.updateDatabase(result.fileNameHash, new InetSocketAddress("localhost", port+6000));
-                listener.download(result, "output.txt", fileTransferServer);
+                listener.download(result, command[2], fileTransferServer);
             }
             catch (Exception ex)
             {
@@ -173,8 +175,9 @@ public class SearchGUI implements GUI, IRemote
             ms.println("? P2P Commands:\n");
             ms.println("? search <filename>\n");
             ms.println("?    - search for <filename>\n");
-            ms.println("? download <filename>\n");
+            ms.println("? download <filename> <save as>\n");
             ms.println("?    - begin download for <filename>\n");
+            ms.println("?    - save file as <save as>\n");
             ms.println("?    - you should run 'find' first\n");
             ms.println("? help\n");
             ms.println("?    - this listing\n");
