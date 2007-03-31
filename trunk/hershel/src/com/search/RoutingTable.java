@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.shadanan.P2PMonitor.MonitorService;
+
 public class RoutingTable
 {
 
@@ -11,8 +13,9 @@ public class RoutingTable
     private ArrayList<ArrayList<NodeState>> table;
     private int K = 20;
     private Pinger pinger;
+    private MonitorService ms;
 
-    public RoutingTable(SearchId self, int k, Pinger pinger)
+    public RoutingTable(SearchId self, int k, Pinger pinger, MonitorService ms)
     {
         this.pinger = pinger;
         pinger.setRoutingTable(this);
@@ -21,7 +24,13 @@ public class RoutingTable
         table = new ArrayList<ArrayList<NodeState>>(160);        
         for (int i = 0; i < 160; i++)
             table.add(new ArrayList<NodeState>());
+        this.ms = ms;
     }    
+
+    public RoutingTable(SearchId self, int k, Pinger pinger)
+    {
+    	this(self, k, pinger, null);
+    }
 
     public ArrayList<ArrayList<NodeState>> getRoutingTable()
     {
@@ -45,6 +54,8 @@ public class RoutingTable
         {
             pinger.putPingRequest(kBucket.get(0), node);
         }
+
+        if (ms != null) ms.notifyNewPeers(0);
     }
 
     public synchronized ArrayList<NodeState> findNode(SearchId nodeId)
@@ -126,6 +137,11 @@ public class RoutingTable
     {
          pinger.close();
          this.pinger = newPinger;        
+    }
+
+    public void setMonitorService(MonitorService ms)
+    {
+    	this.ms = ms;
     }
 
 }

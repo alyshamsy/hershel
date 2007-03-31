@@ -50,9 +50,7 @@ public class DefaultSearcher extends Thread implements Searcher
 	{
 		while (running) {
 			try {
-				System.out.println("waiting");
 				wait();
-				System.out.println("notified");
 				for (Entry<SearchId, SearchStatus> e : searchesInProgress.entrySet()) {
 					SearchStatus ss = e.getValue();					
 					if ((ss.attemptsLeft > 0) && (ss.searchFailed == true)) {

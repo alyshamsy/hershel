@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 import com.filetransfer.Connector;
 import com.filetransfer.DefaultFileList;
+import com.filetransfer.File;
 import com.filetransfer.FileTransferListener;
 import com.filetransfer.FileTransferServer;
 import com.shadanan.P2PMonitor.IRemote;
@@ -33,10 +34,13 @@ public class SearchGUI implements GUI, IRemote
         client = new NetworkSearchClient(initialId, 10000);
         ms = new MonitorService(10001, this, new InetSocketAddress(InetAddress.getByName("localhost"), 10000));
         client.registerUI(this);
+        ms.start();
+        client.getHandler().routingTable().setMonitorService(ms);
         client.start();
 
         ArrayList<SearchResult> results = new ArrayList<SearchResult>();
-        results.add(createSearchResult());
+        results.add(createSearchResult("wrnpc11.txt"));
+        results.add(createSearchResult("chekhov.txt"));
         client.initializeDatabase(results);
 
         DefaultFileList list = new DefaultFileList();
@@ -44,8 +48,6 @@ public class SearchGUI implements GUI, IRemote
         listener = new FileTransferListener(list);
         fileTransferServer = new FileTransferServer(port + 6000, listener);
         fileTransferServer.start();
-
-        ms.start();
     }
 
     public SearchGUI(int port) throws IOException
@@ -56,19 +58,21 @@ public class SearchGUI implements GUI, IRemote
         ms = new MonitorService(port + 1, this, new InetSocketAddress(InetAddress.getByName("localhost"),
                 port));
         client.registerUI(this);
+        ms.start();
+        client.getHandler().routingTable().setMonitorService(ms);
         client.start();
 
         DefaultFileList list = new DefaultFileList();
         listener = new FileTransferListener(list);
         fileTransferServer = new FileTransferServer(port + 6000, listener);
         fileTransferServer.start();
-
-        ms.start();
     }
 
-    public static SearchResult createSearchResult()
+    public static SearchResult createSearchResult(String fileName)
     {
-        SearchId fileNameHash = SearchId.fromHex("4dd974e5ddca2736619a83ec4ca9e3846c7ac54f");
+        //SearchId fileNameHash = SearchId.fromHex("4dd974e5ddca2736619a83ec4ca9e3846c7ac54f");
+    	SearchId fileNameHash = new SearchId(SHA1Utils.getSHA1Digest(
+    			fileName.getBytes()));
         SearchId fileHash = SearchId.getRandomId();
         ArrayList<SearchId> chunkHashes = new ArrayList<SearchId>();
         for (int i = 0; i < 4; i++)
@@ -80,7 +84,11 @@ public class SearchGUI implements GUI, IRemote
 
         peers.add(new InetSocketAddress("localhost", 16000));
 
-        return new SearchResult("wrnpc11.txt", fileNameHash, fileHash, chunkHashes, 3284807, 16 * 1024, peers);
+        com.filetransfer.File f = new File(fileName, 16 * 1024);
+        //3284807 - wrnpc11.txt file size
+
+        return new SearchResult(fileName, fileNameHash, fileHash,
+        		chunkHashes, f.length(), 16 * 1024, peers);
     }
 
     public void getMessage(String s)
