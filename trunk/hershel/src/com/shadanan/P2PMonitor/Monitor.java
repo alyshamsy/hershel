@@ -1428,8 +1428,12 @@ public class Monitor extends JPanel {
 		new com.search.SearchGUI();
 		m.addContact("localhost", 10001);
 		int port = 10002;
-		for (int i = 0; i < 40; i++, port += 2)
+		for (int i = 0; i < 20; i++, port += 2) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException ignored) {}
 			new com.search.SearchGUI(port);
+		}
 	}
 
 	/**
