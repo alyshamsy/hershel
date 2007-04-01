@@ -53,9 +53,16 @@ public class MonitorService extends Thread {
 		if (active) sendLayers();
 	}
 	
-	public synchronized void notifyNewPeers(int layer) {
-		peers[layer] = remote.getPeers(layer);
-		if (active) sendPeers(layer);
+	public synchronized void notifyNewPeers(int layer)
+    {
+	    //looks like there is a race condition here
+        //if this method is called before requery
+        if (peers != null) 
+        {
+            peers[layer] = remote.getPeers(layer);
+            if (active)
+                sendPeers(layer);
+        }
 	}
 	
 	public synchronized void notifyNewIdentity() {
