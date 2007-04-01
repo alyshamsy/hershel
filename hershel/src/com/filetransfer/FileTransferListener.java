@@ -42,7 +42,7 @@ public class FileTransferListener implements SocketEventListener
         list = fileList;
     }
 
-    public void readReady(InetSocketAddress peer, InputStream message, Writer out)
+    public synchronized void  readReady(InetSocketAddress peer, InputStream message, Writer out)
     {
         try
         {

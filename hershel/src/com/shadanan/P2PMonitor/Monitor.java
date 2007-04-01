@@ -1429,9 +1429,9 @@ public class Monitor extends JPanel {
 		m.addContact("localhost", 10001);
 		int port = 10002;
 		for (int i = 0; i < 39; i++, port += 2) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException ignored) {}
+//			try {
+//				Thread.sleep(750);
+//			} catch (InterruptedException ignored) {}
 			new com.search.SearchGUI(port);
 		}
 	}
