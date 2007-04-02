@@ -1644,6 +1644,7 @@ public class Monitor extends JPanel {
 			if (console == null) return;
 			console.setBounds((int) x + parent.getX(), (int) y + parent.getY(), console.getWidth(), console.getHeight());
 			console.setVisible(visible);
+			sendConsoleCmd("start_ui");
 		}
 
 		/**
