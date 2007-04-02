@@ -7,7 +7,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.filetransfer.Connector;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import com.filetransfer.DefaultFileList;
 import com.filetransfer.File;
 import com.filetransfer.FileTransferListener;
@@ -116,7 +118,6 @@ public class SearchGUI implements GUI, IRemote
 
     public int getLayerCount()
     {
-        // TODO Auto-generated method stub
         return 1;
     }
 
@@ -171,7 +172,8 @@ public class SearchGUI implements GUI, IRemote
                 SearchId file = new SearchId(SHA1Utils.getSHA1Digest(command[1].getBytes()));
                 SearchResult result = h.database().get(file);
                 client.updateDatabase(result.fileNameHash, new InetSocketAddress("localhost", port+6000));
-                listener.download(result, command[2], fileTransferServer);
+                String outputFileName = (command[2] == null) ? command[2] : "output.txt";
+                listener.download(result, outputFileName, fileTransferServer);
             }
             catch (Exception ex)
             {
@@ -190,10 +192,29 @@ public class SearchGUI implements GUI, IRemote
             ms.println("? help\n");
             ms.println("?    - this listing\n");
         }
+        else if (command[0].equalsIgnoreCase("start_ui"))
+        {
+        	
+        }
         else
         {
             ms.println("! Invalid command. " + "Type 'help' for a list of commands.\n");
         }
     }
+
+}
+
+class SearchWindow extends JFrame {
+
+	SearchWindow(String title) {
+		super(title);
+		setContentPane(createContentPane());
+	}
+
+	private JPanel createContentPane() {
+		JPanel pane = null;
+
+		return pane;
+	}
 
 }

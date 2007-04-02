@@ -139,7 +139,6 @@ public class NetworkSearchClient extends Thread implements SearchClient
     	return handler;
     }
 
-    // For testing purposes.
     private GUI ui;
     
     public void registerUI(GUI ui)
