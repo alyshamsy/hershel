@@ -47,6 +47,7 @@ public class SearchGUI implements GUI, IRemote
 
         DefaultFileList list = new DefaultFileList();
         list.register("wrnpc11.txt", 16 * 1024);
+        list.register("chekhov.txt", 16 * 1024);
         listener = new FileTransferListener(list);
         fileTransferServer = new FileTransferServer(port + 6000, listener);
         fileTransferServer.start();
@@ -172,7 +173,7 @@ public class SearchGUI implements GUI, IRemote
                 SearchId file = new SearchId(SHA1Utils.getSHA1Digest(command[1].getBytes()));
                 SearchResult result = h.database().get(file);
                 client.updateDatabase(result.fileNameHash, new InetSocketAddress("localhost", port+6000));
-                String outputFileName = (command[2] == null) ? command[2] : "output.txt";
+                String outputFileName = (command[2] != null) ? command[2] : "output.txt";
                 listener.download(result, outputFileName, fileTransferServer);
             }
             catch (Exception ex)
@@ -194,7 +195,7 @@ public class SearchGUI implements GUI, IRemote
         }
         else if (command[0].equalsIgnoreCase("start_ui"))
         {
-        	
+        	//new SearchWindow("My Console");
         }
         else
         {
@@ -209,10 +210,13 @@ class SearchWindow extends JFrame {
 	SearchWindow(String title) {
 		super(title);
 		setContentPane(createContentPane());
+		setSize(640, 480);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		setVisible(true);
 	}
 
 	private JPanel createContentPane() {
-		JPanel pane = null;
+		JPanel pane = new JPanel();
 
 		return pane;
 	}

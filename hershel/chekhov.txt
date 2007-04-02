@@ -24,7 +24,7 @@ donation to Project Gutenberg, and how to get involved.
 
 
 Title: Plays by Anton Chekhov, Second Series
-       On the High Road, The Proposal, The Wedding, The Bear,
+       On the High Road, The Proposal, The Wedding, The Bear, 
        A Tragedian In Spite of Himself, The Anniversary,
        The Three Sisters, The Cherry Orchard
 
@@ -38,7 +38,7 @@ Edition: 10
 
 Language: English
 
-Character set encoding: ISO-Latin-1
+Character set encoding: ASCII
 
 *** START OF THE PROJECT GUTENBERG EBOOK SECOND SERIES PLAYS ***
 
@@ -1365,7 +1365,7 @@ Vassilevitch!
 
 LOMOV. How do you do, honoured Natalya Stepanovna?
 
-NATALYA STEPANOVNA. You must excuse my apron and néligé ... we're
+NATALYA STEPANOVNA. You must excuse my apron and nelige ... we're
 shelling peas for drying. Why haven't you been here for such a long
 time? Sit down. [They seat themselves] Won't you have some lunch?
 
@@ -1447,7 +1447,7 @@ What a surprise! We've had the land for nearly three hundred years,
 and then we're suddenly told that it isn't ours! Ivan Vassilevitch,
 I can hardly believe my own ears. ... These Meadows aren't worth much
 to me. They only come to five dessiatins [Note: 13.5 acres], and are
-worth perhaps 300 roubles [Note: £30.], but I can't stand unfairness.
+worth perhaps 300 roubles [Note: L30.], but I can't stand unfairness.
 Say what you will, but I can't stand unfairness.
 
 LOMOV. Hear me out, I implore you! The peasants of your father's
@@ -2187,7 +2187,7 @@ yourself and poured out some for other people--yes!
 APLOMBOV. I entirely agree with you, papa. Why start a learned
 discussion? I myself have no objection to talking about every
 possible scientific discovery, but this isn't the time for all that!
-[To DASHENKA] What do you think, _ma chère_?
+[To DASHENKA] What do you think, _ma chere_?
 
 DASHENKA. They want to show how educated they are, and so they
 always talk about things we can't understand.
@@ -2243,7 +2243,7 @@ be! Stop it now!
 
 YATS. I never ... I ... I don't understand. ... Please, I'll go. ...
 Only you first give me the five roubles which you borrowed from
-me last year on the strength of a _piqué_ waistcoat, if I may say
+me last year on the strength of a _pique_ waistcoat, if I may say
 so. Then I'll just have another drink and ... go, only give me the
 money first.
 
@@ -2982,7 +2982,7 @@ POPOVA. I shan't give you a farthing, just to spite you. You leave
 me alone!
 
 SMIRNOV. I have not the pleasure of being either your husband or
-your fiancé, so please don't make scenes. [Sits] I don't like it.
+your fiance, so please don't make scenes. [Sits] I don't like it.
 
 POPOVA. [Choking with rage] So you sit down?
 
@@ -4117,7 +4117,7 @@ A DRAMA IN FOUR ACTS
 CHARACTERS
 
 ANDREY SERGEYEVITCH PROSOROV
-NATALIA IVANOVA (NATASHA), his fiancée, later his wife (28)
+NATALIA IVANOVA (NATASHA), his fiancee, later his wife (28)
 His sisters:
 OLGA
 MASHA
@@ -4900,12 +4900,12 @@ too dull for that. [Goes into dining-room with OLGA.]
 [They have all sat down to lunch in the dining-room, the
 sitting-room is empty.]
 
-KULIGIN. I wish you a nice fiancée, Irina. It's quite time you
+KULIGIN. I wish you a nice fiancee, Irina. It's quite time you
 married.
 
 CHEBUTIKIN. Natalia Ivanovna, I wish you the same.
 
-KULIGIN. Natalia Ivanovna has a fiancé already.
+KULIGIN. Natalia Ivanovna has a fiance already.
 
 MASHA. [Raps with her fork on a plate] Let's all get drunk and make
 life purple for once!
@@ -5511,13 +5511,13 @@ beastly nonsense.
 NATASHA. [Sighs] Dear Masha, why use such expressions? With your
 beautiful exterior you would be simply fascinating in good society,
 I tell you so directly, if it wasn't for your words. _Je vous prie,
-pardonnez moi, Marie, mais vous avez des manières un peu
-grossières_.
+pardonnez moi, Marie, mais vous avez des manieres un peu
+grossieres_.
 
 TUZENBACH. [Restraining his laughter] Give me ... give me ...
 there's some cognac, I think.
 
-NATASHA. _Il parait, que mon Bobick déjà ne dort pas_, he has
+NATASHA. _Il parait, que mon Bobick deja ne dort pas_, he has
 awakened. He isn't well to-day. I'll go to him, excuse me ...
 [Exit.]
 
@@ -6918,7 +6918,7 @@ beautiful sisters! [Crying] Masha, my sister. ...
 
 NATASHA. [At the window] Who's talking so loudly out here? Is that
 you, Andrey? You'll wake little Sophie. _Il ne faut pas faire du
-bruit, la Sophie est dormée deja. Vous êtes un ours._ [Angrily] If
+bruit, la Sophie est dormee deja. Vous etes un ours._ [Angrily] If
 you want to talk, then give the perambulator and the baby to
 somebody else. Ferapont, take the perambulator!
 
@@ -7407,7 +7407,7 @@ VARYA. You couldn't go alone, darling, at seventeen!
 
 ANYA. We went to Paris; it's cold there and snowing. I talk French
 perfectly horribly. My mother lives on the fifth floor. I go to
-her, and find her there with various Frenchmen, women, an old abbé
+her, and find her there with various Frenchmen, women, an old abbe
 with a book, and everything in tobacco smoke and with no comfort at
 all. I suddenly became very sorry for mother--so sorry that I took
 her head in my arms and hugged her and wouldn't let her go. Then
@@ -8437,7 +8437,7 @@ cursing at the slightest opportunity, eating filthily, sleeping in
 the dirt, in stuffiness, with fleas, stinks, smells, moral filth,
 and so on. . . And it's obvious that all our nice talk is only
 carried on to distract ourselves and others. Tell me, where are
-those créches we hear so much of? and where are those reading-rooms?
+those creches we hear so much of? and where are those reading-rooms?
 People only write novels about them; they don't really exist. Only
 dirt, vulgarity, and Asiatic plagues really exist. ... I'm afraid,
 and I don't at all like serious faces; I don't like serious
@@ -8648,7 +8648,7 @@ ANDREYEVNA; the third, ANYA and the POST OFFICE CLERK; the fourth,
 VARYA and the STATION-MASTER, and so on. VARYA is crying gently and
 wipes away her tears as she dances. DUNYASHA is in the last pair.
 They go off into the drawing-room, PISCHIN shouting, "Grand rond,
-balancez:" and "Les cavaliers à genou et remerciez vos dames!"
+balancez:" and "Les cavaliers a genou et remerciez vos dames!"
 FIERS, in a dress-coat, carries a tray with seltzer-water across.
 Enter PISCHIN and TROFIMOV from the drawing-room.]
 
@@ -9735,9 +9735,9 @@ by Anton Chekhov
 
 *** END OF THE PROJECT GUTENBERG EBOOK SECOND SERIES PLAYS ***
 
-This file should be named 8pla210.txt or 8pla210.zip
-Corrected EDITIONS of our eBooks get a new NUMBER, 8pla211.txt
-VERSIONS based on separate sources get new LETTER, 8pla210a.txt
+This file should be named 7pla210.txt or 7pla210.zip
+Corrected EDITIONS of our eBooks get a new NUMBER, 7pla211.txt
+VERSIONS based on separate sources get new LETTER, 7pla210a.txt
 
 Transcribed by James Rusk and Produced for PG by Nicole Apostola
 
