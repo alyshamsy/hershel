@@ -139,6 +139,8 @@ public class FileTransferListener implements SocketEventListener
         inProgress-=1;
         System.out.println("Got " + piece);
         System.out.println(file.missingPieces.size() + " remain");
+        double totalSize = file.availablePieces().size() + file.missingPieces.size();
+        pb.setValue((int)((file.availablePieces().size() / totalSize)*100));
     }
 
     private void updatePieceState(Writer out, String[] words, InetSocketAddress peer) throws IOException
@@ -235,4 +237,11 @@ public class FileTransferListener implements SocketEventListener
             connector.send(peer, "get_pieces " + file + "\r\n");
         }
     }
+
+    private javax.swing.JProgressBar pb;
+    public void registerProgressBar(javax.swing.JProgressBar pb)
+    {
+    	this.pb = pb;
+    }
+
 }
