@@ -1425,14 +1425,16 @@ public class Monitor extends JPanel {
 
 	public static void main(String args[]) throws IOException {
 		Monitor m = new Monitor();
-		new com.search.SearchGUI();
+		com.search.SearchGUI ui = new com.search.SearchGUI();
+		ui.start();
 		m.addContact("localhost", 10001);
 		int port = 10002;
-		for (int i = 0; i < 39; i++, port += 2) {
-			try {
-				Thread.sleep(750);
-			} catch (InterruptedException ignored) {}
-			new com.search.SearchGUI(port);
+		for (int i = 0; i < 19; i++, port += 2) {
+//			try {
+//				Thread.sleep(750);
+//			} catch (InterruptedException ignored) {}
+			ui = new com.search.SearchGUI(port);
+			ui.start();
 		}
 	}
 
@@ -1644,7 +1646,7 @@ public class Monitor extends JPanel {
 			if (console == null) return;
 			console.setBounds((int) x + parent.getX(), (int) y + parent.getY(), console.getWidth(), console.getHeight());
 			console.setVisible(visible);
-			sendConsoleCmd("start_ui");
+			sendConsoleCmd("start_ui " + host + " " + port);
 		}
 
 		/**
