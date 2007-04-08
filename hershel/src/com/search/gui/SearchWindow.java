@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -60,11 +61,14 @@ public class SearchWindow extends JFrame {
 
 	private int fileToDownload = 0;
 
+	private ArrayList<String> filesDownloaded = null;
+
 	/**
 	 * This is the default constructor
 	 */
 	public SearchWindow(NetworkSearchClient client, IRemote r, FileTransferListener l) {
 		super();
+		filesDownloaded = new ArrayList<String>();
 		this.client = client;
 		searchGUI = r;
 		ftl = l;
@@ -147,6 +151,10 @@ public class SearchWindow extends JFrame {
 		String fileName = fileNameBox.getText();
 		searchGUI.message("search " + fileName);
 
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException ignored) {}
+
 		SearchId fileNameHash =
 			new SearchId(SHA1Utils.getSHA1Digest(fileName.getBytes()));
 		SearchResult r = client.getHandler().database().get(fileNameHash);
@@ -154,6 +162,11 @@ public class SearchWindow extends JFrame {
 		SearchTableModel stm = (SearchTableModel)(results.getModel());
 		FileState fs = new FileState(r);
 		stm.addSearchResult(fs);
+		for (String s : filesDownloaded) {
+			if (s.equals(fs.fileName)) {
+				fs.downloaded = true;
+			}
+		}
 		results.updateUI();
 		ftl.registerProgressBar(downloadProgressBar);
 	}
@@ -207,9 +220,9 @@ public class SearchWindow extends JFrame {
 	}
 
 	private void sendDownloadMessage() {
-		SearchTableModel model =
+		SearchTableModel stm =
 			(SearchTableModel)(results.getModel());
-		FileState targetFile = model.getRow(fileToDownload);
+		FileState targetFile = stm.getRow(fileToDownload);
 
 		if (!targetFile.downloaded) {
 			searchGUI.message("download " + targetFile.fileName +
@@ -358,6 +371,7 @@ public class SearchWindow extends JFrame {
 						FileState targetFile = model.getRow(fileToDownload);
 
 						targetFile.downloaded = true;
+						filesDownloaded.add(targetFile.fileName);
 						results.updateUI();
 					}
 				}
